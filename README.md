@@ -126,7 +126,13 @@ ad-coldstart-analysis/
 │   ├── make_figure3_specification_curve_placebo.py
 │   ├── make_figure4_churn_benchmark.py
 │   ├── make_figure5_coldstart_funnel_and_rq1_null.py
-│   └── make_figure6_rq2_horizon_rq3_lift.py
+│   ├── make_figure6_rq2_horizon_rq3_lift.py
+│   ├── Figure1_variance_decomposition.png
+│   ├── Figure2_fairness_forest_plot.png
+│   ├── Figure3_specification_curve_placebo.png
+│   ├── Figure4_churn_benchmark.png
+│   ├── Figure5_coldstart_funnel_and_RQ1_null.png
+│   └── Figure6_RQ2_horizon_RQ3_lift.png
 │
 ├── docs/
 │   ├── METHODOLOGY_NOTES.md           <- narrative log of every diagnostic dead end and
