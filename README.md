@@ -11,6 +11,10 @@ digital advertising platform. The project asks three questions:
 - **RQ3** — At what point after registration is it most efficient to flag a
   low-growth ad group for intervention?
 
+A companion cross-sectional study is also included in the pipeline: whether
+**advertiser size** confers a structural advantage in approval rate,
+cost-per-click efficiency, or ad rank, independent of spend.
+
 The repository is organized to make the **entire analytical process
 reproducible and auditable** — including the diagnostic dead ends, the
 pre-registered power simulations, and the points where an initial modeling
@@ -50,7 +54,98 @@ RQ1/RQ2, rather than a stratification variable for sample selection.
 
 **Combined takeaway:** initial ad-group growth is explained by the ad
 group's *own* early operating signal, not by the parent account's
-accumulated history — at any level of aggregation tested.
+accumulated history — at any level of aggregation tested. A parallel
+cross-sectional analysis of advertiser size reaches the same structural
+conclusion: raw size-tier gaps in approval rate/CPC/ad rank are statistically
+detectable but disappear once spend is controlled for, converging with the
+RQ1/RQ2 findings above on a single theme — **structural attributes (size,
+tenure) are absorbed by spend or by the unit's own real-time signal, with no
+residual direct effect.**
+
+## Key figures
+
+Six figures summarize the full evidentiary chain, from the underlying data
+structure through to the final, robustness-checked conclusions. Each script
+in `figures/` reads a results JSON/CSV artifact and regenerates its
+corresponding PNG — figures are never hand-edited.
+
+<p align="center"><img src="figures/Figure1_variance_decomposition.png" width="800"></p>
+
+**Figure 1 — Multilevel variance decomposition of advertising performance.**
+Before testing any hypothesis about advertiser size, this figure establishes
+*where* size-related variation could plausibly live. Intraclass correlations
+(ICC) for log ad spend and click-through rate are decomposed across the
+ad-group / campaign / customer / residual hierarchy (n≈663K observations),
+with 30-iteration cluster bootstrap ranges and a month-fixed-effects check to
+rule out seasonality artifacts. Spend variation is dominated by
+unexplained residual (ICC=0.825) rather than the customer level (ICC=0.050);
+CTR variation is concentrated at the ad-group level (ICC=0.301), not the
+customer level (ICC=0.200). This is the diagnostic backdrop for the paper's
+central claim: "who the customer is" explains comparatively little,
+foreshadowing the null result on advertiser-size effects in Figure 2.
+
+<p align="center"><img src="figures/Figure2_fairness_forest_plot.png" width="800"></p>
+
+**Figure 2 — Advertiser-size effect on approval, cost efficiency, and ad
+rank, controlling for spend.** This is the study's central confirmatory
+test. Cluster-robust point estimates and 95% bootstrap CIs are shown for the
+size-tier effect on approval rate, log(CPC), and mean ad rank, in the full
+sample and with spike-affected accounts excluded. Every CI both crosses zero
+and falls inside its own minimum-detectable-effect (MDE) band, and
+approximate Bayes factors favor the null in 5 of 6 tests. In short: raw
+size-tier gaps exist, but once spend is controlled for, they vanish.
+
+<p align="center"><img src="figures/Figure3_specification_curve_placebo.png" width="800"></p>
+
+**Figure 3 — Multiverse specification curve and placebo test.** Panel A
+runs the size-effect regression across 48 reasonable analytic choices (tier
+definition × covariate set) — **0 of 48 are significant at α=.05** for any
+outcome. Panel B adds a placebo check: a distributional (Kruskal–Wallis)
+test is significant for both the real outcome and an outcome size *shouldn't*
+predict (device-type share), showing that raw distributional tests are too
+liberal on their own — but the spend-controlled regression used for the
+confirmatory test (matching Figure 2) is equally null for both the real and
+placebo outcome. This figure is the robustness backbone behind the "not
+supported" verdict in Figure 2.
+
+<p align="center"><img src="figures/Figure4_churn_benchmark.png" width="800"></p>
+
+**Figure 4 — Churn-prediction benchmarking (exploratory appendix).** A
+secondary, non-confirmatory analysis comparing logistic regression, random
+forest, and gradient boosting on account-level churn (2.35% base rate, 213
+labeled accounts), using nested cross-validation to correct for optimistic
+hyperparameter-tuning bias. All pairwise model comparisons return the same
+Wilcoxon p-value (0.0625) — the minimum value obtainable with only 5
+repeat-pairs — which the caption flags as a statistical artifact of small
+sample size, not evidence of model superiority. Out-of-fold Brier scores show
+random forest is best-calibrated (0.0250).
+
+<p align="center"><img src="figures/Figure5_coldstart_funnel_and_RQ1_null.png" width="800"></p>
+
+**Figure 5 — Cold-start sample construction and the RQ1 confirmatory
+test.** Panel A is the sample-construction funnel that documents the
+project's central reframing: of 250 candidate "cold-start" ad groups
+(2025-08-23 to 2026-07-21), 204 survive to a complete 30-day early window —
+but the median account behind them is **2,853 days old (~7.8 years)**,
+confirming that this is item cold-start, not user cold-start. Panel B is the
+RQ1 test itself: account maturity (x-axis) plotted against each customer's
+mean initial 30-day growth slope (y-axis, n=29). The flat OLS fit
+(permutation p=.663, Spearman ρ=-.020, p=.92) shows no relationship —
+maturity does not predict how fast a new ad group ramps up.
+
+<p align="center"><img src="figures/Figure6_RQ2_horizon_RQ3_lift.png" width="800"></p>
+
+**Figure 6 — Cold-start early-signal prediction (RQ2) and
+intervention-timing simulation (RQ3).** Panel A shows pooled leave-one-customer-out
+prediction improving when account maturity is added — but Panel B decomposes
+that gain into between-customer and within-customer components, revealing
+the "improvement" is almost entirely between-customer (i.e., RQ1-level
+signal leaking into a pooled metric), not a genuine ad-group-level gain.
+Panels C and D turn to RQ3: a heatmap of flagging lift across decision
+cutoffs (day 7/14/21) and thresholds shows a consistent 1.2–1.4x lift over
+random, while the accompanying confidence-interval plot shows those
+cutoffs' predictive ρ values overlap heavily — so no single cutoff can be
+called statistically optimal.
 
 ## Data availability
 
