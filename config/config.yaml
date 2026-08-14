@@ -1,0 +1,123 @@
+# =====================================================================
+# config.yaml -- single source of truth for paths, thresholds, and
+# sample-definition rules used across the coldstart_v5 diagnostic
+# pipeline, the pipeline_v4 (earlier-generation) pipeline, and the
+# confirmatory analyses in src/analysis/.
+#
+# Nothing is hard-coded in the scripts themselves: every date cutoff,
+# window length, exclusion rule, and simulation parameter referenced
+# anywhere in this repository is read from here. Point `paths.*` at
+# your local copy of the SearchM extract (see data/README.md for the
+# required schema) and everything else is reproducible end-to-end.
+# =====================================================================
+
+random_seed: 2026
+
+paths:
+  # Local copy of the SearchM extract -- not committed to version control.
+  adgroup_dim: "data/raw/adgroup_dim.tsv"
+  perf_panel: "data/raw/ad_performance_panel.tsv"
+  intermediate_dir: "outputs/coldstart_v5"
+  v4_intermediate_dir: "outputs/_v4_data_prep"
+  figures_dir: "outputs/figures"
+
+# ---------------------------------------------------------------
+# Sample-construction rules (used identically by every diagnostic step
+# and every confirmatory test, via src/coldstart_v5/_sample_construction.py)
+# ---------------------------------------------------------------
+sample_definition:
+  # minimum days between an ad group's first and last observed activity
+  # for it to be considered "trajectory usable"
+  min_active_days_for_trajectory: 7
+
+  # a last-active date within this many days of the observation-end date
+  # (or of the dynamically-detected spike-account deletion event) is
+  # flagged as censoring-suspect (Step C)
+  censor_window_days: 14
+
+  # customer_ids identified in Step H as templated/test setups (near-zero
+  # or all-zero total spend) -- excluded from every confirmatory sample.
+  # Pre-specified here, not applied ad hoc; see docs/METHODOLOGY_NOTES.md.
+  known_test_account_ids:
+    - "206682"
+    - "358754"
+
+  # explicit exclusion rule that produced the list above (kept alongside
+  # the list itself so the rule, not just its output, is reproducible)
+  test_account_exclusion:
+    min_total_cost: 10000        # KRW; below this, a customer's cold-start
+                                  # ad groups are considered non-operational
+    max_zero_spend_share: 0.50   # share of ad groups with cost == 0
+
+  # effect sizes (standardized) swept in the RQ1 pre-registration power
+  # simulation (Step K) and re-used as the operative detection-threshold
+  # grid in src/analysis/rq1_growth_curve_test.py
+  power_sim_effect_sizes: [0.0, 0.15, 0.30, 0.50]
+
+# ---------------------------------------------------------------
+# Diagnostic-pipeline-only parameters (coldstart_v5, Steps A-M)
+# ---------------------------------------------------------------
+coldstart_diagnostics:
+  n_sim_replications_class_count: 200      # Step E (GBTM class-count recovery)
+  followup_options_days: [30, 60, 90, 120] # Step F (registration cutoff sensitivity)
+  window_lengths_days: [14, 30, 60]        # Step G (fixed-window coverage)
+  window_coverage_threshold: 0.60          # Step G
+  top_n_customers_profile: 10              # Step H
+  burst_window_hours: 24                   # Step H (registration-burst detection)
+  n_sim_replications_power: 500            # Step K (power simulation)
+
+  # Step M (intervention-timing simulation)
+  intervention:
+    total_horizon_days: 44
+    decision_cutoffs_days: [7, 14, 21]
+    flag_thresholds: [0.10, 0.25, 0.40]
+    # threshold below which flagging is considered unreliable due to
+    # tied/zero-growth ties in growth_target (Step M6-1 finding)
+    reliable_flag_thresholds: [0.25, 0.40]
+    baseline_delta: 0.20
+    baseline_efficacy: 0.70
+    sensitivity_deltas: [0.10, 0.20, 0.30]
+    sensitivity_efficacies: [0.5, 0.7, 0.9]
+    sensitivity_deltas_per_day: [0.005, 0.010, 0.020]
+
+# ---------------------------------------------------------------
+# RQ1 confirmatory test (src/analysis/rq1_growth_curve_test.py)
+# ---------------------------------------------------------------
+rq1_growth_curve:
+  alpha: 0.05
+  early_window_days: 30       # must match rq2_prediction window design for consistency
+  n_permutations: 10000
+  n_bootstrap: 5000
+  winsor_pct: 0.10
+
+# ---------------------------------------------------------------
+# RQ2 confirmatory test (src/analysis/rq2_prediction_validation.py)
+# ---------------------------------------------------------------
+rq2_prediction:
+  window_pairs:                # (early_days, later_days)
+    - [14, 14]
+    - [30, 30]
+    - [30, 60]
+  n_repeated_splits: 100
+  test_size: 0.25
+
+# ---------------------------------------------------------------
+# pipeline_v4 (earlier-generation pipeline: variance decomposition,
+# advertiser-size fairness suite, churn appendix)
+# ---------------------------------------------------------------
+pipeline_v4:
+  spike_detection:
+    # a customer is flagged as a "spike account" if its ad-group count
+    # drops by more than this fraction within burst_window_days
+    drop_fraction_threshold: 0.5
+    burst_window_days: 3
+  variance_decomposition:
+    levels: ["customer_id", "campaign_id", "ad_group_id", "device_type"]
+    metric: "cost"
+  fairness_suite:
+    size_bins: [0, 0.5, 0.8, 0.95, 1.0]   # percentile cut points on all_time_count
+    n_multiverse_specs: 32
+    n_placebo_permutations: 1000
+  churn_appendix:
+    churn_inactive_days: 30
+    benchmark_models: ["logistic_baseline", "gradient_boosted"]
