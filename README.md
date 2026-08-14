@@ -173,22 +173,7 @@ These two investigations share no data, no time axis, and almost no statistical 
 
 ---
 
-## 5. Limitations
-
-1. **Single-agency, single-platform data.** All results are bounded to this ecosystem and may not generalize elsewhere.
-2. **The ad group table is a snapshot (critical for Study 2).** Deleted ad groups vanish from the record, so every measure of account history is a lower bound. Accounts that created and later deleted early ad groups will look artificially "younger" than they are.
-3. **Some Study 1 robustness checks carry limited information.** Results before and after excluding spike-affected accounts were identical for two robustness axes (the fixed-effects panel and 2SLS models), most likely because a sample filter excluded those accounts before either analysis ran — meaning those two checks don't actually speak to spike-account sensitivity.
-4. **2SLS first-stage F-statistic unavailable.** A code exception silently swallowed this diagnostic, so the weak-instrument status of the 2SLS coefficient is unverified; it was excluded from the main conclusions accordingly.
-5. **Partial replication across time.** The approval-rate gap lost significance in the later half of the observation period, and the core spend-controlled regression (as opposed to the raw test) was not re-run on the split-sample.
-6. **The churn-prediction appendix is statistically fragile** — extreme class imbalance (2.35%) and a repeat count too low for the Wilcoxon test to produce anything but its floor p-value.
-7. **Study 2's power ceiling.** The effective sample for the core maturity test is n=29–32 customers, reliably powered only for large effects (standardized β ≈ 0.5). Smaller true effects can't be ruled out.
-8. **No causal estimate of intervention timing.** No actual interventions exist in the data, and two attempts at simulating expected benefit both failed for structural (not just sample-size) reasons.
-9. **Conversion and ROAS metrics were excluded entirely** due to the platform's delayed, retroactive conversion-attribution structure — no revenue or profitability conclusions can be drawn from this work.
-10. **Redefining "cold start" narrowed the scope.** The item-cold-start reframing means the original practical goal — supporting new-advertiser onboarding — falls outside what this analysis can speak to. That remains open for future work with a data source that retains deletion history.
-
----
-
-## 6. Methodology summary
+## 5. Methodology summary
 
 | | Study 1 | Study 2 |
 |---|---|---|
@@ -202,7 +187,7 @@ Known code- and design-level issues (the unrecoverable 2SLS first-stage F-statis
 
 ---
 
-## 7. Repository structure
+## 6. Repository structure
 
 ```
 ad-coldstart-analysis/
@@ -293,7 +278,7 @@ ad-coldstart-analysis/
 
 ---
 
-## 8. Reproducing the analysis
+## 7. Reproducing the analysis
 
 ```bash
 git clone <this-repo>
@@ -325,7 +310,7 @@ Every step prints its own diagnostics and writes a JSON/CSV artifact to `outputs
 
 ---
 
-## 9. Methodological principles applied throughout
+## 8. Methodological principles applied throughout
 
 1. **No result is trusted from a single method.** Every confirmatory test in this repository is checked against at least two independent inferential approaches (e.g., parametric OLS + distribution-free permutation test; repeated split-sample validation + Leave-One-Customer-Out CV). Where they disagree, the more conservative, assumption-light method is treated as authoritative — a rule applied consistently and documented in `docs/METHODOLOGY_NOTES.md`.
 2. **Every "cutoff" or date threshold is derived from the data at run time**, never hard-coded, so that a re-extract of the underlying panel cannot silently invalidate downstream thresholds (see `src/coldstart_v5/step_a_period_and_spike_check.py`).
@@ -335,7 +320,7 @@ Every step prints its own diagnostics and writes a JSON/CSV artifact to `outputs
 
 ---
 
-## 10. Data availability & license
+## 9. Data availability & license
 
 The underlying panel data (ad-group dimension table, daily/hourly performance logs) are **proprietary and are not included in this repository**. They were processed and provided by **SearchM**, a Korean ad-tech data and analytics provider, under a research data-sharing agreement. Researchers interested in replication should contact SearchM directly to request access to an equivalent extract; see [`data/README.md`](data/README.md) for the expected schema, so the pipeline can be pointed at a differently sourced but schema-compatible dataset.
 
