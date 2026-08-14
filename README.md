@@ -74,7 +74,6 @@ ad-coldstart-analysis/
 ├── README.md                          <- you are here
 ├── LICENSE
 ├── requirements.txt
-├── .gitignore
 │
 ├── config/
 │   └── config.yaml                    <- all paths, thresholds, and sample-definition
