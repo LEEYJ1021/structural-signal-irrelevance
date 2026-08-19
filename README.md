@@ -2,6 +2,29 @@
 
 *A cross-sectional and longitudinal investigation into ad-group cold-start dynamics and advertiser-size fairness on a Korean paid-search platform.*
 
+> **Cross-reference note.** This README is the single narrative entry point. Wherever a claim rests on a deeper derivation, it links straight to the source file: [`docs/METHODOLOGY_NOTES.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs) (the narrative log of every assumption → contradiction → change), [`docs/RESULTS_SUMMARY.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs) (the single canonical statistics table), and the four files under [`supplementary_robustness/`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness) (each one independently runnable and mapped to a specific section below). Every hypothesis or research question anywhere in this document uses a permanent, study-prefixed ID (`H-S1.x` / `RQ-S1.x` for Study 1, `H-S2.x` / `RQ-S2.x` for Study 2) defined once in §2 — see §2.6's mapping table if a figure's in-image title uses an older, unprefixed label like "RQ2" or "H2b."
+
+---
+
+## Table of contents
+
+1. [Background and research questions](#1-background-and-research-questions)
+2. [Theoretical framing and formal hypotheses](#2-theoretical-framing-and-formal-hypotheses)
+3. [Data](#3-data)
+4. [Study 1 — Does size buy an advantage? (Cross-sectional)](#4-study-1--does-size-buy-an-advantage-cross-sectional)
+5. [Study 2 — Does history buy an advantage? (Longitudinal)](#5-study-2--does-history-buy-an-advantage-longitudinal)
+6. [Where the two studies meet](#6-where-the-two-studies-meet)
+7. [Boundary conditions and generalizability](#7-boundary-conditions-and-generalizability)
+8. [What "null result" means here: equivalence and sensitivity](#8-what-null-result-means-here-equivalence-and-sensitivity)
+9. [Limitations](#9-limitations)
+10. [Methodology summary](#10-methodology-summary)
+11. [Discussion](#11-discussion)
+12. [Opportunities to strengthen the manuscript without additional analysis](#12-opportunities-to-strengthen-the-manuscript-without-additional-analysis)
+    - [Appendix A — Methodology notes](#appendix-a-methodology-notes)
+    - [Appendix B — Results summary (canonical statistics table)](#appendix-b-results-summary-canonical-statistics-table)
+    - [Appendix C — Data availability, reproducibility, and repository structure](#appendix-c-data-availability-reproducibility-and-repository-structure-summary)
+    - [Appendix D — Methodological principles applied throughout](#appendix-d-methodological-principles-applied-throughout)
+
 ---
 
 ## 1. Background and Research Questions
@@ -64,7 +87,7 @@ A fully separate side investigation, retained as an appendix rather than folded 
 
 ### 2.3 Study 2's formal hypothesis family (H-S2)
 
-**Note on how this family came to be, stated up front:** the project's original, pre-specified question (**RQ-S2.0**, now superseded) asked whether *brand-new advertiser accounts* ramp up differently based on some notion of account history — a "user cold-start" framing borrowed from recommender-systems research without adaptation. Sample construction diagnostics (§4.1) found that this population is essentially absent from the data (0 of 222 usable ad groups met a strict "genuinely new account" criterion; median account age behind a "cold-start" ad group was 7.8 years). This is documented as a **pre-registration deviation**: RQ-S2.0 is retired, not deleted, and replaced by an amended, data-informed question — **RQ-S2.1's ancestor** — that asks the same structural-blindness question at the *item* level instead of the *user* level. This is a change of population, not a change of underlying theory. The full diagnostic chain behind this deviation is in Appendix A, entry 1.
+**Note on how this family came to be, stated up front:** the project's original, pre-specified question (**RQ-S2.0**, now superseded) asked whether *brand-new advertiser accounts* ramp up differently based on some notion of account history — a "user cold-start" framing borrowed from recommender-systems research without adaptation. Sample construction diagnostics (§4.1) found that this population is essentially absent from the data (0 of 222 usable ad groups met a strict "genuinely new account" criterion; median account age behind a "cold-start" ad group was 7.8 years). This is documented as a **pre-registration deviation**: RQ-S2.0 is retired, not deleted, and replaced by an amended, data-informed question — **RQ-S2.1's ancestor** — that asks the same structural-blindness question at the *item* level instead of the *user* level. This is a change of population, not a change of underlying theory. The full diagnostic chain behind this deviation is in [Appendix A, entry 1](#a1-cold-start-was-assumed-to-mean-new-advertiser-onboarding-rq-s20--h-s21-the-pre-registration-deviation) (also reproduced in full in [`docs/METHODOLOGY_NOTES.md`, entry 1](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs)).
 
 - **H-S2.1:** Account maturity (a structural attribute, analogous to Study 1's size) is positively associated with a newly registered ad group's initial growth slope — the item-level cold-start analogue of H-S1.1's total, unconditional relationship.
 - **H-S2.2a:** An ad group's own early operating signal (coverage, spend trend, CTR/CVR) predicts its near-term growth — the candidate mediating/competing channel, analogous to Study 1's spend.
@@ -76,7 +99,7 @@ One further question is pre-specified as **exploratory / design-science, not con
 
 ### 2.4 What "confirmed" means across this hypothesis set
 
-Every H-Sx.y hypothesis above that returns a non-significant result is additionally subjected to a TOST equivalence test (§7) before being described as anything stronger than "non-significant." This report distinguishes *failing to reject a point-null* from *formally establishing equivalence to zero* throughout.
+Every H-Sx.y hypothesis above that returns a non-significant result is additionally subjected to a TOST equivalence test (§8) before being described as anything stronger than "non-significant." This report distinguishes *failing to reject a point-null* from *formally establishing equivalence to zero* throughout.
 
 ### 2.5 Quick-reference: where each hypothesis is tested
 
@@ -118,6 +141,25 @@ This table is the permanent cross-reference between every hypothesis ID used in 
 
 **Note on the nine figure PNGs.** The images themselves (baked-in titles like *"RQ2, H2b"*) are static, generated against a proprietary dataset that isn't re-rendered as part of this revision — every figure's caption below carries an explicit new-ID tag alongside the legacy in-image title.
 
+### 2.7 Hypotheses at a glance (one sentence each)
+
+Every formal hypothesis and research question in this report, restated as a single plain-English sentence, in the same one-liner style as the RQs in §1:
+
+- **H-S1.1a:** Larger advertisers spend more in total.
+- **H-S1.1b:** Higher spend is associated with better outcomes (approval rate / cost efficiency / ad rank), holding size constant.
+- **H-S1.1c:** Once spend is controlled for, advertiser size has no remaining direct effect on outcomes.
+- **H-S1.1 (composite):** The entire size → outcome relationship runs through spend, not through size itself.
+- **H-S1.2:** The size-is-irrelevant finding (H-S1.1c) holds equally across every campaign product type.
+- **RQ-S1.3:** Does an advertiser's size interact with whether its keywords are flagged for discretionary review?
+- **RQ-S1.4:** Does the size-is-irrelevant finding (H-S1.1c) vary by advertiser industry?
+- **RQ-S1.E1:** Can approval, cost, and efficiency features predict which advertiser accounts will churn?
+- **RQ-S2.0 (superseded):** Do brand-new advertiser accounts ramp up differently depending on account history? *(retired — see §2.3)*
+- **H-S2.1:** An account's accumulated maturity predicts how fast a newly registered ad group inside it initially grows.
+- **H-S2.2a:** An ad group's own early operating signal (coverage, spend trend, CTR/CVR) predicts its near-term growth.
+- **H-S2.2b:** Adding account maturity to an ad group's own early signal improves the prediction of its near-term growth.
+- **RQ-S2.3:** Is there an identifiable optimal post-registration day to flag a low-growth ad group for intervention?
+- **DA-S2.1 (design artifact):** An ad group's own early-window growth rank, evaluated within a day-7–21 window, can be used as a practical flagging rule for intervention.
+
 ---
 
 ## 3. Data
@@ -136,6 +178,8 @@ Two limitations shape everything that follows:
 
 Conversion and ROAS variables were excluded from both studies entirely — the platform's conversion API retroactively backfills conversions per account on a delayed, inconsistent schedule, which breaks construct validity for anything built on top of it. This was a design decision made before any modeling began, not a post-hoc exclusion.
 
+*Schema and access details for the underlying panel: [`data/README.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/data). See [Appendix C](#appendix-c-data-availability-reproducibility-and-repository-structure-summary) for the full data-availability statement.*
+
 ---
 
 ## 4. Study 1 — Does Size Buy an Advantage? (Cross-sectional)
@@ -144,7 +188,9 @@ Conversion and ROAS variables were excluded from both studies entirely — the p
 
 Before testing anything about advertiser size, the analysis first needed to know *where* performance variation sits — in the customer, the campaign, or the ad group. If size-related advantages exist, they should show up as customer-level variance.
 
-**Figure 1 — Multilevel variance decomposition** (preliminary analysis **P-S1.0**, motivating rather than testing H-S1.1). Across ~663K observations, log ad spend is dominated by unexplained residual variance (ICC = 0.825) — day-to-day budget execution, not who the customer is (ICC = 0.050). Click-through rate tells a similar story: the largest share of variation sits at the *ad group* level (ICC = 0.301), not the customer level (ICC = 0.200). Both patterns hold whether or not month fixed effects are added (diamond vs. square markers agree), ruling out seasonality as the explanation. This was the first hint, well before any hypothesis test: "who the customer is" explains comparatively little of what happens.
+![Figure 1 | Multilevel variance decomposition of advertising performance (RQ1)](figures/Figure1_variance_decomposition.png)
+
+**Figure 1 — Multilevel variance decomposition** (`figures/make_figure1_variance_decomposition.py`; preliminary analysis **P-S1.0**, motivating rather than testing H-S1.1). Across ~663K observations, log ad spend is dominated by unexplained residual variance (ICC = 0.825) — day-to-day budget execution, not who the customer is (ICC = 0.050). Click-through rate tells a similar story: the largest share of variation sits at the *ad group* level (ICC = 0.301), not the customer level (ICC = 0.200). Both patterns hold whether or not month fixed effects are added (diamond vs. square markers agree), ruling out seasonality as the explanation. This was the first hint, well before any hypothesis test: "who the customer is" explains comparatively little of what happens.
 
 ### 4.2 The raw gap looks real
 
@@ -154,11 +200,13 @@ Except it isn't quite what it looks like. Ad groups belonging to the same custom
 
 ### 4.3 The gap disappears once spend is controlled (H-S1.1c)
 
-**Figure 2 — The central confirmatory test** (the confirmatory test of **H-S1.1c** — the in-image title "RQ2, H2b" is this report's legacy label for the same hypothesis). Controlling for log spend in a cluster-robust regression, all six outcome × sample combinations (approval rate, CPC, ad rank, each in the full sample and with spike-affected accounts excluded) come back **non-significant** (cluster-robust p > .07). Every 95% bootstrap confidence interval not only crosses zero — it falls entirely inside (or right at the edge of) its own minimum-detectable-effect (MDE) band, meaning this isn't underpowered null-hunting; the observed effect is smaller than anything the sample could reliably detect. Approximate Bayes factors favor the null hypothesis in five of six tests (the sixth, CPC under spike exclusion, is flagged as a directionally-reversed sensitivity finding, not a confirmatory one).
+![Figure 2 | Advertiser-size effect on approval, cost efficiency, and ad rank, controlling for spend (RQ2, H2b)](figures/Figure2_fairness_forest_plot.png)
+
+**Figure 2 — The central confirmatory test** (`figures/make_figure2_fairness_forest_plot.py`; the confirmatory test of **H-S1.1c** — the in-image title "RQ2, H2b" is this report's legacy label for the same hypothesis). Controlling for log spend in a cluster-robust regression, all six outcome × sample combinations (approval rate, CPC, ad rank, each in the full sample and with spike-affected accounts excluded) come back **non-significant** (cluster-robust p > .07). Every 95% bootstrap confidence interval not only crosses zero — it falls entirely inside (or right at the edge of) its own minimum-detectable-effect (MDE) band, meaning this isn't underpowered null-hunting; the observed effect is smaller than anything the sample could reliably detect. Approximate Bayes factors favor the null hypothesis in five of six tests (the sixth, CPC under spike exclusion, is flagged as a directionally-reversed sensitivity finding, not a confirmatory one).
 
 ### 4.4 Stress-testing across eight independent methods
 
-A single regression result is easy to distrust, so it was stress-tested eight independent ways, all in service of **H-S1.1c** (with methods 7–8 additionally establishing **H-S1.1a/H-S1.1b**).
+A single regression result is easy to distrust, so it was stress-tested eight independent ways, all in service of **H-S1.1c** (with methods 7–8 additionally establishing **H-S1.1a/H-S1.1b**). Methods 1–6 are summarized below; methods 7–8 get their own figure and are documented in full in [`supplementary_robustness/01_alternative_outcome_mediation.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness).
 
 1. Multiverse specification curve (48 defensible analytic choices; 0/48 reach significance for any outcome)
 2. Placebo test (device-type share, which size *shouldn't* predict, is significant under the raw distributional test but null under the spend-controlled regression — evidence the regression, not the raw test, is measuring the right thing)
@@ -167,13 +215,17 @@ A single regression result is easy to distrust, so it was stress-tested eight in
 5. Temporal split-sample replication
 6. Benjamini-Hochberg FDR correction across the six primary hypotheses
 
-**Figure 3 — Methods 1 and 2** (robustness battery for **H-S1.1c**). Panel A: across all 48 specification choices (tier definition × covariate set), for all three outcomes, not one reaches significance at α=.05. Panel B: the distributional (Kruskal-Wallis) test is significant for *both* the real outcome and the device-share placebo — proof that a raw distributional test alone is not a clean placebo, since size tiers correlate with many unrelated account traits. The informative comparison is the spend-controlled regression matching H-S1.1c: there, real and placebo outcomes are equally, indistinguishably null.
+![Figure 3 | Multiverse specification curve and placebo test (RQ2 robustness suite)](figures/Figure3_specification_curve_placebo.png)
+
+**Figure 3 — Methods 1 and 2** (`figures/make_figure3_specification_curve_placebo.py`; robustness battery for **H-S1.1c**). Panel A: across all 48 specification choices (tier definition × covariate set), for all three outcomes, not one reaches significance at α=.05. Panel B: the distributional (Kruskal-Wallis) test is significant for *both* the real outcome and the device-share placebo — proof that a raw distributional test alone is not a clean placebo, since size tiers correlate with many unrelated account traits. The informative comparison is the spend-controlled regression matching H-S1.1c: there, real and placebo outcomes are equally, indistinguishably null.
 
 7. **Isolating and controlling for a mechanical artifact in the CPC outcome.** CPC = cost / click, and spend is built from cost — so any spend → CPC relationship carries a mechanical component by construction, independent of any real bidding-efficiency behavior. A customer-level permutation procedure (reshuffling click within customer while holding cost fixed, 2,000 iterations) isolates exactly how large that mechanical component is. The observed spend → log(CPC) coefficient (+1.277) falls *below* the lower bound of the resulting purely-mechanical null distribution (mean +1.552, 95% range [1.544, 1.556]) — meaning the CPC-based point estimate is not simply inflated by the artifact, but it is close enough to that mechanical distribution that it is not treated as a stand-alone quantitative claim. A lagged replication (spend at day *t* → CPC at *t*+1 and *t*+7, immune to same-day cost-sharing) confirms a same-signed, significant relationship at both lags (β=+0.538 and +0.544, both p<.001), consistent with a genuine behavioral effect coexisting with the artifact.
 
 8. **Replicating the mediation result on a cost-independent outcome.** `bid_amount` (the advertiser's set bid price) shares no cost or click term with spend, so it carries none of the artifact isolated in method 7. Re-estimating Study 1's mediation structure (size → spend → outcome, controlling for size) on this outcome at the customer level (n=263) gives the load-bearing result for the efficiency claim: the indirect (spend-mediated) effect is significant (bootstrap 95% CI [0.008, 0.159], excludes zero; cluster permutation p<.001) while the *direct* effect of size, net of spend, is non-significant (p=.634) — the same qualitative conclusion as the CPC-based model, now on an outcome immune to the artifact. Jointly, methods 7–8 establish **H-S1.1a** and **H-S1.1b**.
 
-**Figure 7 — CPC-based vs. bid_amount-based b-path** (the replication underlying **H-S1.1b**). The spend → outcome coefficient shrinks from +1.277 (CPC-based, partly mechanical) to +0.150 (bid_amount-based, cost-independent) once the shared cost term is removed — the direction survives, the magnitude does not.
+![Figure 7. Spend-mediation b-path: CPC-based vs. cost-independent outcome](figures/Figure7_mediation_forest.png)
+
+**Figure 7 — CPC-based vs. bid_amount-based b-path** (`figures/make_figure7_mediation_forest.py`; the replication underlying **H-S1.1b**, full derivation in [`supplementary_robustness/01_alternative_outcome_mediation.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness)). The spend → outcome coefficient shrinks from +1.277 (CPC-based, partly mechanical) to +0.150 (bid_amount-based, cost-independent) once the shared cost term is removed — the direction survives, the magnitude does not.
 
 **Eight independent verification methods, one consistent verdict**, with method 8 — not the raw CPC coefficient — treated as the primary quantitative evidence for the efficiency-outcome claim. Jointly, methods 1–8 are the confirmatory basis for **H-S1.1** (H-S1.1a ∧ H-S1.1b ∧ H-S1.1c).
 
@@ -181,13 +233,17 @@ A single regression result is easy to distrust, so it was stress-tested eight in
 
 Close to, but not perfectly, homogeneous. Stratifying the spend-controlled CPC model by `campaign_type` (a platform-defined ad-product code — website / shopping / brand-new-product / local-business, *not* an industry classification) and running a joint Wald test on the size × product-type interaction gives **p = .023**: the *degree* to which size is irrelevant varies somewhat by ad-product category, even though no individual stratum shows a significant size effect on its own (all p > .05).
 
-**Figure 8 — Boundary-condition forest plot** (the confirmatory test of **H-S1.2**). Website campaigns show a (non-significant) negative point estimate for size net of spend, while local-business and shopping campaigns show (non-significant) positive point estimates — all three confidence intervals cross zero individually, but the joint test across strata is significant (p=.023), meaning the *pattern* of where size comes closest to mattering is not random noise even though no single stratum is itself conclusive.
+![Figure 8. Campaign product-type heterogeneity](figures/Figure8_boundary_condition_forest.png)
+
+**Figure 8 — Boundary-condition forest plot** (`figures/make_figure8_boundary_condition_forest.py`; the confirmatory test of **H-S1.2**; full stratified table and the RQ-S1.3/RQ-S1.4 checks in [`supplementary_robustness/02_boundary_conditions.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness)). Website campaigns show a (non-significant) negative point estimate for size net of spend, while local-business and shopping campaigns show (non-significant) positive point estimates — all three confidence intervals cross zero individually, but the joint test across strata is significant (p=.023), meaning the *pattern* of where size comes closest to mattering is not random noise even though no single stratum is itself conclusive.
 
 ### 4.6 A side quest: predicting churn (RQ-S1.E1)
 
 This question sits outside the fairness hypothesis entirely, but it was worth asking as an exploratory appendix: given approval/cost/efficiency features, can machine learning models predict which accounts will churn? This sits entirely outside the H-S1 hypothesis family — it is not a structural-blindness test.
 
-**Figure 4 — Churn-prediction benchmarking** (**RQ-S1.E1**, outside the H-S1 hypothesis family). Across 213 labeled accounts (a stark 2.35% churn rate), tree-based models nominally outperform logistic regression in nested cross-validation. But every pairwise model comparison returns the *exact same* Wilcoxon p-value (0.0625) — the mathematical floor achievable with only 5 repeat-pairs, not evidence of a real difference. Random forest had the best-calibrated out-of-fold predictions (Brier score 0.0250).
+![Figure 4 | Churn-prediction benchmarking (RQ3, exploratory appendix)](figures/Figure4_churn_benchmark.png)
+
+**Figure 4 — Churn-prediction benchmarking** (`figures/make_figure4_churn_benchmark.py`; **RQ-S1.E1**, outside the H-S1 hypothesis family). Across 213 labeled accounts (a stark 2.35% churn rate), tree-based models nominally outperform logistic regression in nested cross-validation. But every pairwise model comparison returns the *exact same* Wilcoxon p-value (0.0625) — the mathematical floor achievable with only 5 repeat-pairs, not evidence of a real difference. Random forest had the best-calibrated out-of-fold predictions (Brier score 0.0250).
 
 ### 4.7 Study 1 Conclusion
 
@@ -199,7 +255,7 @@ Raw size-tier gaps in approval rate, CPC, and ad rank are statistically detectab
 
 ### 5.1 What does "cold start" even mean here? (the RQ-S2.0 → H-S2.1 deviation)
 
-The original plan treated "cold start" as new-advertiser onboarding: a brand-new account launching its first campaign. Before testing any hypothesis, the sample was built — and the data pushed back, hard, five separate times. Each of these five detours is logged in full narrative form in Appendix A.
+The original plan treated "cold start" as new-advertiser onboarding: a brand-new account launching its first campaign. Before testing any hypothesis, the sample was built — and the data pushed back, hard, five separate times. Each of these five detours is logged in full narrative form in [Appendix A](#appendix-a-methodology-notes) (mirrored in [`docs/METHODOLOGY_NOTES.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs)).
 
 1. **The numbers didn't match.** Early planning documents cited 476 "true cold-start" ad groups in one place and 250 in another. Recomputing directly from the data settled it at 250 → 222 after filtering for at least 7 active days — matching the smaller figure exactly.
 
@@ -217,11 +273,13 @@ A sixth, quieter fix: two accounts in the trajectory-usable sample turned out, o
 
 With the sample and the model finally sound, the study could ask the question it actually set out to answer.
 
-**Figure 5(A) — The sample-construction funnel** (documents the RQ-S2.0 → item-level cold-start deviation, §2.3): 250 candidates → 222 with sufficient activity → 207 excluding near-zero-spend accounts → 204 with a complete 30-day early window (29 customers once aggregated). The median account behind these "cold-start" ad groups was already 2,853 days old — visual proof that this is a story about expansion inside mature accounts, not onboarding new ones.
+![Figure 5 | Cold-start sample construction and RQ1 confirmatory test](figures/Figure5_coldstart_funnel_and_RQ1_null.png)
 
-**Figure 5(B) — tests H-S2.1.** Account maturity (log-transformed, standardized count of all-time ad groups) was tested against each customer's mean initial 30-day growth slope (n=29). The raw-scale OLS coefficient was weakly positive (β=8.34) but non-significant (p=.576), and the pre-registered decision rule — a cluster permutation test (10,000 iterations) — agreed: p=.663. The 95% bootstrap CI [-15.84, 43.08] comfortably contained zero. Dropping the largest customer (35.8% of the sample) as a sensitivity check changed nothing (permutation p=.702) — this leave-one-out re-run is a **required** step in the confirmatory design precisely because that customer alone accounts for a third of the trajectory-usable sample, and profiling confirmed it as a genuine large advertiser rather than a bulk/template account worth excluding. Most tellingly, that weak positive coefficient collapsed to β=1.48 under winsorizing and **flipped sign entirely** under a rank-based regression (β=-0.0196) — the signature of a result driven by a couple of high-leverage outliers rather than a genuine relationship. The standardized effect size (β=.085) sits at just 17% of the large-effect threshold the pre-registered power simulation was built to detect.
+**Figure 5(A) — The sample-construction funnel** (`figures/make_figure5_coldstart_funnel_and_rq1_null.py`; documents the RQ-S2.0 → item-level cold-start deviation, §2.3): 250 candidates → 222 with sufficient activity → 207 excluding near-zero-spend accounts → 204 with a complete 30-day early window (29 customers once aggregated). The median account behind these "cold-start" ad groups was already 2,853 days old — visual proof that this is a story about expansion inside mature accounts, not onboarding new ones.
 
-**A formal equivalence test (TOST) sharpens this point.** Failing to reject a point-null is not the same as confirming an effect is absent. A two-one-sided-test procedure against a ±0.20 standardized-effect-size equivalence margin returns **p = .197 — equivalence is not established.** The honest statement is therefore two-sided: this sample would have detected a large effect and did not (the pre-registered power simulation), **and** this sample cannot formally rule out a small-to-moderate effect existing but falling below detection (the TOST result). Both are true at once.
+**Figure 5(B) — tests H-S2.1.** Account maturity (log-transformed, standardized count of all-time ad groups) was tested against each customer's mean initial 30-day growth slope (n=29). The raw-scale OLS coefficient was weakly positive (β=8.34) but non-significant (p=.576), and the pre-registered decision rule — a cluster permutation test (10,000 iterations) — agreed: p=.663. The 95% bootstrap CI [-15.84, 43.08] comfortably contained zero. Dropping the largest customer (35.8% of the sample) as a sensitivity check changed nothing (permutation p=.702) — this leave-one-out re-run is a **required** step in the confirmatory design precisely because that customer alone accounts for a third of the trajectory-usable sample, and profiling confirmed it as a genuine large advertiser rather than a bulk/template account worth excluding ([Appendix A, entry 8](#a8-the-largest-customers-influence-was-checked-not-assumed-away)). Most tellingly, that weak positive coefficient collapsed to β=1.48 under winsorizing and **flipped sign entirely** under a rank-based regression (β=-0.0196) — the signature of a result driven by a couple of high-leverage outliers rather than a genuine relationship. The standardized effect size (β=.085) sits at just 17% of the large-effect threshold the pre-registered power simulation was built to detect.
+
+**A formal equivalence test (TOST) sharpens this point.** Failing to reject a point-null is not the same as confirming an effect is absent. A two-one-sided-test procedure against a ±0.20 standardized-effect-size equivalence margin returns **p = .197 — equivalence is not established.** The honest statement is therefore two-sided: this sample would have detected a large effect and did not (the pre-registered power simulation), **and** this sample cannot formally rule out a small-to-moderate effect existing but falling below detection (the TOST result). Both are true at once. Full derivation in [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness).
 
 **Verdict: H-S2.1 not supported — account maturity does not show a detectable effect on how fast a new ad group ramps up**, reported as a well-powered non-significant association rather than a confirmed null.
 
@@ -229,9 +287,11 @@ With the sample and the model finally sound, the study could ask the question it
 
 If history doesn't clearly matter, what does? Whether an ad group's own first 14–60 days of activity — coverage, early spend trend, CTR, CVR, ROAS — predicts how it performs afterward was tested using customer-grouped repeated splits and Leave-One-Customer-Out (LOCO) cross-validation to guard against information leakage.
 
-**Figure 6(A,B) — The prediction result, and the trap hidden inside it** (Panels A–B test **H-S2.2a** and **H-S2.2b**; Panels C–D address the exploratory **RQ-S2.3**). Using only the ad group's own early signal, 14-day-ahead growth prediction achieved a respectable ρ=0.386 in leakage-free repeated-split validation. Adding account maturity as a feature made things *worse*, not better (ρ=0.373, Wilcoxon p=.038). But the LOCO cross-validation told the opposite story — a *positive* improvement (+0.034) from adding maturity.
+![Figure 6 | Cold-start early-signal prediction (RQ2) and intervention-timing simulation (RQ3)](figures/Figure6_RQ2_horizon_RQ3_lift.png)
 
-Panel B decomposes the improvement into within-customer and between-customer components. The apparent LOCO gain turned out to be almost entirely a between-customer effect — maturity was just re-injecting the same customer-level growth-level signal from §5.2 through a pooled metric, not genuinely improving ad-group-level prediction. Within-customer improvement was essentially zero (±0.02) across all three window combinations tested. A pooled LOCO improvement was initially misread as H-S2.2b support before the within/between split exposed it as leakage of the H-S2.1 signal; the confirmatory design now requires the *within-customer* number to be positive before crediting H-S2.2b, full stop.
+**Figure 6(A,B) — The prediction result, and the trap hidden inside it** (`figures/make_figure6_rq2_horizon_rq3_lift.py`; Panels A–B test **H-S2.2a** and **H-S2.2b**; Panels C–D address the exploratory **RQ-S2.3**). Using only the ad group's own early signal, 14-day-ahead growth prediction achieved a respectable ρ=0.386 in leakage-free repeated-split validation. Adding account maturity as a feature made things *worse*, not better (ρ=0.373, Wilcoxon p=.038). But the LOCO cross-validation told the opposite story — a *positive* improvement (+0.034) from adding maturity.
+
+Panel B decomposes the improvement into within-customer and between-customer components. The apparent LOCO gain turned out to be almost entirely a between-customer effect — maturity was just re-injecting the same customer-level growth-level signal from §5.2 through a pooled metric, not genuinely improving ad-group-level prediction. Within-customer improvement was essentially zero (±0.02) across all three window combinations tested. A pooled LOCO improvement was initially misread as H-S2.2b support before the within/between split exposed it as leakage of the H-S2.1 signal (see [Appendix A, entry 5](#a5-a-pooled-leave-one-customer-out-loco-improvement-was-initially-read-as-rq2-support-for-h2b)); the confirmatory design now requires the *within-customer* number to be positive before crediting H-S2.2b, full stop.
 
 **A second equivalence test on this specific claim** (does adding maturity improve ad-group-level prediction at all, once pooled/within confounding is controlled) again returns an inconclusive verdict: TOST against a ±0.05 Spearman-ρ margin gives **p = .290 — equivalence not established.** The directional finding (own-signal is genuinely predictive; maturity's apparent contribution is a pooling artifact) is well supported; the *complete absence* of any maturity contribution at the within-customer level is not something this sample can formally certify.
 
@@ -239,11 +299,11 @@ Panel B decomposes the improvement into within-customer and between-customer com
 
 ### 5.4 When's the best day to flag a struggling ad group? (RQ-S2.3, DA-S2.1)
 
-**Figure 6(C,D) — Timing an intervention.** Flagging the bottom 25–40% of predicted growers achieved a 1.2–1.4x precision lift over random flagging, and that lift held up consistently whether the decision was made at day 7, 14, or 21 post-registration (Panel C). But the 95% bootstrap confidence intervals on predictive accuracy at each of those cutoffs overlap heavily (Panel D) — there's no statistical basis for calling any single day "optimal."
+**Figure 6(C,D) — Timing an intervention** (same figure as above). Flagging the bottom 25–40% of predicted growers achieved a 1.2–1.4x precision lift over random flagging, and that lift held up consistently whether the decision was made at day 7, 14, or 21 post-registration (Panel C). But the 95% bootstrap confidence intervals on predictive accuracy at each of those cutoffs overlap heavily (Panel D) — there's no statistical basis for calling any single day "optimal."
 
-Two independent attempts were also made to quantify the *expected benefit* of intervening at each point in time, but both failed the same way: the assumed intervention-effect parameters combined multiplicatively in a way that made the "optimal" answer (day 21, threshold 0.40) come out identical *no matter what values were assumed*. That's not a robust finding — it's a mathematical illusion baked into the formula. Both simulations were discarded, and the limitation is reported openly rather than presenting a false sense of precision. (Both failed simulation designs are walked through step by step in Appendix A, entry 6.)
+Two independent attempts were also made to quantify the *expected benefit* of intervening at each point in time, but both failed the same way: the assumed intervention-effect parameters combined multiplicatively in a way that made the "optimal" answer (day 21, threshold 0.40) come out identical *no matter what values were assumed*. That's not a robust finding — it's a mathematical illusion baked into the formula. Both simulations were discarded, and the limitation is reported openly rather than presenting a false sense of precision. (Both failed simulation designs are walked through step by step in [Appendix A, entry 6](#a6-two-successive-rq3-expected-uplift-simulations-were-mathematically-incapable-of-answering-the-question-they-were-built-for).)
 
-**Design artifact (DA-S2.1).** §5.3's within-customer result motivates a concrete decision rule — flag an ad group if its own early-window signal places it in the bottom 30% of predicted growth, evaluated at any point in a day-7–21 window. This is formalized as an explicit design-science artifact (input/output specification, three design principles). Its binary-flagging empirical backtest, however, is **not** reported as a confirmed advantage: the naive size/tenure comparison rule collapses to numerical zero under within-customer demeaning (a structural fact — account maturity is a customer-level constant — not a bug), and against a random-flagging baseline, the design artifact's own-signal precision wins in 4 of 9 tested specifications and loses in 5, indistinguishable from chance at this sample size (n≈20 customers per specification). The design principles are grounded in **H-S2.2a**'s continuous-scale result; their binary-flagging empirical superiority is left as future work.
+**Design artifact (DA-S2.1).** §5.3's within-customer result motivates a concrete decision rule — flag an ad group if its own early-window signal places it in the bottom 30% of predicted growth, evaluated at any point in a day-7–21 window. This is formalized as an explicit design-science artifact (input/output specification, three design principles), spelled out in full in [`supplementary_robustness/04_design_artifact_future_work.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness). Its binary-flagging empirical backtest, however, is **not** reported as a confirmed advantage: the naive size/tenure comparison rule collapses to numerical zero under within-customer demeaning (a structural fact — account maturity is a customer-level constant — not a bug), and against a random-flagging baseline, the design artifact's own-signal precision wins in 4 of 9 tested specifications and loses in 5, indistinguishable from chance at this sample size (n≈20 customers per specification). The design principles are grounded in **H-S2.2a**'s continuous-scale result; their binary-flagging empirical superiority is left as future work.
 
 **Verdict:** early flagging (**RQ-S2.3**, motivating **DA-S2.1**) is directionally motivated by a confirmed continuous-scale result, but neither a precise "optimal day" nor an empirically confirmed binary-flagging advantage is something this data can support yet.
 
@@ -253,7 +313,7 @@ Initial ad-group growth is best explained by the ad group's *own* early operatin
 
 ### 5.6 Results at a Glance
 
-Sample: cold-start candidates = 250 → trajectory-usable = 222 → 207 after excluding two near-zero-spend template accounts → 204/29 (H-S2.1) or the window-specific n below, depending on each analysis's completeness filter.
+Sample: cold-start candidates = 250 → trajectory-usable = 222 → 207 after excluding two near-zero-spend template accounts → 204/29 (H-S2.1) or the window-specific n below, depending on each analysis's completeness filter. *(The tables below are reproduced verbatim from the single canonical source, [`docs/RESULTS_SUMMARY.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs); cite that file directly, not this section.)*
 
 **H-S2.1 — does account maturity predict initial growth slope?**
 
@@ -318,7 +378,7 @@ These two investigations share no data, no time axis, and almost no statistical 
 
 ## 7. Boundary Conditions and Generalizability
 
-Two questions bound how far the "structural blindness" claim should travel: (a) does it hold uniformly *within* this platform, and (b) how far does it plausibly extend *beyond* this platform.
+Two questions bound how far the "structural blindness" claim should travel: (a) does it hold uniformly *within* this platform, and (b) how far does it plausibly extend *beyond* this platform. Full detail for both strata lives in [`supplementary_robustness/02_boundary_conditions.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness).
 
 **(a) Within-platform heterogeneity.** Two strata were tested against Study 1's central result:
 
@@ -333,7 +393,7 @@ Two questions bound how far the "structural blindness" claim should travel: (a) 
 
   The combined definition's significance is driven almost entirely by the restricted-approval component (106 of 111 customers), not by an independent contribution from the under-review component — one underlying signal probed three ways, not three independent confirmations.
 
-- **Advertiser industry** (**RQ-S1.4**) was piloted as a third stratification (text-embedding clustering + LLM-ensemble labeling against Korean Standard Industrial Classification categories) but is *not* used to support any claim: inter-rater reliability across the four-model LLM ensemble was only moderate (Randolph's free-marginal kappa = 0.557) and cross-validation against an independent rule-based classifier was weaker still (Cohen's κ = 0.363). The pipeline and reliability diagnostics are retained for transparency and as a direction for future work with a higher-reliability label source.
+- **Advertiser industry** (**RQ-S1.4**) was piloted as a third stratification (text-embedding clustering + LLM-ensemble labeling against Korean Standard Industrial Classification categories) but is *not* used to support any claim: inter-rater reliability across the four-model LLM ensemble was only moderate (Randolph's free-marginal kappa = 0.557) and cross-validation against an independent rule-based classifier was weaker still (Cohen's κ = 0.363). The pipeline and reliability diagnostics are retained in `supplementary_robustness/` for transparency and as a direction for future work with a higher-reliability label source.
 
 **(b) Cross-platform generalizability.** The mechanism documented here — real-time, auction-based serving that scores each unit primarily on its own current signal — is a property of the serving architecture, not of this specific platform's brand. The *direction* of the structural-blindness finding is expected to generalize to other real-time bidding-based ad platforms with comparable architecture (unit-level auctions, continuous re-ranking, no persistent account-level scoring layer). No claim is made that the specific magnitudes generalize, and conditions under which the mechanism plausibly breaks down are flagged explicitly:
 
@@ -347,9 +407,11 @@ This report's single-agency, single-platform data cannot itself test these bound
 
 ## 8. What "Null Result" Means Here: Equivalence and Sensitivity
 
-A non-significant p-value does not, by itself, establish that an effect is genuinely absent — it establishes that this sample could not distinguish the observed effect from zero at conventional confidence. This report draws that distinction explicitly wherever a null result is central to the argument.
+A non-significant p-value does not, by itself, establish that an effect is genuinely absent — it establishes that this sample could not distinguish the observed effect from zero at conventional confidence. This report draws that distinction explicitly wherever a null result is central to the argument. Full derivations for both items below are in [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness).
 
-**Figure 9 — TOST equivalence plot** (TOST equivalence for **H-S2.1** (left panel) and **H-S2.2b** (right panel)). Two central results (H-S2.1: account maturity → growth slope; H-S2.2b: does maturity improve ad-group-level prediction) were each subjected to a two-one-sided-test (TOST) procedure against a pre-specified equivalence margin (the green shaded region, or "smallest effect size of interest," SESOI). In both panels the observed point estimate sits comfortably *inside* the equivalence region, yet the TOST itself is not significant — neither reaches formal equivalence (H-S2.1: p=.197 against a ±0.20 SESOI; H-S2.2b: p=.290 against a ±0.05 Spearman-ρ SESOI). Both results are consequently reported as *non-significant, well-powered associations for which formal equivalence is inconclusive* — not as confirmed nulls.
+![Figure 9. TOST equivalence tests for the two central null results](figures/Figure9_tost_equivalence.png)
+
+**Figure 9 — TOST equivalence plot** (`figures/make_figure9_tost_equivalence.py`; TOST equivalence for **H-S2.1** (left panel) and **H-S2.2b** (right panel)). Two central results (H-S2.1: account maturity → growth slope; H-S2.2b: does maturity improve ad-group-level prediction) were each subjected to a two-one-sided-test (TOST) procedure against a pre-specified equivalence margin (the green shaded region, or "smallest effect size of interest," SESOI). In both panels the observed point estimate sits comfortably *inside* the equivalence region, yet the TOST itself is not significant — neither reaches formal equivalence (H-S2.1: p=.197 against a ±0.20 SESOI; H-S2.2b: p=.290 against a ±0.05 Spearman-ρ SESOI). Both results are consequently reported as *non-significant, well-powered associations for which formal equivalence is inconclusive* — not as confirmed nulls.
 
 **Omitted-variable-bias sensitivity (Oster's delta).** The bid_amount-based mediation result (§4.4, method 8 — **H-S1.1b**) is the primary evidentiary basis for the efficiency claim. Oster's delta quantifies how much stronger an unobserved confounder would need to be, relative to the observed controls, to explain the spend → bid_amount coefficient away. The computed value (δ*=+71.4) looks dramatically robust — but the R² increment from adding `size_z` to the model is only 0.0009, effectively zero, which places the calculation in a numerically unstable region where δ* diverges regardless of the true underlying robustness. δ* is not reported as evidence of robustness here; the R² increment itself (size adding essentially no explanatory power to bid_amount beyond spend) is the more interpretable, more conservative, and ultimately consistent takeaway. A minimum-R²-increment threshold (0.01) is adopted below which δ* is reported for transparency but not used as a robustness claim. Full numeric table in §12.7.
 
@@ -366,6 +428,8 @@ A non-significant p-value does not, by itself, establish that an effect is genui
 7. **The ad-group dimension table is a snapshot**, so all account-age and account-history measures are lower bounds (§3).
 8. **Two customer-defined test/QA accounts were excluded from Study 2 via a pre-specified, logged rule**, not applied ad hoc (Appendix A, entry 7).
 
+For the full narrative behind every methodological pivot referenced above, see [`docs/METHODOLOGY_NOTES.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs); for the single canonical statistics table each pivot fed into, see [`docs/RESULTS_SUMMARY.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs) (digested in §5.6).
+
 ---
 
 ## 10. Methodology Summary
@@ -381,6 +445,8 @@ A non-significant p-value does not, by itself, establish that an effect is genui
 | Pre-registered / post-hoc power check | MDE at 80% power | Simulation reusing real cluster structure (500 iterations); only large effects (β≈.5) reliably detectable (88% power) |
 | Related figures | 1, 2, 3, 4, 7, 8 | 5, 6, 9 |
 | Hypothesis family | H-S1.1 (a/b/c), H-S1.2, RQ-S1.3, RQ-S1.4, RQ-S1.E1 | H-S2.1, H-S2.2 (a/b), RQ-S2.3, DA-S2.1 |
+
+Known code- and design-level issues (the unrecoverable 2SLS first-stage F-statistic, the Wilcoxon floor-p artifact in the churn appendix, the multiplicative-structure illusion in the intervention-uplift simulation, among others) are logged transparently in [`docs/METHODOLOGY_NOTES.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs). The exact statistics each Study-2 test produced live in [`docs/RESULTS_SUMMARY.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs); §5.6 above reproduces its H-S2.1/H-S2.2/RQ-S2.3 tables in full.
 
 ---
 
@@ -411,6 +477,8 @@ None of the six actions above require rerunning the pipeline, collecting new dat
 ---
 
 ## Appendix A. Methodology Notes
+
+*Full version: [`docs/METHODOLOGY_NOTES.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs).*
 
 This appendix is a narrative log of every point in the diagnostic pipeline (`src/coldstart_v5/`, Steps A–M) where an initial modeling choice was found to be structurally unreliable and replaced with a more defensible alternative, and why. It is treated as part of the project's contribution, not as a section to be edited out once the final design was settled — the reasoning here is what makes the confirmatory results trustworthy rather than merely reported.
 
@@ -498,6 +566,8 @@ Each entry follows the same shape: **what was assumed**, **how the diagnostic co
 
 ## Appendix B. Results Summary (Canonical Statistics Table)
 
+*Full version: [`docs/RESULTS_SUMMARY.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs).*
+
 This appendix consolidates statistics for Study 1 and Study 2's formal hypothesis families and is the single citable source for every number reported in this report; §5.6 is a condensed pointer to this table.
 
 ### B.1 H-S1.1 (a/b/c) and H-S1.2 — Study 1's Confirmatory Statistics
@@ -582,9 +652,9 @@ Across both studies, the structural-blindness construct holds to first order but
 
 ## Appendix C. Data Availability, Reproducibility, and Repository Structure (Summary)
 
-- **Data availability & license**: The underlying panel data (ad-group dimension table, daily/hourly performance logs) are **proprietary and are not included in this repository.** They were processed and provided by a Korean ad-tech data and analytics provider under a research data-sharing agreement. Researchers interested in replication should contact the data provider directly to request access to an equivalent extract. All code is runnable end-to-end against any dataset that matches the documented schema. Code is released under the MIT License; this license covers the analysis code only, not the data.
-- **Reproduction procedure (summary)**: (1) Diagnostic pipeline (`run_diagnostics.sh`, Steps A–M) → (2) Confirmatory H-S2.1/H-S2.2 tests (`src/analysis/`) → (3) Earlier-generation v4 pipeline (`run_pipeline_v4.sh`, variance decomposition, fairness battery, churn appendix) → (4) Four supplementary robustness scripts (`run_supplementary_robustness.sh`) → (5) Regeneration of nine figures (`figures/make_figure*.py`). Every step prints its own diagnostics and writes a JSON/CSV artifact; nothing is silently overwritten, and every script can be re-run independently as long as its upstream artifact exists.
-- **Repository structure**: `config/` (all paths, thresholds, sample-definition rules), `data/` (schema documentation, no data files committed), `src/utils/`, `src/coldstart_v5/` (diagnostic pipeline Steps A-M), `src/pipeline_v4/` (earlier-generation pipeline), `src/analysis/` (confirmatory tests), `supplementary_robustness/` (4 independently runnable robustness analyses, each mapped to a specific report section), `figures/` (9 figure-generation scripts and PNGs), plus `docs/METHODOLOGY_NOTES.md` and `docs/RESULTS_SUMMARY.md` (= Appendix A and Appendix B of this document).
+- **Data availability & license**: The underlying panel data (ad-group dimension table, daily/hourly performance logs) are **proprietary and are not included in this repository.** They were processed and provided by a Korean ad-tech data and analytics provider under a research data-sharing agreement. Researchers interested in replication should contact the data provider directly to request access to an equivalent extract — see [`data/README.md`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main) for the expected schema. All code is runnable end-to-end against any dataset that matches the documented schema. Code is released under the MIT License; this license covers the analysis code only, not the data.
+- **Reproduction procedure (summary)**: (1) Diagnostic pipeline (`run_diagnostics.sh`, Steps A–M) → (2) Confirmatory H-S2.1/H-S2.2 tests (`src/analysis/`) → (3) Earlier-generation v4 pipeline (`run_pipeline_v4.sh`, variance decomposition, fairness battery, churn appendix) → (4) Four supplementary robustness scripts (`run_supplementary_robustness.sh`, see [`supplementary_robustness/`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness)) → (5) Regeneration of nine figures (`figures/make_figure*.py`). Every step prints its own diagnostics and writes a JSON/CSV artifact; nothing is silently overwritten, and every script can be re-run independently as long as its upstream artifact exists.
+- **Repository structure**: `config/` (all paths, thresholds, sample-definition rules), `data/` (schema documentation, no data files committed), `src/utils/`, `src/coldstart_v5/` (diagnostic pipeline Steps A-M), `src/pipeline_v4/` (earlier-generation pipeline), `src/analysis/` (confirmatory tests), [`supplementary_robustness/`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/supplementary_robustness) (4 independently runnable robustness analyses, each mapped to a specific report section — `01_alternative_outcome_mediation.md`, `02_boundary_conditions.md`, `03_equivalence_and_sensitivity_notes.md`, `04_design_artifact_future_work.md`), `figures/` (9 figure-generation scripts and PNGs), plus [`docs/`](https://github.com/LEEYJ1021/ad-coldstart-analysis/tree/main/docs) (`METHODOLOGY_NOTES.md` = Appendix A above; `RESULTS_SUMMARY.md` = Appendix B above).
 
 ---
 
