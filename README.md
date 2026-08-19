@@ -563,33 +563,29 @@ ad-coldstart-analysis/
 ├── supplementary_robustness/          <- extended robustness analyses, each independently
 │   │                                      runnable and mapped to a specific README section
 │   ├── supplementary_robustness_README.md
-│   ├── 01_alternative_outcome_mediation.md    <- feeds §3.4 + Figure 7 (H-S1.1a/b)
-│   ├── 01_alternative_outcome_mediation.py    <- §3.4: cost-sharing artifact isolation +
+│   ├── 01_alternative_outcome_mediation.md    <- feeds §2.4 + Figure 7
+│   ├── 01_alternative_outcome_mediation.py    <- §2.4: cost-sharing artifact isolation +
 │   │                                              bid_amount mediation replication
-│   ├── 02_boundary_conditions.md              <- feeds §3.5, §6 + Figure 8 (H-S1.2, RQ-S1.3/1.4)
-│   ├── 02_boundary_conditions.py              <- §3.5, §6: campaign_type + keyword
+│   ├── 02_boundary_conditions.md              <- feeds §2.5, §5 + Figure 8
+│   ├── 02_boundary_conditions.py              <- §2.5, §5: campaign_type + keyword
 │   │                                              review-status stratified heterogeneity
-│   ├── 03_equivalence_and_sensitivity_notes.md <- feeds §4.2, §7 + Figure 9 (H-S2.1, H-S2.2b)
-│   ├── 03_equivalence_and_sensitivity_notes.py <- §4.2, §7: TOST equivalence tests +
+│   ├── 03_equivalence_and_sensitivity_notes.md <- feeds §3.2, §6 + Figure 9
+│   ├── 03_equivalence_and_sensitivity_notes.py <- §3.2, §6: TOST equivalence tests +
 │   │                                                Oster's delta sensitivity analysis
-│   ├── 04_design_artifact_future_work.md      <- feeds §4.4 (RQ-S2.3, DA-S2.1)
-│   ├── 04_design_artifact_future_work.py      <- §4.4: early-flagging design artifact,
-│   │                                              its backtest, and the naive-rule
-│   │                                              degeneracy diagnostic
-│   └── outputs/                       <- JSON/CSV artifacts from the four scripts above
-│                                          (git-ignored; .gitkeep only)
+│   ├── 04_design_artifact_future_work.md      <- feeds §3.4
+│   ├── 04_design_artifact_future_work.py      <- §3.4: early-flagging design artifact,
 │
 ├── figures/                            <- one script per figure, each reads a results
 │   │                                       JSON/CSV and writes a PNG to outputs/figures/
-│   ├── make_figure1_variance_decomposition.py    -> Figure1_variance_decomposition.png     (§3.1, P-S1.0)
-│   ├── make_figure2_fairness_forest_plot.py      -> Figure2_fairness_forest_plot.png       (§3.3, H-S1.1c)
-│   ├── make_figure3_specification_curve_placebo.py -> Figure3_specification_curve_placebo.png (§3.4, H-S1.1c)
-│   ├── make_figure4_churn_benchmark.py           -> Figure4_churn_benchmark.png            (§3.6, RQ-S1.E1)
-│   ├── make_figure5_coldstart_funnel_and_rq1_null.py -> Figure5_coldstart_funnel_and_RQ1_null.png (§4.1–4.2, H-S2.1)
-│   ├── make_figure6_rq2_horizon_rq3_lift.py      -> Figure6_RQ2_horizon_RQ3_lift.png        (§4.3–4.4, H-S2.2/RQ-S2.3)
-│   ├── make_figure7_mediation_forest.py          -> Figure7_mediation_forest.png            (§3.4, H-S1.1b)
-│   ├── make_figure8_boundary_condition_forest.py -> Figure8_boundary_condition_forest.png   (§3.5, §6, H-S1.2)
-│   ├── make_figure9_tost_equivalence.py          -> Figure9_tost_equivalence.png            (§7, H-S2.1/H-S2.2b)
+│   ├── make_figure1_variance_decomposition.py    -> Figure1_variance_decomposition.png     (§2.1)
+│   ├── make_figure2_fairness_forest_plot.py      -> Figure2_fairness_forest_plot.png       (§2.3)
+│   ├── make_figure3_specification_curve_placebo.py -> Figure3_specification_curve_placebo.png (§2.4)
+│   ├── make_figure4_churn_benchmark.py           -> Figure4_churn_benchmark.png            (§2.6)
+│   ├── make_figure5_coldstart_funnel_and_rq1_null.py -> Figure5_coldstart_funnel_and_RQ1_null.png (§3.1–3.2)
+│   ├── make_figure6_rq2_horizon_rq3_lift.py      -> Figure6_RQ2_horizon_RQ3_lift.png        (§3.3–3.4)
+│   ├── make_figure7_mediation_forest.py          -> Figure7_mediation_forest.png            (§2.4)
+│   ├── make_figure8_boundary_condition_forest.py -> Figure8_boundary_condition_forest.png   (§2.5, §5)
+│   ├── make_figure9_tost_equivalence.py          -> Figure9_tost_equivalence.png            (§6)
 │   ├── Figure1_variance_decomposition.png
 │   ├── Figure2_fairness_forest_plot.png
 │   ├── Figure3_specification_curve_placebo.png
@@ -601,20 +597,8 @@ ad-coldstart-analysis/
 │   └── Figure9_tost_equivalence.png
 │
 ├── docs/
-│   ├── METHODOLOGY_NOTES.md            <- narrative log: assumed -> contradicted by -> changed,
-│   │                                       one entry per pipeline pivot (referenced throughout §4),
-│   │                                       tagged with the hypothesis ID(s) each pivot affects
-│   └── RESULTS_SUMMARY.md              <- single canonical H-S1/H-S2 statistics table;
-│                                           README §4.6 reproduces the H-S2 tables, cites don't
-│
-├── outputs/                            <- all pipeline artifacts land here (git-ignored)
-│   ├── figures/
-│   ├── _v4_data_prep/
-│   ├── _v4_variance_decomposition/
-│   ├── _v4_fairness/
-│   ├── _v4_churn_appendix/
-│   ├── _v4_synthesis/
-│   └── coldstart_v5/
+│   ├── METHODOLOGY_NOTES.md
+│   └── RESULTS_SUMMARY.md
 │
 ├── run_diagnostics.sh                 <- runs Steps A-M in order (coldstart_v5)
 ├── run_pipeline_v4.sh                 <- runs the v4 pipeline (step0-step4) end-to-end
