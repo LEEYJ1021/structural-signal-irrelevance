@@ -11,6 +11,11 @@ trustworthy rather than merely reported.
 Each entry follows the same shape: **what we assumed**, **how the
 diagnostic contradicted it**, and **what changed as a result**.
 
+Cross-references: the root [`README.md`](../README.md) links directly into
+specific entries below wherever it leans on one (mainly §3.1-3.4 and §12);
+the exact statistics each pivot produced live in
+[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md), digested in README §3.6.
+
 ---
 
 ## 1. "Cold start" was assumed to mean new-advertiser onboarding
