@@ -11,14 +11,19 @@ trustworthy rather than merely reported.
 Each entry follows the same shape: **what we assumed**, **how the
 diagnostic contradicted it**, and **what changed as a result**.
 
+**Nomenclature:** entries below are tagged with the hypothesis ID(s)
+(`README.md` §2) each pivot ultimately fed into, using the format
+`[affects: H-S2.1]`. IDs are defined in the README; this file does not
+redefine them.
+
 Cross-references: the root [`README.md`](../README.md) links directly into
-specific entries below wherever it leans on one (mainly §3.1-3.4 and §12);
+specific entries below wherever it leans on one (mainly §4.1-4.4 and §12);
 the exact statistics each pivot produced live in
-[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md), digested in README §3.6.
+[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md), digested in README §4.6.
 
 ---
 
-## 1. "Cold start" was assumed to mean new-advertiser onboarding
+## 1. "Cold start" was assumed to mean new-advertiser onboarding (RQ-S2.0 → H-S2.1: the pre-registration deviation)
 
 **Assumed:** the project's original framing treated a "cold-start" ad
 group as the leading edge of a brand-new advertiser's account -- a first
@@ -37,8 +42,10 @@ artifact as the explanation.
 **Changed:** the project was reframed around **item-level cold start**: a
 new ad group inside an already-established account -- closer to "item
 cold-start" than "user cold-start" in the recommender-systems literature.
-Account maturity became the key covariate under test in RQ1/RQ2, not a
-stratification variable for sample selection.
+Account maturity became the key covariate under test in H-S2.1/H-S2.2, not
+a stratification variable for sample selection.
+
+`[affects: RQ-S2.0 → H-S2.1 deviation — this is *the* pre-registration deviation referenced in README §2.3]`
 
 ## 2. Discrete latent-class growth models (GBTM) were the planned RQ1 method
 
@@ -53,9 +60,11 @@ k=3/4 -- the sample cannot reliably tell two classes apart, let alone
 three or four, independent of any censoring or clustering issue.
 
 **Changed:** GBTM was dropped from the confirmatory design entirely. RQ1
-was rewritten around a continuous growth-curve quantity (an ad group's
-initial 30-day cost slope) rather than a discrete class label, avoiding
-the class-count identification problem altogether.
+(now **H-S2.1**) was rewritten around a continuous growth-curve quantity
+(an ad group's initial 30-day cost slope) rather than a discrete class
+label, avoiding the class-count identification problem altogether.
+
+`[affects: H-S2.1 — estimator choice for the RQ-S2.0→H-S2.1 transition]`
 
 ## 3. Apparent right-censoring turned out to be a follow-up-window artifact, then something else
 
@@ -83,6 +92,8 @@ definition (`src/analysis/rq1_growth_curve_test.py`) uses fixed-window
 linear trend fitting on zero-filled daily series rather than a
 survival/censoring framework, which sidesteps the mismatch.
 
+`[affects: H-S2.1 — sample/outcome construction]`
+
 ## 4. A customer random-intercept mixed model (MixedLM) was the planned RQ1 estimator
 
 **Assumed:** growth slopes nested within customers would be modeled with
@@ -106,6 +117,8 @@ permutation test as the final arbiter whenever it and OLS disagree --
 because 29-32 clusters is below the usual comfort threshold (40-50+) for
 trusting asymptotic cluster-robust standard errors alone.
 
+`[affects: H-S2.1 — estimator choice]`
+
 ## 5. A pooled Leave-One-Customer-Out (LOCO) improvement was initially read as RQ2 support for H2b
 
 **Assumed:** during RQ2 design (`step_l_rq2_feature_engineering.py`), a
@@ -126,9 +139,11 @@ level) signal is not evidence of genuine ad-group-level predictive gain.
 
 **Changed:** the confirmatory RQ2 design
 (`src/analysis/rq2_prediction_validation.py`) requires the
-within-customer LOCO improvement to be positive before crediting H2b,
-regardless of the pooled or between-customer numbers -- see that module's
-docstring for the exact rule.
+within-customer LOCO improvement to be positive before crediting H2b
+(now **H-S2.2b**), regardless of the pooled or between-customer numbers --
+see that module's docstring for the exact rule.
+
+`[affects: H-S2.2b]`
 
 ## 6. Two successive RQ3 "expected uplift" simulations were mathematically incapable of answering the question they were built for
 
@@ -149,19 +164,21 @@ and `efficacy` still multiplied every cell identically for a *given*
 cutoff, so the ranking was again structurally fixed (this time by
 `remaining_days` alone) rather than by the swept parameters.
 
-**Changed:** RQ3's reported result was narrowed to what can be measured
-without an intervention-effect assumption: precision/recall/lift of
-early-signal flagging against the *realized* low-growth outcome, which
-requires no assumption about what an intervention would do
+**Changed:** RQ3's (now **RQ-S2.3**) reported result was narrowed to what
+can be measured without an intervention-effect assumption: precision/
+recall/lift of early-signal flagging against the *realized* low-growth
+outcome, which requires no assumption about what an intervention would do
 (`step_m_intervention_timing_simulation.py`, Step M3). The expected-uplift
 tables (Step M4/M5) are retained only as explicitly labeled,
 non-causal what-if illustrations, never as the basis for an "optimal
 day" claim. Bootstrapped confidence intervals on the precision/recall
 metric (Step M6-3) further showed the 7/14/21-day cutoffs' predictive
 rho values are not statistically distinguishable from one another, which
-is reported as the actual (appropriately modest) RQ3 finding: early
+is reported as the actual (appropriately modest) RQ-S2.3 finding: early
 intervention judgment appears viable within the first three weeks,
 without a defensible single optimal day.
+
+`[affects: RQ-S2.3]`
 
 ## 7. Sample-exclusion rules were derived empirically, then made explicit
 
@@ -185,6 +202,8 @@ every confirmatory analysis, alongside the general rule
 the exclusion is pre-specified and logged, not applied ad hoc per
 analysis.
 
+`[affects: H-S2.1, H-S2.2a, H-S2.2b — sample definition shared by all three]`
+
 ## 8. The largest customer's influence was checked, not assumed away
 
 **Found:** Step D showed one customer contributing 32.9% of the
@@ -196,7 +215,10 @@ so it was not excluded.
 
 **Changed:** because exclusion wasn't warranted, a leave-one-out
 sensitivity check on this customer was made a **required**, not optional,
-component of the RQ1 confirmatory test
-(`src/analysis/rq1_growth_curve_test.py`) -- every reported RQ1 result is
-accompanied by the same test re-run with this customer removed, and the
-verdict rule requires both runs to agree in sign before H1 is credited.
+component of the RQ1 (now **H-S2.1**) confirmatory test
+(`src/analysis/rq1_growth_curve_test.py`) -- every reported H-S2.1 result
+is accompanied by the same test re-run with this customer removed, and
+the verdict rule requires both runs to agree in sign before H-S2.1 is
+credited (as supported, rejected, or null, depending on the result).
+
+`[affects: H-S2.1 — required sensitivity check]`
