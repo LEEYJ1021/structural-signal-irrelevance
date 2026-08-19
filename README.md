@@ -19,6 +19,8 @@ Using a panel of **321 advertisers and roughly 19.3 million rows** of daily/hour
 
 Both studies converge on a similar answer: size and tenure appear to matter far less than spend and the unit's own real-time behavior. We call this pattern **structural blindness** — a real-time bidding and serving system that evaluates every ad group on its current signal, largely indifferent to the account's résumé. This README states that finding with the precision it deserves: which parts are confirmed nulls, which are non-significant-but-inconclusive, which are heterogeneous across contexts, and which are exploratory.
 
+> **A note on how figures and robustness files are woven in.** Every main-text figure below is rendered directly from `figures/`, and every place the text leans on a robustness check links straight to the corresponding file in [`supplementary_robustness/`](supplementary_robustness/), with that file's key table reproduced inline so you don't have to leave the page to see the numbers behind the claim.
+
 ---
 
 ## Table of contents
@@ -63,7 +65,9 @@ Conversion and ROAS variables were excluded from both studies entirely — the p
 
 Before testing anything about advertiser size, we needed to know *where* performance variation actually sits — in the customer, the campaign, or the ad group. If size-related advantages exist, they should show up as customer-level variance.
 
-**Figure 1 — Multilevel variance decomposition.** Across ~663K observations, log ad spend is dominated by unexplained residual variance (ICC = 0.825) — day-to-day budget execution, not who the customer is (ICC = 0.050). Click-through rate tells a similar story: the largest share of variation sits at the *ad group* level (ICC = 0.301), not the customer level (ICC = 0.200). Both patterns hold whether or not month fixed effects are added, ruling out seasonality as the explanation. This was our first hint, well before any hypothesis test: **"who the customer is" explains comparatively little of what happens.**
+![Figure 1 | Multilevel variance decomposition of advertising performance (RQ1)](figures/Figure1_variance_decomposition.png)
+
+**Figure 1 — Multilevel variance decomposition** (`figures/make_figure1_variance_decomposition.py`). Across ~663K observations, log ad spend is dominated by unexplained residual variance (ICC = 0.825) — day-to-day budget execution, not who the customer is (ICC = 0.050). Click-through rate tells a similar story: the largest share of variation sits at the *ad group* level (ICC = 0.301), not the customer level (ICC = 0.200). Both patterns hold whether or not month fixed effects are added (diamond vs. square markers agree), ruling out seasonality as the explanation. This was our first hint, well before any hypothesis test: **"who the customer is" explains comparatively little of what happens.**
 
 ### 2.2 The raw gap looks real
 
@@ -73,11 +77,13 @@ Except it isn't quite what it looks like. Ad groups belonging to the same custom
 
 ### 2.3 The gap disappears once you control for spend
 
-**Figure 2 — The central confirmatory test.** Controlling for log spend in a cluster-robust regression, all six outcome × sample combinations (approval rate, CPC, ad rank, each in the full sample and with spike-affected accounts excluded) come back **non-significant** (cluster-robust p > .07). Every 95% bootstrap confidence interval not only crosses zero — it falls entirely inside its own minimum-detectable-effect (MDE) band, meaning this isn't underpowered null-hunting; the observed effect is smaller than anything the sample could reliably detect. Approximate Bayes factors favor the null hypothesis in five of six tests.
+![Figure 2 | Advertiser-size effect on approval, cost efficiency, and ad rank, controlling for spend (RQ2, H2b)](figures/Figure2_fairness_forest_plot.png)
+
+**Figure 2 — The central confirmatory test** (`figures/make_figure2_fairness_forest_plot.py`). Controlling for log spend in a cluster-robust regression, all six outcome × sample combinations (approval rate, CPC, ad rank, each in the full sample and with spike-affected accounts excluded) come back **non-significant** (cluster-robust p > .07). Every 95% bootstrap confidence interval not only crosses zero — it falls entirely inside (or right at the edge of) its own minimum-detectable-effect (MDE) band, meaning this isn't underpowered null-hunting; the observed effect is smaller than anything the sample could reliably detect. Approximate Bayes factors favor the null hypothesis in five of six tests (the sixth, CPC under spike exclusion, is flagged in the figure caption as a directionally-reversed sensitivity finding, not a confirmatory one).
 
 ### 2.4 Stress-testing the result across independent methods and outcome constructions
 
-A single regression result is easy to distrust. So we stress-tested it eight independent ways, two of which require a longer explanation than a summary table can give:
+A single regression result is easy to distrust. So we stress-tested it eight independent ways. Methods 1–6 are summarized here; methods 7–8 get their own figures and are documented in full in [`supplementary_robustness/01_alternative_outcome_mediation.md`](supplementary_robustness/01_alternative_outcome_mediation.md).
 
 1. Multiverse specification curve (48 defensible analytic choices; 0/48 reach significance for any outcome)
 2. Placebo test (device-type share, which size *shouldn't* predict, is significant under the raw distributional test but null under the spend-controlled regression — evidence the regression, not the raw test, is measuring the right thing)
@@ -85,20 +91,36 @@ A single regression result is easy to distrust. So we stress-tested it eight ind
 4. Two-stage least squares with lagged spend as an instrument (first-stage F-statistic could not be recovered due to a code exception — flagged and excluded from any conclusion, not silently dropped)
 5. Temporal split-sample replication
 6. Benjamini-Hochberg FDR correction across the six primary hypotheses
+
+![Figure 3 | Multiverse specification curve and placebo test (RQ2 robustness suite)](figures/Figure3_specification_curve_placebo.png)
+
+**Figure 3 — Methods 1 and 2** (`figures/make_figure3_specification_curve_placebo.py`). Panel A: across all 48 specification choices (tier definition × covariate set), for all three outcomes, not one reaches significance at α=.05. Panel B: the distributional (Kruskal-Wallis) test is significant for *both* the real outcome and the device-share placebo — proof that a raw distributional test alone is not a clean placebo, since size tiers correlate with many unrelated account traits. The informative comparison is the spend-controlled regression matching H2b (shaded region): there, real and placebo outcomes are equally, indistinguishably null.
+
 7. **Isolating and controlling for a mechanical artifact in the CPC outcome.** CPC = cost / click, and spend is built from cost — so any spend → CPC relationship carries a mechanical component by construction, independent of any real bidding-efficiency behavior. A customer-level permutation procedure (reshuffling click within customer while holding cost fixed, 2,000 iterations) isolates exactly how large that mechanical component is. The observed spend → log(CPC) coefficient (+1.277) falls *below* the lower bound of the resulting purely-mechanical null distribution (mean +1.552, 95% range [1.544, 1.556]) — meaning the CPC-based point estimate is not simply inflated by the artifact, but it is close enough to that mechanical distribution that we do not treat it as a stand-alone quantitative claim. A lagged replication (spend at day *t* → CPC at *t*+1 and *t*+7, immune to same-day cost-sharing) confirms a same-signed, significant relationship at both lags (β=+0.538 and +0.544, both p<.001), consistent with a genuine behavioral effect coexisting with the artifact.
-8. **Replicating the mediation result on a cost-independent outcome.** `bid_amount` (the advertiser's set bid price) shares no cost or click term with spend, so it carries none of the artifact isolated in method 7. Re-estimating Study 1's mediation structure (size → spend → outcome, controlling for size) on this outcome at the customer level (n=263) gives the load-bearing result for the efficiency claim: the indirect (spend-mediated) effect is significant (bootstrap 95% CI [0.008, 0.159], excludes zero; cluster permutation p<.001) while the *direct* effect of size, net of spend, is non-significant (p=.634) — the same qualitative conclusion as the CPC-based model, now on an outcome immune to the artifact. Full statistics are in [`supplementary_robustness/01_alternative_outcome_mediation.md`](supplementary_robustness/01_alternative_outcome_mediation.md) and the runnable script in [`supplementary_robustness/01_alternative_outcome_mediation.py`](supplementary_robustness/01_alternative_outcome_mediation.py).
+
+8. **Replicating the mediation result on a cost-independent outcome.** `bid_amount` (the advertiser's set bid price) shares no cost or click term with spend, so it carries none of the artifact isolated in method 7. Re-estimating Study 1's mediation structure (size → spend → outcome, controlling for size) on this outcome at the customer level (n=263) gives the load-bearing result for the efficiency claim: the indirect (spend-mediated) effect is significant (bootstrap 95% CI [0.008, 0.159], excludes zero; cluster permutation p<.001) while the *direct* effect of size, net of spend, is non-significant (p=.634) — the same qualitative conclusion as the CPC-based model, now on an outcome immune to the artifact.
+
+![Figure 7. Spend-mediation b-path: CPC-based vs. cost-independent outcome](figures/Figure7_mediation_forest.png)
+
+**Figure 7 — CPC-based vs. bid_amount-based b-path** (`figures/make_figure7_mediation_forest.py`). The spend → outcome coefficient shrinks from +1.277 (CPC-based, partly mechanical) to +0.150 (bid_amount-based, cost-independent) once the shared cost term is removed — the direction survives, the magnitude does not. This is the visual companion to the full step-by-step derivation in [`supplementary_robustness/01_alternative_outcome_mediation.md`](supplementary_robustness/01_alternative_outcome_mediation.md), whose key mediation table is reproduced below (§11.4, Table 2).
 
 **Eight independent verification methods, one consistent verdict**, with method 8 — not the raw CPC coefficient — treated as the primary quantitative evidence for the efficiency-outcome claim.
 
 ### 2.5 Is the result homogeneous across contexts?
 
-It is close to, but not perfectly, homogeneous. Stratifying the spend-controlled CPC model by `campaign_type` (a platform-defined ad-product code — website / shopping / brand-new-product / local-business, *not* an industry classification) and running a joint Wald test on the size × product-type interaction gives **p = .023**: the *degree* to which size is irrelevant varies somewhat by ad-product category, even though no individual stratum shows a significant size effect on its own (all p > .05). See [Section 5](#5-boundary-conditions-and-generalizability) and [`supplementary_robustness/02_boundary_conditions.md`](supplementary_robustness/02_boundary_conditions.md) for the full stratified results, the keyword-review-status exploratory check, and why an industry-proxy stratification was piloted but ultimately not used to support any claim.
+It is close to, but not perfectly, homogeneous. Stratifying the spend-controlled CPC model by `campaign_type` (a platform-defined ad-product code — website / shopping / brand-new-product / local-business, *not* an industry classification) and running a joint Wald test on the size × product-type interaction gives **p = .023**: the *degree* to which size is irrelevant varies somewhat by ad-product category, even though no individual stratum shows a significant size effect on its own (all p > .05).
+
+![Figure 8. Campaign product-type heterogeneity](figures/Figure8_boundary_condition_forest.png)
+
+**Figure 8 — Boundary-condition forest plot** (`figures/make_figure8_boundary_condition_forest.py`). Website campaigns show a (non-significant) negative point estimate for size net of spend, while local-business and shopping campaigns show (non-significant) positive point estimates — all three confidence intervals cross zero individually, but the joint test across strata is significant (p=.023), meaning the *pattern* of where size comes closest to mattering is not random noise even though no single stratum is itself conclusive. See [Section 5](#5-boundary-conditions-and-generalizability) and [`supplementary_robustness/02_boundary_conditions.md`](supplementary_robustness/02_boundary_conditions.md) for the full stratified results, the keyword-review-status exploratory check, and why an industry-proxy stratification was piloted but ultimately not used to support any claim.
 
 ### 2.6 A side quest: can we predict churn instead?
 
 This question sits outside the fairness hypothesis entirely, but it was worth asking as an exploratory appendix: given approval/cost/efficiency features, can machine learning models predict which accounts will churn?
 
-**Figure 4 — Churn-prediction benchmarking.** Across 213 labeled accounts (a stark 2.35% churn rate), tree-based models nominally outperform logistic regression in nested cross-validation. But look closely: every pairwise model comparison returns the *exact same* Wilcoxon p-value (0.0625) — the mathematical floor achievable with only 5 repeat-pairs, not evidence of a real difference. We report this transparently rather than dressing it up as a finding. Random forest had the best-calibrated out-of-fold predictions (Brier score 0.0250).
+![Figure 4 | Churn-prediction benchmarking (RQ3, exploratory appendix)](figures/Figure4_churn_benchmark.png)
+
+**Figure 4 — Churn-prediction benchmarking** (`figures/make_figure4_churn_benchmark.py`). Across 213 labeled accounts (a stark 2.35% churn rate), tree-based models nominally outperform logistic regression in nested cross-validation. But look closely: every pairwise model comparison returns the *exact same* Wilcoxon p-value (0.0625) — the mathematical floor achievable with only 5 repeat-pairs, not evidence of a real difference. We report this transparently rather than dressing it up as a finding. Random forest had the best-calibrated out-of-fold predictions (Brier score 0.0250).
 
 ### 2.7 What Study 1 concludes
 
@@ -122,11 +144,13 @@ The original plan treated "cold start" as new-advertiser onboarding: a brand-new
 
 5. **Even the statistical model needed rebuilding.** Account maturity only takes one value per customer — every ad group from the same account shares it. Feeding that into a mixed-effects model with a customer-level random intercept creates a structural non-identifiability: the model can't tell "customer-level random variance" apart from "the maturity fixed effect." A pre-registered power simulation (500 iterations, reusing the real cluster structure) confirmed it: the mixed model's convergence failure rate was **100%**. We replaced it with a simpler, sound alternative — customer-level aggregate OLS (n≈32) — whose false-positive rate (5.2%) sat right at the nominal 5% alpha, and which could reliably detect only large effects (standardized β ≈ 0.5, 88% power).
 
-**Figure 5(A) — The sample-construction funnel** that resulted from this five-step diagnostic journey: 250 candidates → 222 with sufficient activity → 204 with a complete 30-day early window (29 customers once aggregated). The median account behind these "cold-start" ad groups was already 2,853 days old — visual proof that this is a story about expansion inside mature accounts, not onboarding new ones.
-
 ### 3.2 Does account maturity predict how fast a new ad group grows?
 
 With the sample and the model finally sound, we could ask the question the study actually set out to answer.
+
+![Figure 5 | Cold-start sample construction and RQ1 confirmatory test](figures/Figure5_coldstart_funnel_and_RQ1_null.png)
+
+**Figure 5(A) — The sample-construction funnel** (`figures/make_figure5_coldstart_funnel_and_rq1_null.py`) that resulted from this five-step diagnostic journey: 250 candidates → 222 with sufficient activity → 207 excluding near-zero-spend accounts → 204 with a complete 30-day early window (29 customers once aggregated). The median account behind these "cold-start" ad groups was already 2,853 days old — visual proof that this is a story about expansion inside mature accounts, not onboarding new ones.
 
 **Figure 5(B).** Account maturity (log-transformed, standardized count of all-time ad groups) was tested against each customer's mean initial 30-day growth slope (n=29). The raw-scale OLS coefficient was weakly positive (β=8.34) but non-significant (p=.576), and the pre-registered decision rule — a cluster permutation test (10,000 iterations) — agreed: p=.663. The 95% bootstrap CI [-15.84, 43.08] comfortably contained zero. Dropping the largest customer (35.8% of the sample) as a sensitivity check changed nothing (permutation p=.702). Most tellingly, that weak positive coefficient collapsed to β=1.48 under winsorizing and **flipped sign entirely** under a rank-based regression (β=-0.0196) — the signature of a result being driven by a couple of high-leverage outliers rather than a genuine relationship. The standardized effect size (β=.085) sits at just 17% of the large-effect threshold the pre-registered power simulation was built to detect.
 
@@ -138,7 +162,9 @@ With the sample and the model finally sound, we could ask the question the study
 
 If history doesn't clearly matter, what does? We tested whether an ad group's own first 14–60 days of activity — coverage, early spend trend, CTR, CVR, ROAS — predict how it performs afterward, using customer-grouped repeated splits and Leave-One-Customer-Out (LOCO) cross-validation to guard against information leakage.
 
-**Figure 6(A,B) — The prediction result, and the trap hidden inside it.** Using only the ad group's own early signal, 14-day-ahead growth prediction achieved a respectable ρ=0.386 in leakage-free repeated-split validation. Adding account maturity as a feature made things *worse*, not better (ρ=0.373, Wilcoxon p=.038). But the LOCO cross-validation told the opposite story — a *positive* improvement (+0.034) from adding maturity. Which one was right?
+![Figure 6 | Cold-start early-signal prediction (RQ2) and intervention-timing simulation (RQ3)](figures/Figure6_RQ2_horizon_RQ3_lift.png)
+
+**Figure 6(A,B) — The prediction result, and the trap hidden inside it** (`figures/make_figure6_rq2_horizon_rq3_lift.py`). Using only the ad group's own early signal, 14-day-ahead growth prediction achieved a respectable ρ=0.386 in leakage-free repeated-split validation. Adding account maturity as a feature made things *worse*, not better (ρ=0.373, Wilcoxon p=.038). But the LOCO cross-validation told the opposite story — a *positive* improvement (+0.034) from adding maturity. Which one was right?
 
 Panel B answers that by decomposing the improvement into within-customer and between-customer components. The apparent LOCO gain turned out to be almost entirely a between-customer effect — maturity was just re-injecting the same customer-level growth-level signal from §3.2 through a pooled metric, not genuinely improving ad-group-level prediction. Within-customer improvement was essentially zero (±0.02) across all three window combinations tested.
 
@@ -148,11 +174,11 @@ Panel B answers that by decomposing the improvement into within-customer and bet
 
 ### 3.4 When's the best day to flag a struggling ad group?
 
-**Figure 6(C,D) — Timing an intervention.** Flagging the bottom 25–40% of predicted growers achieved a 1.2–1.4x precision lift over random flagging, and that lift held up consistently whether the decision was made at day 7, 14, or 21 post-registration (Panel C). But the 95% bootstrap confidence intervals on predictive accuracy at each of those cutoffs overlap heavily (Panel D) — there's no statistical basis for calling any single day "optimal."
+**Figure 6(C,D) — Timing an intervention** (same figure as above). Flagging the bottom 25–40% of predicted growers achieved a 1.2–1.4x precision lift over random flagging, and that lift held up consistently whether the decision was made at day 7, 14, or 21 post-registration (Panel C). But the 95% bootstrap confidence intervals on predictive accuracy at each of those cutoffs overlap heavily (Panel D) — there's no statistical basis for calling any single day "optimal."
 
 We also tried to go further and quantify the *expected benefit* of intervening at each point in time, but two independent attempts at that simulation both failed the same way: the assumed intervention-effect parameters combined multiplicatively in a way that made the "optimal" answer (day 21, threshold 0.40) come out identical *no matter what values we assumed*. That's not a robust finding — it's a mathematical illusion baked into the formula. We caught it, discarded both simulations, and report the limitation openly rather than presenting a false sense of precision.
 
-**Design artifact.** §3.3's within-customer result motivates a concrete decision rule — flag an ad group if its own early-window signal places it in the bottom 30% of predicted growth, evaluated at any point in a day-7–21 window. This is formalized as an explicit design-science artifact (input/output specification, three design principles) in [`supplementary_robustness/04_design_artifact_future_work.md`](supplementary_robustness/04_design_artifact_future_work.md). Its binary-flagging empirical backtest, however, is **not** reported as a confirmed advantage: the naive size/tenure comparison rule collapses to numerical zero under within-customer demeaning (a structural fact — account maturity is a customer-level constant — not a bug), and against a random-flagging baseline, the design artifact's own-signal precision wins in 4 of 9 tested specifications and loses in 5, indistinguishable from chance at this sample size (n≈20 customers per specification). The design principles are grounded in §3.3's continuous-scale result; their binary-flagging empirical superiority is left as future work.
+**Design artifact.** §3.3's within-customer result motivates a concrete decision rule — flag an ad group if its own early-window signal places it in the bottom 30% of predicted growth, evaluated at any point in a day-7–21 window. This is formalized as an explicit design-science artifact (input/output specification, three design principles) in [`supplementary_robustness/04_design_artifact_future_work.md`](supplementary_robustness/04_design_artifact_future_work.md). Its binary-flagging empirical backtest, however, is **not** reported as a confirmed advantage: the naive size/tenure comparison rule collapses to numerical zero under within-customer demeaning (a structural fact — account maturity is a customer-level constant — not a bug), and against a random-flagging baseline, the design artifact's own-signal precision wins in 4 of 9 tested specifications and loses in 5, indistinguishable from chance at this sample size (n≈20 customers per specification). The full input/output specification and the three design principles (DP1–DP3) are reproduced below in §11.8. The design principles are grounded in §3.3's continuous-scale result; their binary-flagging empirical superiority is left as future work.
 
 **Verdict:** early flagging is directionally motivated by a confirmed continuous-scale result, but neither a precise "optimal day" nor an empirically confirmed binary-flagging advantage is something this data can support yet.
 
@@ -170,6 +196,7 @@ We also tried to go further and quantify the *expected benefit* of intervening a
 | Direct test of the structural attribute | Direct effect vanishes once spend is controlled; near-homogeneous across contexts (p=.023 joint heterogeneity test) | No detectable direct effect of maturity; equivalence formally inconclusive (TOST p=.197) |
 | What actually drives outcomes | Spend (a mediating variable, replicated on a cost-independent outcome) | The unit's own early operating signal (within-customer confirmed) |
 | Independent verification methods | 8 | 5, plus within/between decomposition and a second TOST |
+| Key figures | Figures 1–3, 7, 8 | Figures 5, 6 |
 
 These two investigations share no data, no time axis, and almost no statistical machinery in common — one is a cross-sectional mediation problem, the other a longitudinal, customer-clustered prediction problem. And yet they land on a closely aligned structural conclusion: **an account's size or history has little direct effect on unit-level performance once you account for what actually mediates it — spend, or the unit's own real-time signal** — with the qualifications (product-type heterogeneity in Study 1; TOST-inconclusive equivalence in Study 2) that keep this from being an unqualified universal claim. We call this pattern **structural blindness**: a real-time, bid-based serving system that evaluates every ad group largely by its current behavior, only modestly conditioned by the account's past or scale.
 
@@ -183,12 +210,21 @@ These two investigations share no data, no time axis, and almost no statistical 
 
 ## 5. Boundary conditions and generalizability
 
-Two questions bound how far the "structural blindness" claim should travel: (a) does it hold uniformly *within* this platform, and (b) how far does it plausibly extend *beyond* this platform.
+Two questions bound how far the "structural blindness" claim should travel: (a) does it hold uniformly *within* this platform, and (b) how far does it plausibly extend *beyond* this platform. Full detail for both strata below lives in [`supplementary_robustness/02_boundary_conditions.md`](supplementary_robustness/02_boundary_conditions.md).
 
 **(a) Within-platform heterogeneity.** Two strata were tested against Study 1's central result:
 
-- **Campaign product type** (platform-defined, well-measured; §2.5): the spend-controlled size effect is not perfectly homogeneous across website / shopping / local-business / brand-new-product campaigns (joint Wald p=.023), plausibly because these route through different approval pipelines on this platform (e.g., shopping campaigns are subject to product-feed validation that standard search campaigns are not). No individual stratum shows a significant size effect.
-- **Keyword review status** (a proxy for platform discretion; §2, boundary-conditions file): only 0.5% of keywords in this dataset carry any non-standard `inspect_status` code, so this check is under-powered by construction. A restricted-approval-driven interaction is directionally interesting (p=.016) but does not cleanly map onto the "discretionary review as a channel for account-attribute leakage" mechanism that motivated the check, since restricted-approval denotes an already-resolved outcome rather than a pending discretionary review. Reported as preliminary, not confirmatory.
+- **Campaign product type** (platform-defined, well-measured; §2.5, Figure 8 above): the spend-controlled size effect is not perfectly homogeneous across website / shopping / local-business / brand-new-product campaigns (joint Wald p=.023), plausibly because these route through different approval pipelines on this platform (e.g., shopping campaigns are subject to product-feed validation that standard search campaigns are not). No individual stratum shows a significant size effect.
+- **Keyword review status** (a proxy for platform discretion; see table below): only 0.5% of keywords in this dataset carry any non-standard `inspect_status` code, so this check is under-powered by construction. A restricted-approval-driven interaction is directionally interesting (p=.016) but does not cleanly map onto the "discretionary review as a channel for account-attribute leakage" mechanism that motivated the check, since restricted-approval denotes an already-resolved outcome rather than a pending discretionary review. Reported as preliminary, not confirmatory.
+
+  | Definition | n (pending-share > 0) | n (all zero) | size × pending interaction p |
+  |---|---|---|---|
+  | Under-review only | 22 | 230 | .638 |
+  | Restricted-approval only | 106 | 146 | .016 |
+  | Combined | 111 | 141 | .016 |
+
+  The combined definition's significance is driven almost entirely by the restricted-approval component (106 of 111 customers), not by an independent contribution from the under-review component — one underlying signal probed three ways, not three independent confirmations.
+
 - **Advertiser industry** was piloted as a third stratification (text-embedding clustering + LLM-ensemble labeling against Korean Standard Industrial Classification categories) but is *not* used to support any claim: inter-rater reliability across the four-model LLM ensemble was only moderate (Randolph's free-marginal kappa = 0.557) and cross-validation against an independent rule-based classifier was weaker still (Cohen's κ = 0.363). The pipeline and reliability diagnostics are retained in `supplementary_robustness/` for transparency and as a direction for future work with a higher-reliability label source.
 
 **(b) Cross-platform generalizability.** The mechanism this repository documents — real-time, auction-based serving that scores each unit primarily on its own current signal — is a property of the serving architecture, not of this specific platform's brand. We expect the *direction* of the structural-blindness finding to generalize to other real-time bidding-based ad platforms with comparable architecture (unit-level auctions, continuous re-ranking, no persistent account-level scoring layer). We do **not** claim the specific magnitudes generalize, and we explicitly flag conditions under which the mechanism plausibly breaks down:
@@ -203,19 +239,21 @@ This repository's single-agency, single-platform data cannot itself test these b
 
 ## 6. What "null result" means here: equivalence and sensitivity
 
-A non-significant p-value does not, by itself, establish that an effect is genuinely absent — it establishes that this sample could not distinguish the observed effect from zero at conventional confidence. This repository draws that distinction explicitly wherever a null result is central to the argument.
+A non-significant p-value does not, by itself, establish that an effect is genuinely absent — it establishes that this sample could not distinguish the observed effect from zero at conventional confidence. This repository draws that distinction explicitly wherever a null result is central to the argument. Full derivations for both items below are in [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](supplementary_robustness/03_equivalence_and_sensitivity_notes.md).
 
-**TOST equivalence testing.** Two central results (RQ1: account maturity → growth slope; RQ2/H2b: does maturity improve ad-group-level prediction) were each subjected to a two-one-sided-test procedure against a pre-specified equivalence margin. Neither reaches formal equivalence (RQ1: p=.197 against a ±0.20 SESOI; RQ2/H2b: p=.290 against a ±0.05 Spearman-ρ SESOI). Both results are consequently reported as *non-significant, well-powered associations for which formal equivalence is inconclusive* — not as confirmed nulls — throughout §3. Full detail in [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](supplementary_robustness/03_equivalence_and_sensitivity_notes.md).
+![Figure 9. TOST equivalence tests for the two central null results](figures/Figure9_tost_equivalence.png)
 
-**Omitted-variable-bias sensitivity (Oster's delta).** The bid_amount-based mediation result (§2.4, method 8) is the primary evidentiary basis for the efficiency claim. Oster's delta quantifies how much stronger an unobserved confounder would need to be, relative to the observed controls, to explain the spend → bid_amount coefficient away. The computed value (δ*=+71.4) looks dramatically robust — but the R² increment from adding `size_z` to the model is only 0.0009, effectively zero, which places the calculation in a numerically unstable region where δ* diverges regardless of the true underlying robustness. We do not report δ* as evidence of robustness here; the R² increment itself (size adding essentially no explanatory power to bid_amount beyond spend) is the more interpretable, more conservative, and ultimately consistent takeaway. We adopt a minimum-R²-increment threshold (0.01) below which δ* is reported for transparency but not used as a robustness claim, and recommend this practice generally.
+**Figure 9 — TOST equivalence plot** (`figures/make_figure9_tost_equivalence.py`). Two central results (RQ1: account maturity → growth slope; RQ2/H2b: does maturity improve ad-group-level prediction) were each subjected to a two-one-sided-test (TOST) procedure against a pre-specified equivalence margin (the green shaded region, or "smallest effect size of interest," SESOI). In both panels the observed point estimate sits comfortably *inside* the equivalence region, yet the TOST itself is not significant — neither reaches formal equivalence (RQ1: p=.197 against a ±0.20 SESOI; RQ2/H2b: p=.290 against a ±0.05 Spearman-ρ SESOI). Both results are consequently reported as *non-significant, well-powered associations for which formal equivalence is inconclusive* — not as confirmed nulls — throughout §3.
+
+**Omitted-variable-bias sensitivity (Oster's delta).** The bid_amount-based mediation result (§2.4, method 8) is the primary evidentiary basis for the efficiency claim. Oster's delta quantifies how much stronger an unobserved confounder would need to be, relative to the observed controls, to explain the spend → bid_amount coefficient away. The computed value (δ*=+71.4) looks dramatically robust — but the R² increment from adding `size_z` to the model is only 0.0009, effectively zero, which places the calculation in a numerically unstable region where δ* diverges regardless of the true underlying robustness. We do not report δ* as evidence of robustness here; the R² increment itself (size adding essentially no explanatory power to bid_amount beyond spend) is the more interpretable, more conservative, and ultimately consistent takeaway. We adopt a minimum-R²-increment threshold (0.01) below which δ* is reported for transparency but not used as a robustness claim, and recommend this practice generally. Full numeric table in §11.7 below.
 
 ---
 
 ## 7. Limitations
 
 1. **Single agency, single platform.** See §5(b) for the specific conditions under which the mechanism is expected to hold or plausibly break down elsewhere.
-2. **CPC-based estimates carry a partly mechanical component.** Reported as directionally informative only; the bid_amount-based estimate is the primary quantitative claim wherever the two diverge (§2.4).
-3. **Two central null results are non-significant but not formally equivalence-confirmed** (§6). We report both facts rather than rounding "non-significant" up to "confirmed absent."
+2. **CPC-based estimates carry a partly mechanical component.** Reported as directionally informative only; the bid_amount-based estimate is the primary quantitative claim wherever the two diverge (§2.4, Figure 7).
+3. **Two central null results are non-significant but not formally equivalence-confirmed** (§6, Figure 9). We report both facts rather than rounding "non-significant" up to "confirmed absent."
 4. **The industry-stratification pipeline has only moderate label reliability** and is not used to support any claim (§5a).
 5. **The early-flagging design artifact (§3.4) is theoretically grounded but not empirically validated** as a binary-decision rule; its backtest is reported as future work.
 6. **Keyword-review-status boundary-condition check is under-powered** (0.5% of keywords carry a non-standard status) and is reported as preliminary/exploratory (§5a).
@@ -234,6 +272,7 @@ A non-significant p-value does not, by itself, establish that an effect is genui
 | Multiple-testing correction | Benjamini-Hochberg FDR (6 primary hypotheses) | Not applicable (single confirmatory hypothesis; convergence across 5 methods used instead) |
 | Methods tried and discarded | None (all retained) | Group-based trajectory modeling (class count unidentifiable, 0–9% BIC recovery), mixed-effects model (100% convergence failure, non-identified) |
 | Pre-registered / post-hoc power check | MDE at 80% power | Simulation reusing real cluster structure (500 iterations); only large effects (β≈.5) reliably detectable (88% power) |
+| Related figures | 1, 2, 3, 4, 7, 8 | 5, 6, 9 |
 
 Known code- and design-level issues (the unrecoverable 2SLS first-stage F-statistic, the Wilcoxon floor-p artifact in the churn appendix, the multiplicative-structure illusion in the intervention-uplift simulation, among others) are logged transparently in [`docs/METHODOLOGY_NOTES.md`](docs/METHODOLOGY_NOTES.md).
 
@@ -291,17 +330,17 @@ ad-coldstart-analysis/
 ├── supplementary_robustness/          <- extended robustness analyses, each independently
 │   │                                      runnable and mapped to a specific README section
 │   ├── supplementary_robustness_README.md
-│   ├── 01_alternative_outcome_mediation.md
-│   ├── 01_alternative_outcome_mediation.py   <- §2.4: cost-sharing artifact isolation +
+│   ├── 01_alternative_outcome_mediation.md    <- feeds §2.4 + Figure 7
+│   ├── 01_alternative_outcome_mediation.py    <- §2.4: cost-sharing artifact isolation +
 │   │                                              bid_amount mediation replication
-│   ├── 02_boundary_conditions.md
-│   ├── 02_boundary_conditions.py             <- §2.5, §5: campaign_type + keyword
+│   ├── 02_boundary_conditions.md              <- feeds §2.5, §5 + Figure 8
+│   ├── 02_boundary_conditions.py              <- §2.5, §5: campaign_type + keyword
 │   │                                              review-status stratified heterogeneity
-│   ├── 03_equivalence_and_sensitivity_notes.md
+│   ├── 03_equivalence_and_sensitivity_notes.md <- feeds §3.2, §6 + Figure 9
 │   ├── 03_equivalence_and_sensitivity_notes.py <- §3.2, §6: TOST equivalence tests +
 │   │                                                Oster's delta sensitivity analysis
-│   ├── 04_design_artifact_future_work.md
-│   ├── 04_design_artifact_future_work.py     <- §3.4: early-flagging design artifact,
+│   ├── 04_design_artifact_future_work.md      <- feeds §3.4
+│   ├── 04_design_artifact_future_work.py      <- §3.4: early-flagging design artifact,
 │   │                                              its backtest, and the naive-rule
 │   │                                              degeneracy diagnostic
 │   └── outputs/                       <- JSON/CSV artifacts from the four scripts above
@@ -309,16 +348,15 @@ ad-coldstart-analysis/
 │
 ├── figures/                            <- one script per figure, each reads a results
 │   │                                       JSON/CSV and writes a PNG to outputs/figures/
-│   ├── make_figure1_variance_decomposition.py
-│   ├── make_figure2_fairness_forest_plot.py
-│   ├── make_figure3_specification_curve_placebo.py
-│   ├── make_figure4_churn_benchmark.py
-│   ├── make_figure5_coldstart_funnel_and_rq1_null.py
-│   ├── make_figure6_rq2_horizon_rq3_lift.py
-│   ├── make_figure7_mediation_forest.py        <- NEW: CPC-based vs. bid_amount-based
-│   │                                                 spend-mediation b-path comparison
-│   ├── make_figure8_boundary_condition_forest.py <- NEW: campaign_type heterogeneity forest plot
-│   ├── make_figure9_tost_equivalence.py         <- NEW: TOST equivalence plot (RQ1, RQ2/H2b)
+│   ├── make_figure1_variance_decomposition.py    -> Figure1_variance_decomposition.png     (§2.1)
+│   ├── make_figure2_fairness_forest_plot.py      -> Figure2_fairness_forest_plot.png       (§2.3)
+│   ├── make_figure3_specification_curve_placebo.py -> Figure3_specification_curve_placebo.png (§2.4)
+│   ├── make_figure4_churn_benchmark.py           -> Figure4_churn_benchmark.png            (§2.6)
+│   ├── make_figure5_coldstart_funnel_and_rq1_null.py -> Figure5_coldstart_funnel_and_RQ1_null.png (§3.1–3.2)
+│   ├── make_figure6_rq2_horizon_rq3_lift.py      -> Figure6_RQ2_horizon_RQ3_lift.png        (§3.3–3.4)
+│   ├── make_figure7_mediation_forest.py          -> Figure7_mediation_forest.png            (§2.4)
+│   ├── make_figure8_boundary_condition_forest.py -> Figure8_boundary_condition_forest.png   (§2.5, §5)
+│   ├── make_figure9_tost_equivalence.py          -> Figure9_tost_equivalence.png            (§6)
 │   ├── Figure1_variance_decomposition.png
 │   ├── Figure2_fairness_forest_plot.png
 │   ├── Figure3_specification_curve_placebo.png
@@ -394,26 +432,26 @@ Every step prints its own diagnostics and writes a JSON/CSV artifact to `outputs
 
 ## 11. Figures and tables (journal-submission set)
 
-This section consolidates every figure and table referenced above into the set typically expected for a top-tier submission (e.g., a Decision/Information-Systems or e-commerce-analytics outlet): main-text figures, main-text tables, and appendix/robustness tables. All numbers below are drawn from the analyses described in §2–§6; figure-generation scripts are in `figures/`.
+This section consolidates every figure and table referenced above into the set typically expected for a top-tier submission (e.g., a Decision/Information-Systems or e-commerce-analytics outlet): main-text figures, main-text tables, and appendix/robustness tables. All numbers below are drawn from the analyses described in §2–§6; figure-generation scripts are in `figures/`, and the four `supplementary_robustness/*.md` files are the canonical source for §11.4–§11.8.
 
 ### 11.1 Main-text figures
 
-| Figure | Title | Script |
-|---|---|---|
-| 1 | Multilevel variance decomposition (spend, CTR) | `make_figure1_variance_decomposition.py` |
-| 2 | Fairness forest plot — spend-controlled regression, 6 outcome×sample combinations | `make_figure2_fairness_forest_plot.py` |
-| 3 | Specification-curve analysis (48 specs) + placebo test | `make_figure3_specification_curve_placebo.py` |
-| 5 | Cold-start sample-construction funnel + RQ1 null result | `make_figure5_coldstart_funnel_and_rq1_null.py` |
-| 6 | RQ2 prediction horizon decay + RQ3 intervention-timing lift | `make_figure6_rq2_horizon_rq3_lift.py` |
-| **7 (new)** | Spend-mediation b-path: CPC-based vs. cost-independent (bid_amount-based) outcome | `make_figure7_mediation_forest.py` |
-| **8 (new)** | Campaign product-type heterogeneity in the spend-controlled size effect | `make_figure8_boundary_condition_forest.py` |
-| **9 (new)** | TOST equivalence plot for the two central null results (RQ1, RQ2/H2b) | `make_figure9_tost_equivalence.py` |
+| Figure | Title | Script | Rendered in |
+|---|---|---|---|
+| [1](figures/Figure1_variance_decomposition.png) | Multilevel variance decomposition (spend, CTR) | `make_figure1_variance_decomposition.py` | §2.1 |
+| [2](figures/Figure2_fairness_forest_plot.png) | Fairness forest plot — spend-controlled regression, 6 outcome×sample combinations | `make_figure2_fairness_forest_plot.py` | §2.3 |
+| [3](figures/Figure3_specification_curve_placebo.png) | Specification-curve analysis (48 specs) + placebo test | `make_figure3_specification_curve_placebo.py` | §2.4 |
+| [5](figures/Figure5_coldstart_funnel_and_RQ1_null.png) | Cold-start sample-construction funnel + RQ1 null result | `make_figure5_coldstart_funnel_and_rq1_null.py` | §3.1–3.2 |
+| [6](figures/Figure6_RQ2_horizon_RQ3_lift.png) | RQ2 prediction horizon decay + RQ3 intervention-timing lift | `make_figure6_rq2_horizon_rq3_lift.py` | §3.3–3.4 |
+| **[7](figures/Figure7_mediation_forest.png) (new)** | Spend-mediation b-path: CPC-based vs. cost-independent (bid_amount-based) outcome | `make_figure7_mediation_forest.py` | §2.4 |
+| **[8](figures/Figure8_boundary_condition_forest.png) (new)** | Campaign product-type heterogeneity in the spend-controlled size effect | `make_figure8_boundary_condition_forest.py` | §2.5, §5 |
+| **[9](figures/Figure9_tost_equivalence.png) (new)** | TOST equivalence plot for the two central null results (RQ1, RQ2/H2b) | `make_figure9_tost_equivalence.py` | §6 |
 
 ### 11.2 Appendix figure
 
-| Figure | Title | Script |
-|---|---|---|
-| 4 | Churn-prediction benchmarking (exploratory appendix) | `make_figure4_churn_benchmark.py` |
+| Figure | Title | Script | Rendered in |
+|---|---|---|---|
+| [4](figures/Figure4_churn_benchmark.png) | Churn-prediction benchmarking (exploratory appendix) | `make_figure4_churn_benchmark.py` | §2.6 |
 
 ### 11.3 Table 1 — Data description
 
@@ -428,6 +466,8 @@ This section consolidates every figure and table referenced above into the set t
 
 ### 11.4 Table 2 — Spend-mediation results, by outcome construction
 
+*Source: [`supplementary_robustness/01_alternative_outcome_mediation.md`](supplementary_robustness/01_alternative_outcome_mediation.md); visualized in Figure 7.*
+
 | Path | CPC-based | bid_amount-based (primary) |
 |---|---|---|
 | a-path: size → total spend | +0.537 (p<.001) | +0.537 (p<.001) |
@@ -439,7 +479,11 @@ This section consolidates every figure and table referenced above into the set t
 | Permutation p, indirect | <.001 | <.001 |
 | Status | Directionally informative only (mechanical cost-sharing artifact) | **Primary quantitative evidence** |
 
+Supporting detail from the same file: the mechanical-artifact isolation (2,000-iteration customer-level permutation, holding cost fixed and reshuffling click) put the purely mechanical spend → log(CPC) null distribution at mean +1.552 (95% range [+1.544, +1.556]) — the observed +1.277 falls *below* that range, and a lagged replication (spend at day *t* → CPC at *t*+1/*t*+7, immune to same-day cost-sharing) confirms a same-signed, significant relationship at both lags (β=+0.538, p<.001; β=+0.544, p<.001).
+
 ### 11.5 Table 3 — Boundary-condition stratified results (campaign_type)
+
+*Source: [`supplementary_robustness/02_boundary_conditions.md`](supplementary_robustness/02_boundary_conditions.md); visualized in Figure 8.*
 
 | Product type | n (rows) | n (customers) | c′ (size, net of spend) | p |
 |---|---|---|---|---|
@@ -450,12 +494,16 @@ This section consolidates every figure and table referenced above into the set t
 
 ### 11.6 Table 4 — TOST equivalence test results
 
+*Source: [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](supplementary_robustness/03_equivalence_and_sensitivity_notes.md); visualized in Figure 9.*
+
 | Test | Observed effect | Equivalence margin (SESOI) | TOST p | Equivalence established? |
 |---|---|---|---|---|
 | RQ1: maturity → growth slope | β = 0.085 | ±0.20 (std. effect) | .197 | No |
 | RQ2/H2b: maturity → prediction improvement | Δρ = +0.023 | ±0.05 (Spearman ρ) | .290 | No |
 
 ### 11.7 Table 5 — Oster's delta sensitivity (bid_amount b-path)
+
+*Source: [`supplementary_robustness/03_equivalence_and_sensitivity_notes.md`](supplementary_robustness/03_equivalence_and_sensitivity_notes.md).*
 
 | Quantity | Value |
 |---|---|
@@ -467,9 +515,22 @@ This section consolidates every figure and table referenced above into the set t
 | Rmax (1.3 × R²_full, capped at 1.0) | 0.0367 |
 | δ* (Oster's delta) | +71.4 (reported for transparency; not used as a robustness claim — see §6) |
 
-### 11.8 Table 6 — Early-flagging design-artifact backtest summary
+### 11.8 Table 6 — Early-flagging design-artifact specification and backtest summary
 
-| Metric | Value |
+*Source: [`supplementary_robustness/04_design_artifact_future_work.md`](supplementary_robustness/04_design_artifact_future_work.md).*
+
+**Artifact: Ad-Group Early Warning Flagging Rule**
+
+| Field | Value |
+|---|---|
+| Input | `predicted_growth_rank_percentile` (float, [0,1]); `day_since_registration` (int) |
+| Output | `flag` (bool), `reason` (str) |
+| Parameters | `flag_threshold` = 0.30; valid decision window = day 7–21 post-registration |
+| DP1 | Base flagging solely on the ad group's own early-period signal — never on account-level history (§3.3) |
+| DP2 | Evaluate at any point within a bounded window (day 7–21), not a single fixed day (§3.4) |
+| DP3 | Threshold on relative rank (percentile) within cohort, not absolute growth value |
+
+| Backtest metric | Value |
 |---|---|
 | Specifications tested | 9 (active-day-threshold × early-window × later-window grid) |
 | Naive (size/tenure) rule within-customer std after demeaning | ~1e-17 (degenerate in all 9 specs — structural, not a bug) |
@@ -485,9 +546,9 @@ This section consolidates every figure and table referenced above into the set t
 2. **Every "cutoff" or date threshold is derived from the data at run time**, never hard-coded, so a re-extract of the underlying panel cannot silently invalidate downstream thresholds.
 3. **Information leakage is checked, not assumed away.** All train/test splits are customer-grouped, and every repeated-split loop verifies (and logs) that no customer appears in both the train and test partitions of any single split.
 4. **Sample-exclusion rules are pre-specified and logged**, not applied ad hoc.
-5. **Null results are reported with the same rigor as positive ones — and are not conflated with confirmed nulls unless a formal equivalence test says so.** Every non-significant central result in this repository is accompanied by (a) a pre-registered power simulation establishing what effect sizes the sample could and could not have detected, and (b), where central to the argument, a TOST equivalence test establishing whether the absence of an effect can be formally bounded.
-6. **A single quantitative point estimate is never taken at face value when a structural artifact could inflate it.** Where an outcome construction shares a mechanical term with a predictor (§2.4), the mechanical component is explicitly isolated and the conclusion is re-anchored on an artifact-free alternative outcome.
-7. **Sensitivity statistics are checked for numerical stability before being reported as evidence.** A large-looking robustness statistic (Oster's delta) computed in a numerically unstable regime is reported transparently but is not used to support a robustness claim (§6).
+5. **Null results are reported with the same rigor as positive ones — and are not conflated with confirmed nulls unless a formal equivalence test says so.** Every non-significant central result in this repository is accompanied by (a) a pre-registered power simulation establishing what effect sizes the sample could and could not have detected, and (b), where central to the argument, a TOST equivalence test establishing whether the absence of an effect can be formally bounded (Figure 9).
+6. **A single quantitative point estimate is never taken at face value when a structural artifact could inflate it.** Where an outcome construction shares a mechanical term with a predictor (§2.4), the mechanical component is explicitly isolated and the conclusion is re-anchored on an artifact-free alternative outcome (Figure 7).
+7. **Sensitivity statistics are checked for numerical stability before being reported as evidence.** A large-looking robustness statistic (Oster's delta) computed in a numerically unstable regime is reported transparently but is not used to support a robustness claim (§6, §11.7).
 
 ---
 
