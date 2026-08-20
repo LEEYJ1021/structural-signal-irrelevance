@@ -1,31 +1,65 @@
-# Early-Flagging Design Artifact and Its Empirical Backtest
+# Supplementary Robustness 04 — Design Artifact: Full Backtest Grid & Future Work
 
-**Supports:** root README §3.4
+This is a working companion to the canonical artifact spec,
+[`docs/DESIGN_ARTIFACT.md`](../docs/DESIGN_ARTIFACT.md), and to root
+[`README.md`](../README.md) §8. Script:
+[`04_design_artifact_future_work.py`](04_design_artifact_future_work.py).
 
-## The design artifact
+---
 
-Section 3.3's within-customer result — an ad group's own early signal predicts its near-term growth, and account maturity adds nothing at the within-customer level — motivates a concrete decision rule for flagging underperforming ad groups early. The rule is specified below as a design artifact in the design-science sense: an explicit, implementable input/output specification, grounded in a stated empirical result, rather than a vague recommendation.
+## 1. Full nine-specification backtest grid
 
-**Artifact: Ad-Group Early Warning Flagging Rule**
+Own-signal precision at the 30% flagging threshold vs. a random-flagging
+baseline, within-customer, varying the minimum active-days threshold
+(5/7/10) and the early/later window pair:
 
-- **Input:** `predicted_growth_rank_percentile` (float, [0,1]) — an ad group's predicted growth rank among its cohort, from a model using only that ad group's own early-window features; `day_since_registration` (int)
-- **Output:** `flag` (bool), `reason` (str)
-- **Parameters:** `flag_threshold` = 0.30; valid decision window = day 7–21 post-registration
-- **Design principles:**
-  - **DP1.** Base flagging solely on the ad group's own early-period signal (coverage, spend trend, CTR/CVR) — never on account-level history, per §3.3.
-  - **DP2.** Evaluate at any point within a bounded window (day 7–21) rather than committing to a single fixed day, per §3.4's finding that no single cutoff is statistically distinguishable as optimal.
-  - **DP3.** Threshold on relative rank (percentile) within the observed cohort rather than on an absolute growth value, since growth magnitudes are not comparable across heterogeneous ad groups.
+| Spec (active-days_early-later) | n (ad groups) | n (customers) | Own-signal precision | Random baseline | Difference |
+|---|---|---|---|---|---|
+| active7_14-14 | 195 | 20 | 0.276 | 0.297 | −0.022 |
+| active5_14-14 | 196 | 20 | 0.310 | 0.296 | +0.014 |
+| active5_10-10 | 197 | 20 | 0.390 | 0.299 | +0.090 |
+| active5_7-14 | 197 | 20 | 0.288 | 0.299 | −0.011 |
+| active7_10-10 | 196 | 20 | 0.397 | 0.296 | +0.101 |
+| active7_7-14 | 196 | 20 | 0.259 | 0.296 | −0.037 |
+| active10_14-14 | 195 | 20 | 0.276 | 0.297 | −0.022 |
+| active5_14-21 | 195 | 20 | 0.328 | 0.297 | +0.030 |
+| active7_14-21 | 194 | 20 | 0.293 | 0.299 | −0.006 |
 
-## The empirical backtest, and why it is not reported as a confirmed result
+Own-signal precision exceeds the random baseline in **4 of 9
+specifications (44%)**. At n ≈ 20 customers per spec, this pattern is not
+distinguishable from chance — reported plainly, not rounded up to a
+"generally wins" claim.
 
-A backtest compared this rule's flagging precision against a naive alternative based on account size/tenure, using within-customer-demeaned predictions (to isolate the same within-customer signal that DP1 claims matters) and a 30% flagging threshold, across nine (active-day-threshold × early-window × later-window) specifications.
+## 2. Why the naive size/tenure comparison was dropped, not just reported as "loses"
 
-**A structural finding, not a bug.** Account maturity is a customer-level constant. Within-customer demeaning of a prediction built from a customer-level constant collapses that prediction to numerical zero in every specification tested (residual standard deviation on the order of 1e-17, i.e., floating-point noise). This is the correct and expected behavior, not an error: it is the same fact demonstrated analytically in §3.3's within/between decomposition, now confirmed in a second, independent (binary-flagging) frame. It means the naive size/tenure rule has **no within-customer predictive content by construction**, so a "naive wins" or "own-signal wins" comparison against it is not a meaningful contest — there is nothing for the own-signal rule to beat on this axis.
+Account maturity is a customer-level constant. Within-customer demeaning —
+required to isolate the same within-customer signal DP1 claims matters —
+collapses the naive rule's predictions to numerical zero in every
+specification (residual SD ~1e-17, i.e., floating-point noise). The naive
+rule therefore has **no within-customer predictive content by
+construction**: there is nothing for the own-signal rule to beat on this
+axis, so "naive vs. own-signal" is not a meaningful contest and is not
+reported as one (full derivation: `docs/METHODOLOGY_NOTES.md`, entry 9).
 
-**What can be evaluated instead: own-signal against a random baseline.** With the naive comparison ruled out as ill-posed, the own-signal rule's precision was compared against random flagging at the same threshold, across the same nine specifications (n≈20 customers, ≈200 ad groups each). Own-signal precision exceeded the random baseline in 4 of 9 specifications and underperformed it in 5. At this sample size, this pattern is not distinguishable from chance and is **not reported as a confirmed empirical advantage** for the flagging rule.
+## 3. Relationship to the continuous-scale §7.2 result
 
-**Why this does not contradict §3.3.** Section 3.3's result is a continuous-scale finding (Spearman ρ on continuous predicted growth), well powered and significant at short horizons. This backtest instead asks a much coarser question — does thresholding that continuous signal into a binary "flag the bottom 30%" decision produce a precision advantage detectable at n≈20 customers — and the answer is that this specific binary-decision framing does not have enough power to resolve the question one way or the other. A continuous signal being predictive does not guarantee that any particular binarization of it is empirically distinguishable from random at a small sample size; these are different statistical questions with different power requirements.
+README §7.2's result is a **continuous-scale** finding (Spearman ρ on
+continuous predicted growth), well-powered and significant at short
+horizons (14-day within-customer LOCO ρ up to ≈0.49). This backtest asks a
+**much coarser** question — does thresholding that signal into a binary
+"flag the bottom 30%" decision produce a detectable precision advantage
+at n ≈ 20 customers — and the answer is that this specific binary-decision
+framing lacks the power to resolve the question either way. This is not a
+contradiction of §7.2 and should not be read as one.
 
-## How this is used in the main text
+## 4. Recommended next steps
 
-Per root README §3.4, the design principles (DP1–DP3) are presented as **theoretically grounded** in §3.3's confirmed within-customer result, not as an empirically validated decision rule. The binary-flagging backtest above is not cited as supporting evidence for the artifact's practical superiority over alternatives. We recommend this as a specific, well-defined direction for future work: a larger cold-start sample, and/or a continuous-scale (rather than binary-threshold) evaluation of the flagging rule's utility, would be needed to empirically validate the artifact rather than only theoretically motivate it.
+1. **A larger cold-start sample.** The current n ≈ 20-customer backtest is
+   underpowered for a 9-percentage-point-scale precision comparison.
+2. **A continuous-scale evaluation** of the flagging rule's utility (e.g.,
+   a full precision–recall curve across thresholds), reported in the same
+   continuous-metric terms as §7.2 rather than as a single-threshold
+   binary win/loss.
+3. **A held-out replication window**, once enough calendar time has
+   elapsed to construct an independent cold-start cohort, to check whether
+   the 4/9 pattern above is stable or itself noise.
