@@ -1,38 +1,75 @@
-# Alternative-Outcome Mediation: Isolating and Replicating the Spend Effect Independently of Cost-Sharing
+# Supplementary Robustness 01 — Alternative-Outcome Mediation
 
-**Supports:** root README §2.4 (Study 1 stress-testing)
+Feeds root [`README.md`](../README.md) §5.4 (methods 7–8) and Figure 7.
+Script: [`01_alternative_outcome_mediation.py`](01_alternative_outcome_mediation.py).
 
-## Why this analysis exists
+---
 
-Study 1's primary outcome family includes cost-per-click (CPC = cost / click). Because spend (the mediating variable of interest) and CPC both contain a cost term, any observed spend → CPC association carries a mechanical component by construction — clicks fixed, more cost necessarily raises CPC. Reporting the raw spend → CPC coefficient as if it were a purely behavioral (bidding-efficiency) relationship would overstate the evidence. This file isolates the mechanical component, then replicates the mediation result on an outcome (`bid_amount`) that does not share a cost term with spend.
+## 1. Why an alternative outcome is needed
 
-## Step 1 — Isolating the mechanical component
+CPC = cost / click, and spend is built from cost, so any spend–CPC
+association carries a mechanical component by construction — independent
+of any real bidding-efficiency behavior. Any mediation claim resting only
+on CPC would be partly an artifact of how the outcome is defined, not
+purely a behavioral finding.
 
-A customer-level permutation procedure holds `cost` fixed and reshuffles `click` within each customer (2,000 iterations), reconstructing the CPC outcome from the shuffled click counts under a spend–size regression each time. This produces the distribution of spend → CPC coefficients that would be observed from cost-sharing alone, with no genuine behavioral relationship present.
+## 2. Method 7 — isolating the mechanical component
 
-- **Observed spend → log(CPC) coefficient:** +1.277 (cluster-robust p < .001)
-- **Purely mechanical (permuted) null distribution:** mean +1.552, 95% range [+1.544, +1.556]; 100% of permuted draws are themselves "significant" at p<.05
+A customer-level permutation procedure reshuffles `click` within customer
+while holding `cost` fixed (2,000 iterations), producing a null
+distribution for the spend–log(CPC) coefficient that reflects *only* the
+mechanical cost-sharing relationship, with no real click-level signal.
 
-The observed coefficient falls *below* the lower bound of the mechanical null distribution rather than inside or above it. This rules out the concern that the CPC result is entirely an artifact inflated beyond the mechanical baseline; if anything, the true CPC relationship offsets some of the mechanical inflation (consistent with larger advertisers achieving somewhat better bidding efficiency at a given spend level). But because the mechanical component is large and the observed value sits close to the edge of that mechanical distribution, the CPC-based point estimate is not used as a stand-alone quantitative claim anywhere in the main text — it is treated as directionally informative only, and the `bid_amount`-based analysis below is the load-bearing result.
+| Statistic | Value |
+|---|---|
+| Observed spend → log(CPC) coefficient | +1.277 |
+| Purely-mechanical null distribution, mean | +1.552 |
+| Purely-mechanical null distribution, 95% range | [1.544, 1.556] |
+| Observed coefficient vs. null range | below the lower bound |
 
-**Lagged replication.** As an additional, structurally distinct check, spend on day *t* is regressed against CPC on day *t*+1 and *t*+7 (customer-grouped, cluster-robust). Same-day cost-sharing cannot explain a lagged relationship. Both lags return significant, same-signed coefficients (t+1: β=+0.538, p<.001; t+7: β=+0.544, p<.001), consistent with a genuine behavioral spend–efficiency relationship coexisting with the mechanical artifact identified above.
+The observed coefficient falling *below* the mechanical null's lower bound
+means the CPC-based estimate is not simply inflated by the artifact — but
+it sits close enough to the mechanical distribution that it is treated as
+directionally informative rather than a stand-alone quantitative claim.
 
-## Step 2 — Replication on a cost-independent outcome
+**Lagged replication** (spend at day *t* → CPC at *t*+1 and *t*+7, immune
+to same-day cost-sharing):
 
-`bid_amount` (the advertiser's set bid price at the ad-group level) does not contain a cost or click term, so it carries none of the mechanical relationship isolated in Step 1. The same mediation structure as Study 1's main analysis (size → spend → outcome, controlling for size in the outcome equation) is estimated on customer-level aggregates (n=263).
-
-| Path | Coefficient | p-value |
+| Lag | β | p |
 |---|---|---|
-| a-path: size → total spend | +0.537 | < .001 |
-| b-path: total spend → bid_amount \| size | +0.150 | .032 |
-| c'-path: size → bid_amount \| spend (direct effect) | +0.037 | .634 |
-| c-path: size → bid_amount, unconditional (total effect) | +0.117 | .072 |
-| Indirect effect (a × b) | +0.081 | — |
+| t+1 | +0.538 | < .001 |
+| t+7 | +0.544 | < .001 |
 
-- **Bootstrap 95% CI on indirect effect (5,000 customer-level resamples):** [0.008, 0.159] — excludes zero
-- **Cluster permutation test on indirect effect (5,000 iterations):** p < .001
-- **Direction agreement:** the sign of the spend → efficiency-outcome relationship matches between the CPC-based and bid_amount-based models
+Same-signed, significant at both lags — consistent with, though not proof
+of, a genuine behavioral relationship coexisting with the mechanical
+artifact.
 
-**Interpretation.** The direct effect of size on bid_amount, net of spend, is non-significant (p=.634) — the same qualitative conclusion as Study 1's primary result, now replicated on an outcome immune to the cost-sharing artifact identified in Step 1. The indirect (spend-mediated) effect is significant and bootstrap-confirmed. This is the analysis referenced in root README §2.4 as the eighth independent verification method and is the primary evidentiary basis for Study 1's efficiency-outcome conclusion; the CPC-based coefficients reported elsewhere in the pipeline are retained for transparency but are secondary to this result.
+## 3. Method 8 — replication on `bid_amount` (cost-independent)
 
-A formal omitted-variable-bias sensitivity check (Oster's delta) for the bid_amount b-path is reported in [`03_equivalence_and_sensitivity_notes.md`](03_equivalence_and_sensitivity_notes.md), including an important caveat about when that statistic is and is not interpretable.
+`bid_amount` (the advertiser's set bid price) shares no cost or click term
+with spend, so it carries none of the artifact isolated in method 7.
+Re-estimating the full decomposition at the customer level (n = 263):
+
+| Path | Estimate | 95% CI / p |
+|---|---|---|
+| Indirect (spend-linked) association | +0.081 | bootstrap 95% CI [0.008, 0.159], excludes zero; permutation p < .001 |
+| Direct association of size, net of spend | +0.037 | p = .634 |
+
+Same qualitative pattern as the CPC-based model — indirect present, direct
+absent — now on an outcome immune to the mechanical artifact. This is the
+load-bearing result for H1a/H1b (README §5.4).
+
+## 4. Full path table (also in `docs/RESULTS_SUMMARY.md`)
+
+| Path | CPC-based (secondary) | bid_amount-based (primary) |
+|---|---|---|
+| H1a (a-path) | +0.537 (p < .001) | +0.537 (p < .001) |
+| H1b (b-path) | +1.277 (p < .001) | +0.150 (p = .032) |
+| H1c (c′-path) | −0.253 (p = .062) | +0.037 (p = .634) |
+| Indirect (a × b) | +0.253 | +0.081 |
+
+## 5. Why this, not the CPC-based estimate, is primary
+
+Wherever the two diverge, the bid_amount-based estimate is treated as the
+primary quantitative claim (README §5.4, §11 limitation 2), precisely
+because it cannot inherit the mechanical component quantified in §2 above.
