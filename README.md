@@ -745,10 +745,6 @@ structural-signal-irrelevance/
 ├── data/
 │   └── README.md                      <- expected schema + how to request access (no data files committed)
 │
-├── theory/
-│   ├── THEORY_NOTES.md                <- extended literature review, incl. §2.5's SSI construct and
-│   │                                       algorithm-audit literature (Sandvig, Metaxa, Raji)
-│   └── HYPOTHESIS_MAPPING.md          <- maps each H ID to its theoretical account and adjudicating test
 │
 ├── src/
 │   ├── utils/
