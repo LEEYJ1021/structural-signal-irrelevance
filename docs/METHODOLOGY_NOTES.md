@@ -1,246 +1,189 @@
 # Methodology Notes
 
-This document is a narrative log of every point in the diagnostic pipeline
-(`src/coldstart_v5/`, Steps A-M) where an initial modeling choice was found
-to be structurally unreliable and replaced with a more defensible
-alternative, and why. It is treated as part of the project's contribution,
-not as a section to be edited out once the final design was settled -- the
-reasoning here is what makes the confirmatory results in `src/analysis/`
+This document is a narrative log of every point in the advertiser-size mediation-audit pipeline
+(`src/pipeline_v4/`, plus the alternative-identification screening in
+`supplementary_identification/`) where an initial modeling choice — or an initial framing
+choice — was found to be structurally unreliable or under-argued, and replaced with a more
+defensible alternative, and why. It is treated as part of the project's contribution, not as a
+section to be edited out once the final design was settled — the reasoning here is what makes
+the confirmatory H1c result (and the honest null result in `supplementary_identification/`)
 trustworthy rather than merely reported.
 
-Each entry follows the same shape: **what we assumed**, **how the
-diagnostic contradicted it**, and **what changed as a result**.
+Each entry follows the same shape: **what we assumed**, **how the diagnostic (or external
+review) contradicted it**, and **what changed as a result**.
 
-Cross-references: the root [`README.md`](../README.md) links directly into
-specific entries below wherever it leans on one (mainly §7 and §8); the
-exact statistics each pivot produced live in
-[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md).
+Cross-references: the root [`README.md`](../README.md) links directly into specific entries
+below wherever it leans on one (mainly §2, §2.5, §3.1, §4.5.9, and §5); the exact statistics
+each pivot produced live in [`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md).
+
+> **Scope note.** An earlier version of this log also documented a longitudinal cold-start
+> analysis (account maturity vs. a new ad group's growth trajectory) and its own methodological
+> pivots. That study has been descoped from this paper; its pivot log has moved in full to
+> [`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md). The entries below are
+> renumbered to cover only the pivots that bear on the advertiser-size analysis reported in this
+> repository's `README.md`.
 
 ---
 
-## 1. "Cold start" was assumed to mean new-advertiser onboarding
+## 1. An attempt to upgrade the identification tier (RDD / policy-change) was pursued, screened, and abandoned — honestly, not silently
 
-**Assumed:** the project's original framing treated a "cold-start" ad
-group as the leading edge of a brand-new advertiser's account -- a first
-campaign, unfolding inside the observation window.
+**Assumed:** because the planned 2SLS identification strategy (method 4 in root README §4.5)
+could not be completed due to a code-level exception (Transparency Log #2), a stronger causal
+design might be reachable by screening two alternative strategies: (a) regression discontinuity
+(RDD) on `size` and `total spend`, scanning for an institutionally meaningful cutoff, and (b)
+policy-change event-study DiD around a genuine platform policy change, located either from
+external knowledge or an automated structural-break scan of the size-CPC relationship. The
+initial motivating hypothesis was that a successful alternative identification strategy could
+raise the confidence tier of the H1c null result from associational to quasi-causal.
 
-**Contradicted by:** Step I (`step_i_account_maturity_distribution.py`),
-cross-checked by Step H (`step_h_top_customer_profiling.py`). Under every
-registration-date cutoff tested (0-90 days of prior account history),
-essentially none of the trajectory-usable sample (0-1 of 222 ad groups)
-reflected a genuinely new account; the median account behind a
-"cold-start" ad group had `account_age_days` of roughly 7.8 years (a
-lower bound, per `data/README.md`'s snapshot caveat). Step J
-(`step_j_regtm_artifact_check.py`) ruled out a snapshot/migration date
-artifact as the explanation.
+**Contradicted by, in three rounds:**
+- **Round 1** (`supplementary_identification/step11_alt_identification_RDD_policy.py`) scanned
+  40 candidate RDD cutoffs and found 5 that survived an initial bandwidth-sensitivity filter; a
+  parallel CUSUM scan flagged 5 candidate structural-break dates.
+- **Round 2** (`step11b_donut_hole_full_scan.py`) ran a fine-grained donut-hole sensitivity scan
+  on the 5 RDD candidates: 2 of 5 broke down (lost significance) at a donut fraction as small as
+  2%, meaning the estimate depended almost entirely on the handful of observations immediately
+  adjacent to the cutoff -- the classic symptom of running-variable manipulation. A naive
+  left/right sample-count-ratio flag was also raised for several candidates, but this flag could
+  not, by itself, distinguish genuine manipulation from an artifact of the underlying customer x
+  day panel: higher-spend customers are active on more days and so contribute more panel rows
+  near any spend-based cutoff, independent of any manipulation.
+- **Round 3, decisive** (`step11c_customer_level_reanalysis.py`) resolved the Round-2 ambiguity
+  by re-running both the density test and the RDD estimate **at the customer level** (one row
+  per customer, aggregating the outcome to a per-customer mean), which removes panel-density
+  variation entirely. Result: 2 of 5 candidates fail a genuine customer-level density test
+  (p<.001, manipulation cannot be ruled out); 2 more lose significance entirely once
+  re-estimated at the customer level (the panel-level result was a density artifact, not a real
+  discontinuity); the remaining candidate survives density testing but is only marginally
+  significant (p=.048), broke down at just 15% donut in Round 2, and has no independent
+  institutional justification. On the policy-change side, all 5 event-study DiD coefficients
+  were non-significant (p=.16-.58) and indistinguishable from 500 randomly chosen placebo dates
+  (permutation p=.23-.76).
 
-**Changed:** the project was reframed around **item-level cold start**: a
-new ad group inside an already-established account -- closer to "item
-cold-start" than "user cold-start" in the recommender-systems literature.
-Account maturity became the key covariate under test (root README §7),
-not a stratification variable for sample selection.
+**Changed:** the original motivating hypothesis -- that a stronger causal design was reachable --
+was rejected by the data. Rather than omit this work or selectively report only the more
+favorable-looking Round-1/Round-2 numbers, the full three-round screening process is archived in
+`supplementary_identification/` and summarized transparently in root README §4.5.9 and Figure
+11. As entry 3 below documents, this entry's *framing* was itself revised in a later pass: the
+work is now described as a supplementary robustness screening under the mediation-audit
+positioning of README §5, not as a "failed identification strategy" — the underlying statistics
+in this entry are unchanged.
 
-`[affects: README §7]`
+`[affects: README §4.5.9, §5, §6, §8 (Limitation 2, 6), Figure 11]`
 
-## 2. Discrete latent-class growth models (GBTM) were the planned estimator
+## 2. The Conversion/ROAS exclusion was documented as a limitation before its construct-validity rationale was made explicit
 
-**Assumed:** growth trajectories would be summarized with a
-Group-Based Trajectory Model, asking "how many growth classes exist, and
-does maturity predict class membership?"
+**Assumed:** early data-preparation notes recorded the decision to exclude conversion and ROAS
+variables as an operational fact ("Naver's conversion API backfills inconsistently") without
+connecting that fact to the specific identification threat it poses to H1c specifically.
 
-**Contradicted by:** Step E (`step_e_class_count_identifiability_sim.py`),
-a BIC-based class-count recovery simulation at the achievable sample size
-(n=222). Recovery probability was ~9% at k=2 true classes and ~0% at
-k=3/4 -- the sample cannot reliably tell two classes apart, let alone
-three or four, independent of any censoring or clustering issue.
+**Contradicted by:** re-examining the decision against the same mechanical-artifact logic already
+applied elsewhere in the pipeline (comparable to the CPC-vs-`bid_amount` substitution in root
+README §4.5, method 7): the concern is not simply that conversion data is incomplete, but that
+**backfill completeness is plausibly correlated with the independent variable under test**
+(`size`) -- larger or more established advertisers are plausibly more likely to have a fully
+integrated, low-latency conversion pipeline. If true, this would mean any conversion- or
+ROAS-based outcome could manufacture a spurious H1c effect as a measurement artifact of
+differential data completeness, rather than reflecting a genuine algorithmic effect. This is a
+stronger and more specific claim than "the data is incomplete," and it was not stated this
+precisely in the original limitation note.
 
-**Changed:** GBTM was dropped from the confirmatory design entirely. The
-maturity test (root README §7.1) was rewritten around a continuous
-growth-curve quantity (an ad group's initial 30-day cost slope) rather
-than a discrete class label, avoiding the class-count identification
-problem altogether.
+**Changed:** the exclusion is now documented in root README §3.1 as a pre-specified
+construct-validity safeguard, explicitly parallel to the CPC/`bid_amount` logic in §4.5 method
+7, rather than solely as a data-quality limitation. As entry 3 below documents, this reasoning
+was later generalized: §3.1's exclusion is now cited as the concrete empirical instance of a
+named, general boundary condition on the SSI construct (root README §2.5.3, proposition P4:
+measurability), rather than standing as a platform-specific caveat alone. The original
+limitation-table entry is retained (root README §8, item 5) but now points back to §3.1 and
+§2.5.3 for the full argument.
 
-`[affects: README §7.1]`
+`[affects: README §3.1, §2.5.3 (P4), §4.5 (cross-reference), §8 (Limitation 5); RESULTS_SUMMARY.md data-exclusion audit]`
 
-## 3. Apparent right-censoring turned out to be a follow-up-window artifact, then something else
+## 3. The theoretical framework named two competing accounts but never named the pattern itself as a construct
 
-**Assumed:** the 83.8% "censored" rate found in Step C
-(`step_c_right_censoring_flags.py`) meant many trajectories were cut
-short by the observation window ending too soon after registration.
+**Assumed:** the original theoretical framework (root README §2, prior version) was judged
+sufficient by stating two competing, falsifiable predictions (statistical discrimination vs.
+behavioral meritocracy) and testing which one the data supported. This was treated as a complete
+theoretical contribution.
 
-**Contradicted by:** Step F (`step_f_registration_cutoff_sensitivity.py`):
-requiring 30 vs. 120 days of guaranteed post-registration follow-up barely
-moved the censored rate (83.6% -> 83.2%). If insufficient follow-up time
-were the cause, a stricter cutoff should have reduced it sharply. Step G
-(`step_g_fixed_window_coverage.py`) then showed the real story: mean
-observed-day coverage within fixed post-registration windows was only
-70-74%, not the near-100% a genuinely continuously-run ad group would
-show -- and unlike the Step F cutoff sweep, this doesn't move with
-cutoff, because it's measuring something different (data gaps, not
-trajectory truncation).
+**Contradicted by:** external review of a draft summary of this repository noted that framing
+the contribution as "we tested two existing theories against each other" reads, to a reviewer,
+as an *application* of prior theory rather than a *contribution to* theory — even though the null
+pattern tested here (a structural attribute's association with an algorithmic outcome vanishing
+once a legitimate behavioral mediator is held constant) does not yet have a name in either the
+statistical-discrimination or the algorithmic-fairness literature as a standalone,
+system-level property. Re-reading Dwork et al. (2012) and the broader algorithmic-fairness
+literature confirmed that "individual fairness" is a *normative benchmark*, not a *descriptive
+construct restricted to the structural-vs-behavioral attribute axis* — meaning the pattern this
+repository tests is adjacent to, but not identical with, any single named construct already in
+use.
 
-**Changed:** "censoring" was reinterpreted as ad groups mostly **not
-self-terminating** (activity persists to observation end because the ad
-group is still running, not because its trajectory was cut off) combined
-with **genuine intermittency** (on/off cycling, budget exhaustion,
-approval delay) inside the active window. The confirmatory growth-slope
-definition (`src/analysis/rq1_growth_curve_test.py`) uses fixed-window
-linear trend fitting on zero-filled daily series rather than a
-survival/censoring framework, which sidesteps the mismatch.
+**Changed:** root README §2.5 was added, formally defining **structural signal irrelevance
+(SSI)** as Y ⊥ S | (B, X), explicitly distinguishing it from statistical discrimination
+(decision-maker-side account), individual fairness (normative benchmark), and generic mediation
+analysis (single-coefficient result vs. a claim requiring convergence across many independent
+robustness methods, and ideally across independent samples/time axes). Four falsifiable
+boundary-condition propositions (P1–P4, §2.5.3) were derived from the platform-governance
+literature already cited in §2.3, and a four-item research agenda (§2.5.4) was added so the
+construct generates testable follow-up work rather than standing as a label alone — including an
+explicit pointer to the planned longitudinal replication now described in
+[`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md). Existing empirical results were
+**not re-analyzed**; §2.5 only reframes how the existing H1c null result (unchanged) is named
+and situated in the literature. Every downstream reference to "the pattern" in §4.4, §4.8, §6,
+and §7 was updated to cite §2.5 where appropriate, and the H2 exception (§4.6) and the
+Conversion/ROAS exclusion (§3.1) were each explicitly mapped onto one of the P1–P4 propositions
+as concrete empirical instances, which they had not previously been connected to.
 
-`[affects: README §7.1 -- sample/outcome construction]`
+`[affects: README §2.5 (new), §4.4, §4.8, §6, §7, §3.1 (cross-ref to P4); RESULTS_SUMMARY.md §0, evidence-summary table]`
 
-## 4. A customer random-intercept mixed model (MixedLM) was the planned estimator
+## 4. The repository's identification attempts were framed as failures of a causal-inference goal, rather than as a bounded feature of an audit design
 
-**Assumed:** growth slopes nested within customers would be modeled with
-`statsmodels` MixedLM, `slope ~ maturity`, `groups=customer_id`.
+**Assumed:** root README §5 (prior version, "Associational-Language Statement") described the
+2SLS, RDD, and policy-change screenings as identification *attempts* that did not reach a usable
+design, and used hedging language ("did not reach a usable causal design," reported "openly
+rather than folded into the confirmatory evidence") to manage the resulting gap between what was
+attempted and what was achieved.
 
-**Contradicted by:** Step K (`step_k_power_simulation.py`). Because
-`maturity` varies only at the customer level, it competes directly with
-the customer random intercept for the same layer of variation, and the
-model is structurally non-identified against it: 100% convergence-failure
-rate (singular random-effects covariance / boundary-of-parameter-space
-warnings) across every simulation replication, at every tested effect
-size -- not merely an occasional convergence issue.
+**Contradicted by:** external review observed that this framing implicitly concedes the
+repository's goal *was* causal identification and that the goal was not met — which invites the
+natural follow-up question "why should a reader trust a study whose primary identification
+strategy failed twice?" This is an accurate description of the attempts but an inaccurate
+description of the study's actual design goal: at no point was platform access available to run
+a sock-puppet or field-experimental audit (the design that *would* support causal claims), so
+2SLS/RDD/policy-change were never load-bearing for the core H1c conclusion — they were always
+supplementary probes of whether a stronger tier was reachable, run and reported honestly
+regardless of outcome (as entry 1 above already documents at the statistical level).
 
-**Changed:** MixedLM was dropped as unusable for this design (not even
-kept as a reference point-estimate). The customer-level aggregate
-regression (average an ad group's growth slope up to its customer, then
-regress the customer-level mean on customer-level maturity, n = customer
-count) became the primary inferential model
-(`src/analysis/rq1_growth_curve_test.py`), with a cluster (customer-label)
-permutation test as the final arbiter whenever it and OLS disagree --
-because 29-32 clusters is below the usual comfort threshold (40-50+) for
-trusting asymptotic cluster-robust standard errors alone.
+**Changed:** root README §5 was rewritten as "Methodological Positioning — This Study as a
+Mediation Audit," explicitly situating the repository's design within the algorithm-audit
+literature (Sandvig et al., 2014; Metaxa et al., 2021; Raji et al., 2020) as a **mediation
+audit** — a third audit type, alongside correlation audits and sock-puppet audits, appropriate
+when platform access for controlled intervention is unavailable. Under this framing, the
+2SLS/RDD/policy-change screenings (§4.5 method 4, §4.5.9) are now explicitly labeled
+"supplementary robustness only," and every "failed" / "did not succeed" phrasing describing them
+elsewhere in the repository (§4.5.9's heading, §6's Figure 11 caption, §8 Limitation 2, the
+transparency log) was revised to "supplementary robustness screening whose null result is
+consistent with, but not required by, the mediation-audit conclusion." No statistical result
+changed; entry 1 above remains the authoritative record of what was run and what it found. This
+revision also gave §2.5.4's research agenda item 4 (a portable SSI audit protocol) a clear
+methodological home to be proposed from.
 
-`[affects: README §7.1 -- estimator choice]`
+`[affects: README §5 (rewritten), §4.5.9 (heading + framing), §6 (Figure 11 caption), §8 (Limitation 2), §9 (log entry 7); supplementary_identification/SCREENING_SUMMARY.md (framing pass)]`
 
-## 5. A pooled Leave-One-Customer-Out (LOCO) improvement was initially read as support for maturity adding predictive value
+---
 
-**Assumed:** during feature-engineering design
-(`step_l_rq2_feature_engineering.py`), a positive pooled LOCO rho
-improvement when adding account maturity to the base feature set was
-read as evidence that maturity adds ad-group-level predictive value.
+## Summary of what changed in this revision pass (entries 1–4)
 
-**Contradicted by:** the within/between-customer decomposition
-(`loco_within_between_eval` in `step_l_rq2_feature_engineering.py`).
-Splitting the pooled LOCO rho into a between-customer component (customer
-mean-level agreement) and a within-customer component (relative ranking
-of ad groups belonging to the same customer) showed that, at every tested
-window pair, the pooled improvement was concentrated almost entirely in
-the between-customer term while the within-customer term showed little
-or no improvement (in one window pair, +0.388 between vs. +0.001 within).
-A pooled metric that improves because it re-derives the customer-level
-maturity signal is not evidence of genuine ad-group-level predictive gain.
+No underlying statistic reported anywhere in this repository (H1a/b/c, H2, or the RDD/
+policy-change screening numbers) was recomputed or altered by this revision pass. What changed
+is: (1) the pattern these statistics jointly demonstrate now has a name and a formal definition
+(SSI, §2.5); and (2) the repository's relationship to causal identification is now stated as a
+design choice from the outset (mediation audit, §5) rather than as a series of attempts that
+fell short of an implied goal. These are documentation and framing changes made in response to
+external review, consistent with this repository's stated practice (README preamble) of logging
+every point where a prior choice was found wanting and revised, honestly, rather than quietly.
 
-**Changed:** the confirmatory design
-(`src/analysis/rq2_prediction_validation.py`) requires the
-within-customer LOCO improvement to be positive before crediting maturity
-with adding value, regardless of the pooled or between-customer numbers --
-see that module's docstring for the exact rule. This is the same logic
-that later surfaces in the design-artifact backtest
-(`docs/DESIGN_ARTIFACT.md`).
-
-`[affects: README §7.2, §8.2]`
-
-## 6. Two successive "expected uplift" simulations were mathematically incapable of answering the question they were built for
-
-**Assumed:** an expected-uplift formula (`n_true_positive * efficacy *
-delta`) swept across intervention-effect assumptions (`delta`, `efficacy`)
-would reveal which decision cutoff (7/14/21 days) is optimal, and whether
-that ranking is robust to the effect-size assumption.
-
-**Contradicted by:** in the first version, `delta` and `efficacy` entered
-the formula as constants multiplying every (cutoff, threshold) cell
-identically, so the argmax over cutoffs could never change regardless of
-the assumed values -- the "100% stability across 9 scenarios" result this
-produced was a mathematical artifact of the formula's structure, not a
-substantive robustness finding. A second version made `delta` a function
-of the cutoff's remaining follow-up time (`delta_per_day * remaining_days`)
-to build in a genuine cutoff/effect-size trade-off -- but `delta_per_day`
-and `efficacy` still multiplied every cell identically for a *given*
-cutoff, so the ranking was again structurally fixed (this time by
-`remaining_days` alone) rather than by the swept parameters.
-
-**Changed:** the reported result was narrowed to what can be measured
-without an intervention-effect assumption: precision/recall/lift of
-early-signal flagging against the *realized* low-growth outcome, which
-requires no assumption about what an intervention would do
-(`step_m_intervention_timing_simulation.py`, Step M3). The expected-uplift
-tables (Step M4/M5) are retained only as explicitly labeled,
-non-causal what-if illustrations, never as the basis for an "optimal
-day" claim. Bootstrapped confidence intervals on the precision/recall
-metric (Step M6-3) further showed the 7/14/21-day cutoffs' predictive
-rho values are not statistically distinguishable from one another (root
-README §7.2, Figure 6C-D).
-
-`[affects: README §7.2]`
-
-## 7. Sample-exclusion rules were derived empirically, then made explicit
-
-**Assumed initially:** none -- test/template accounts were not
-anticipated as a distinct category.
-
-**Found:** Step H (`step_h_top_customer_profiling.py`) profiled the top-10
-customers driving the Step D clustering concentration using four
-independent signals (all-time scale, registration-burst pattern,
-template/naming-pattern signal, and real spend) and found two accounts
-with near-zero total spend and heavy template signal (single
-registration burst, zero bid-amount variance) -- operationally
-indistinguishable from test/QA setups rather than real advertising
-activity.
-
-**Changed:** `sample_definition.known_test_account_ids` in
-`config/config.yaml` now explicitly excludes these two accounts from
-every confirmatory analysis, alongside the general rule
-(`test_account_exclusion.min_total_cost`,
-`test_account_exclusion.max_zero_spend_share`) that produced them -- so
-the exclusion is pre-specified and logged, not applied ad hoc per
-analysis.
-
-`[affects: README §7 -- sample definition shared throughout]`
-
-## 8. The largest customer's influence was checked, not assumed away
-
-**Found:** Step D showed one customer contributing 32.9% of the
-trajectory-usable sample. Step H's four-signal profiling classified this
-customer as a genuine large advertiser (all-time scale in the 100th
-percentile, meaningful and varied spend, campaigns spread across the
-full observation window) rather than a bulk-generated template account,
-so it was not excluded.
-
-**Changed:** because exclusion wasn't warranted, a leave-one-out
-sensitivity check on this customer was made a **required**, not optional,
-component of the maturity confirmatory test
-(`src/analysis/rq1_growth_curve_test.py`) -- every reported result in
-root README §7.1 is accompanied by the same test re-run with this
-customer removed, and the verdict rule requires both runs to agree in
-sign.
-
-`[affects: README §7.1 -- required sensitivity check]`
-
-## 9. A naive-rule "victory" in the design-artifact backtest was a within-customer-demeaning bug, not a finding
-
-**Assumed:** an early version of the design-artifact backtest
-(`docs/DESIGN_ARTIFACT.md`) compared own-signal flagging precision
-against a naive account-size/tenure-based rule directly, without first
-within-customer demeaning the naive rule's predictions.
-
-**Contradicted by:** because account maturity is a customer-level
-constant, ranking its raw (non-demeaned) predictions implicitly reproduces
-the same between-customer signal that entry 5 above (and root README
-§7.2's within/between decomposition) explicitly excludes from the
-within-customer claim. The early version's apparent "naive wins" result
-in several window specifications was this leakage re-appearing in a
-binary-flagging frame, not a genuine advantage for the naive rule.
-
-**Changed:** the backtest was corrected to within-customer demean both
-rules' predictions before ranking. Under the corrected version, the naive
-rule's demeaned predictions collapse to numerical zero in every
-specification (as they must, being derived from a customer-level
-constant), making a naive-vs-own-signal comparison ill-posed by
-construction. The corrected backtest instead compares own-signal
-precision against a random-flagging baseline (root README §8.2,
-`docs/DESIGN_ARTIFACT.md` §3).
-
-`[affects: README §8.2, docs/DESIGN_ARTIFACT.md]`
+A further round of pivots — specific to the descoped longitudinal study (account maturity, cold-
+start reframing, small-sample power/Bayes-factor treatment, and the design-artifact backtest) —
+is preserved in full in [`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md) rather
+than in this file, since that study is no longer part of this manuscript's evidence base.
