@@ -11,19 +11,14 @@ trustworthy rather than merely reported.
 Each entry follows the same shape: **what we assumed**, **how the
 diagnostic contradicted it**, and **what changed as a result**.
 
-**Nomenclature:** entries below are tagged with the hypothesis ID(s)
-(`README.md` §2) each pivot ultimately fed into, using the format
-`[affects: H-S2.1]`. IDs are defined in the README; this file does not
-redefine them.
-
 Cross-references: the root [`README.md`](../README.md) links directly into
-specific entries below wherever it leans on one (mainly §4.1-4.4 and §12);
-the exact statistics each pivot produced live in
-[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md), digested in README §4.6.
+specific entries below wherever it leans on one (mainly §7 and §8); the
+exact statistics each pivot produced live in
+[`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md).
 
 ---
 
-## 1. "Cold start" was assumed to mean new-advertiser onboarding (RQ-S2.0 → H-S2.1: the pre-registration deviation)
+## 1. "Cold start" was assumed to mean new-advertiser onboarding
 
 **Assumed:** the project's original framing treated a "cold-start" ad
 group as the leading edge of a brand-new advertiser's account -- a first
@@ -42,16 +37,16 @@ artifact as the explanation.
 **Changed:** the project was reframed around **item-level cold start**: a
 new ad group inside an already-established account -- closer to "item
 cold-start" than "user cold-start" in the recommender-systems literature.
-Account maturity became the key covariate under test in H-S2.1/H-S2.2, not
-a stratification variable for sample selection.
+Account maturity became the key covariate under test (root README §7),
+not a stratification variable for sample selection.
 
-`[affects: RQ-S2.0 → H-S2.1 deviation — this is *the* pre-registration deviation referenced in README §2.3]`
+`[affects: README §7]`
 
-## 2. Discrete latent-class growth models (GBTM) were the planned RQ1 method
+## 2. Discrete latent-class growth models (GBTM) were the planned estimator
 
 **Assumed:** growth trajectories would be summarized with a
-Group-Based Trajectory Model, and RQ1 would ask "how many growth
-classes exist, and does maturity predict class membership?"
+Group-Based Trajectory Model, asking "how many growth classes exist, and
+does maturity predict class membership?"
 
 **Contradicted by:** Step E (`step_e_class_count_identifiability_sim.py`),
 a BIC-based class-count recovery simulation at the achievable sample size
@@ -59,12 +54,13 @@ a BIC-based class-count recovery simulation at the achievable sample size
 k=3/4 -- the sample cannot reliably tell two classes apart, let alone
 three or four, independent of any censoring or clustering issue.
 
-**Changed:** GBTM was dropped from the confirmatory design entirely. RQ1
-(now **H-S2.1**) was rewritten around a continuous growth-curve quantity
-(an ad group's initial 30-day cost slope) rather than a discrete class
-label, avoiding the class-count identification problem altogether.
+**Changed:** GBTM was dropped from the confirmatory design entirely. The
+maturity test (root README §7.1) was rewritten around a continuous
+growth-curve quantity (an ad group's initial 30-day cost slope) rather
+than a discrete class label, avoiding the class-count identification
+problem altogether.
 
-`[affects: H-S2.1 — estimator choice for the RQ-S2.0→H-S2.1 transition]`
+`[affects: README §7.1]`
 
 ## 3. Apparent right-censoring turned out to be a follow-up-window artifact, then something else
 
@@ -92,9 +88,9 @@ definition (`src/analysis/rq1_growth_curve_test.py`) uses fixed-window
 linear trend fitting on zero-filled daily series rather than a
 survival/censoring framework, which sidesteps the mismatch.
 
-`[affects: H-S2.1 — sample/outcome construction]`
+`[affects: README §7.1 -- sample/outcome construction]`
 
-## 4. A customer random-intercept mixed model (MixedLM) was the planned RQ1 estimator
+## 4. A customer random-intercept mixed model (MixedLM) was the planned estimator
 
 **Assumed:** growth slopes nested within customers would be modeled with
 `statsmodels` MixedLM, `slope ~ maturity`, `groups=customer_id`.
@@ -117,14 +113,14 @@ permutation test as the final arbiter whenever it and OLS disagree --
 because 29-32 clusters is below the usual comfort threshold (40-50+) for
 trusting asymptotic cluster-robust standard errors alone.
 
-`[affects: H-S2.1 — estimator choice]`
+`[affects: README §7.1 -- estimator choice]`
 
-## 5. A pooled Leave-One-Customer-Out (LOCO) improvement was initially read as RQ2 support for H2b
+## 5. A pooled Leave-One-Customer-Out (LOCO) improvement was initially read as support for maturity adding predictive value
 
-**Assumed:** during RQ2 design (`step_l_rq2_feature_engineering.py`), a
-positive pooled LOCO rho improvement when adding account maturity to the
-base feature set was read as evidence that maturity adds ad-group-level
-predictive value.
+**Assumed:** during feature-engineering design
+(`step_l_rq2_feature_engineering.py`), a positive pooled LOCO rho
+improvement when adding account maturity to the base feature set was
+read as evidence that maturity adds ad-group-level predictive value.
 
 **Contradicted by:** the within/between-customer decomposition
 (`loco_within_between_eval` in `step_l_rq2_feature_engineering.py`).
@@ -134,18 +130,20 @@ of ad groups belonging to the same customer) showed that, at every tested
 window pair, the pooled improvement was concentrated almost entirely in
 the between-customer term while the within-customer term showed little
 or no improvement (in one window pair, +0.388 between vs. +0.001 within).
-A pooled metric that improves because it re-derives the RQ1 (customer-
-level) signal is not evidence of genuine ad-group-level predictive gain.
+A pooled metric that improves because it re-derives the customer-level
+maturity signal is not evidence of genuine ad-group-level predictive gain.
 
-**Changed:** the confirmatory RQ2 design
+**Changed:** the confirmatory design
 (`src/analysis/rq2_prediction_validation.py`) requires the
-within-customer LOCO improvement to be positive before crediting H2b
-(now **H-S2.2b**), regardless of the pooled or between-customer numbers --
-see that module's docstring for the exact rule.
+within-customer LOCO improvement to be positive before crediting maturity
+with adding value, regardless of the pooled or between-customer numbers --
+see that module's docstring for the exact rule. This is the same logic
+that later surfaces in the design-artifact backtest
+(`docs/DESIGN_ARTIFACT.md`).
 
-`[affects: H-S2.2b]`
+`[affects: README §7.2, §8.2]`
 
-## 6. Two successive RQ3 "expected uplift" simulations were mathematically incapable of answering the question they were built for
+## 6. Two successive "expected uplift" simulations were mathematically incapable of answering the question they were built for
 
 **Assumed:** an expected-uplift formula (`n_true_positive * efficacy *
 delta`) swept across intervention-effect assumptions (`delta`, `efficacy`)
@@ -164,21 +162,19 @@ and `efficacy` still multiplied every cell identically for a *given*
 cutoff, so the ranking was again structurally fixed (this time by
 `remaining_days` alone) rather than by the swept parameters.
 
-**Changed:** RQ3's (now **RQ-S2.3**) reported result was narrowed to what
-can be measured without an intervention-effect assumption: precision/
-recall/lift of early-signal flagging against the *realized* low-growth
-outcome, which requires no assumption about what an intervention would do
+**Changed:** the reported result was narrowed to what can be measured
+without an intervention-effect assumption: precision/recall/lift of
+early-signal flagging against the *realized* low-growth outcome, which
+requires no assumption about what an intervention would do
 (`step_m_intervention_timing_simulation.py`, Step M3). The expected-uplift
 tables (Step M4/M5) are retained only as explicitly labeled,
 non-causal what-if illustrations, never as the basis for an "optimal
 day" claim. Bootstrapped confidence intervals on the precision/recall
 metric (Step M6-3) further showed the 7/14/21-day cutoffs' predictive
-rho values are not statistically distinguishable from one another, which
-is reported as the actual (appropriately modest) RQ-S2.3 finding: early
-intervention judgment appears viable within the first three weeks,
-without a defensible single optimal day.
+rho values are not statistically distinguishable from one another (root
+README §7.2, Figure 6C-D).
 
-`[affects: RQ-S2.3]`
+`[affects: README §7.2]`
 
 ## 7. Sample-exclusion rules were derived empirically, then made explicit
 
@@ -202,7 +198,7 @@ every confirmatory analysis, alongside the general rule
 the exclusion is pre-specified and logged, not applied ad hoc per
 analysis.
 
-`[affects: H-S2.1, H-S2.2a, H-S2.2b — sample definition shared by all three]`
+`[affects: README §7 -- sample definition shared throughout]`
 
 ## 8. The largest customer's influence was checked, not assumed away
 
@@ -215,10 +211,36 @@ so it was not excluded.
 
 **Changed:** because exclusion wasn't warranted, a leave-one-out
 sensitivity check on this customer was made a **required**, not optional,
-component of the RQ1 (now **H-S2.1**) confirmatory test
-(`src/analysis/rq1_growth_curve_test.py`) -- every reported H-S2.1 result
-is accompanied by the same test re-run with this customer removed, and
-the verdict rule requires both runs to agree in sign before H-S2.1 is
-credited (as supported, rejected, or null, depending on the result).
+component of the maturity confirmatory test
+(`src/analysis/rq1_growth_curve_test.py`) -- every reported result in
+root README §7.1 is accompanied by the same test re-run with this
+customer removed, and the verdict rule requires both runs to agree in
+sign.
 
-`[affects: H-S2.1 — required sensitivity check]`
+`[affects: README §7.1 -- required sensitivity check]`
+
+## 9. A naive-rule "victory" in the design-artifact backtest was a within-customer-demeaning bug, not a finding
+
+**Assumed:** an early version of the design-artifact backtest
+(`docs/DESIGN_ARTIFACT.md`) compared own-signal flagging precision
+against a naive account-size/tenure-based rule directly, without first
+within-customer demeaning the naive rule's predictions.
+
+**Contradicted by:** because account maturity is a customer-level
+constant, ranking its raw (non-demeaned) predictions implicitly reproduces
+the same between-customer signal that entry 5 above (and root README
+§7.2's within/between decomposition) explicitly excludes from the
+within-customer claim. The early version's apparent "naive wins" result
+in several window specifications was this leakage re-appearing in a
+binary-flagging frame, not a genuine advantage for the naive rule.
+
+**Changed:** the backtest was corrected to within-customer demean both
+rules' predictions before ranking. Under the corrected version, the naive
+rule's demeaned predictions collapse to numerical zero in every
+specification (as they must, being derived from a customer-level
+constant), making a naive-vs-own-signal comparison ill-posed by
+construction. The corrected backtest instead compares own-signal
+precision against a random-flagging baseline (root README §8.2,
+`docs/DESIGN_ARTIFACT.md` §3).
+
+`[affects: README §8.2, docs/DESIGN_ARTIFACT.md]`
