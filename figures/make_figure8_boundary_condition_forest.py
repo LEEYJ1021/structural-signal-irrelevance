@@ -1,73 +1,63 @@
 """
-figures/make_figure8_boundary_condition_forest.py
+Figure 8 (corrected) -- Campaign product-type heterogeneity (H2).
 
-Figure 8 -- Spend-controlled size effect (c', direct effect net of spend),
-stratified by campaign product type, with a joint Wald test for
-heterogeneity. Reads supplementary_robustness/outputs/02_boundary_conditions.json;
-falls back to the literal values reported in
-supplementary_robustness/02_boundary_conditions.md if not present.
+The original script used an ARBITRARY illustrative half-width
+(`max(0.15, abs(c) * 0.6)`) that was never disclosed as an approximation.
+This version backs out SE from the reported two-sided p-value under a
+normal approximation (SE = |beta| / z, z = Phi^-1(1 - p/2)), which is the
+standard way to reconstruct a CI when only beta and p are on record.
+This is disclosed explicitly in the figure footnote -- it is still an
+approximation (not the original cluster-robust SE), but it is a
+principled, reproducible one instead of an invented constant.
+
+Data source: RESULTS_SUMMARY.md sec.4 / H3관련.txt L1149 (verbatim).
 """
-import json
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import norm
 
-RESULTS_PATH = Path("supplementary_robustness/outputs/02_boundary_conditions.json")
-OUT_PATH = Path("figures/Figure8_boundary_condition_forest.png")
-
-FALLBACK_STRATA = [
-    {"campaign_type": "Website (1)", "n_customers": 184, "c_prime_size": -0.279, "c_prime_p": 0.052},
-    {"campaign_type": "Local business (6)", "n_customers": 27, "c_prime_size": 0.312, "c_prime_p": 0.211},
-    {"campaign_type": "Shopping (2)", "n_customers": 17, "c_prime_size": 0.245, "c_prime_p": 0.151},
+STRATA = [
+    {"label": "Website (1)\n(n=184)",        "beta": -0.279, "p": 0.052},
+    {"label": "Local business (6)\n(n=27)",  "beta": +0.312, "p": 0.211},
+    {"label": "Shopping (2)\n(n=17)",        "beta": +0.245, "p": 0.151},
 ]
-FALLBACK_JOINT_P = 0.023
+JOINT_P = 0.023
 
+for s in STRATA:
+    z = norm.ppf(1 - s["p"] / 2)
+    s["se_approx"] = abs(s["beta"]) / z
+    s["ci"] = (s["beta"] - 1.96 * s["se_approx"], s["beta"] + 1.96 * s["se_approx"])
 
-def load_values():
-    if RESULTS_PATH.exists():
-        with open(RESULTS_PATH, encoding="utf-8") as f:
-            data = json.load(f)
-        block = data.get("campaign_type_boundary_condition", {})
-        strata = block.get("strata") or FALLBACK_STRATA
-        joint_p = (block.get("joint_wald_test") or {}).get("joint_p", FALLBACK_JOINT_P)
-        return strata, joint_p
-    return FALLBACK_STRATA, FALLBACK_JOINT_P
+fig, ax = plt.subplots(figsize=(8, 4.4))
+y = np.arange(len(STRATA))[::-1]
 
+for yi, s in zip(y, STRATA):
+    lo, hi = s["ci"]
+    color = "#c0392b" if s["p"] < 0.05 else "#1f4e79"
+    ax.errorbar(s["beta"], yi, xerr=[[s["beta"] - lo], [hi - s["beta"]]],
+                fmt="o", color=color, ecolor="gray", elinewidth=1.5,
+                capsize=5, markersize=9, zorder=3)
+    ax.text(s["beta"], yi + 0.32, f"p={s['p']:.3f}", ha="center", fontsize=8, color="#333333")
 
-def main():
-    strata, joint_p = load_values()
-    labels = [f"{s['campaign_type']} (n={s['n_customers']})" for s in strata]
-    coefs = [s["c_prime_size"] for s in strata]
-    # Approximate 95% CI from a normal approximation using reported p-values
-    # is not attempted here (SEs not always available in the fallback); use
-    # a fixed illustrative half-width instead when SE is absent.
-    half_widths = [max(0.15, abs(c) * 0.6) for c in coefs]
+ax.axvline(0, color="gray", linestyle="--", linewidth=1)
+ax.set_yticks(y)
+ax.set_yticklabels([s["label"] for s in STRATA])
+ax.set_ylim(-0.8, len(STRATA) - 0.2)
+ax.set_xlabel("c' (size, net of spend) -- CPC-based model")
+ax.set_title(f"Figure 8. Campaign product-type heterogeneity\n(joint Wald test for interaction: p = {JOINT_P:.3f})",
+             fontsize=11.5, pad=14)
+for spine in ("top", "right"):
+    ax.spines[spine].set_visible(False)
 
-    fig, ax = plt.subplots(figsize=(7, 3.2))
-    y_pos = np.arange(len(labels))
-    colors = ["#c0392b" if s["c_prime_p"] < 0.05 else "#1f4e79" for s in strata]
-    ax.errorbar(coefs, y_pos, xerr=half_widths, fmt="o", ecolor="gray",
-                elinewidth=1.5, capsize=5, markersize=9, color="none")
-    for yi, ci, col in zip(y_pos, coefs, colors):
-        ax.plot(ci, yi, "o", color=col, markersize=9, zorder=5)
-    ax.axvline(0, color="gray", linestyle="--", linewidth=1)
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels)
-    ax.set_xlabel("c' (size, net of spend) -- CPC-based model")
-    ax.set_title(f"Figure 8. Campaign product-type heterogeneity\n(joint Wald test for interaction: p = {joint_p:.3f})")
-    ax.invert_yaxis()
-    for spine in ["top", "right"]:
-        ax.spines[spine].set_visible(False)
-    fig.text(0.5, -0.03,
-              "No individual stratum is significant; the joint test indicates the degree of\n"
-              "size irrelevance varies by ad-product category, not that the null is overturned.",
-              ha="center", fontsize=8, color="gray")
-    fig.tight_layout()
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_PATH, dpi=200, bbox_inches="tight")
-    print(f"Wrote {OUT_PATH}")
+fig.text(0.5, -0.06,
+          "No individual stratum reaches p<.05; the joint test indicates the degree of size irrelevance\n"
+          "varies by ad-product category, not that the null is overturned. CI here is reconstructed from the\n"
+          "reported (beta, p) via normal approximation (SE = |beta|/z) -- an approximation of the original\n"
+          "cluster-robust SE, disclosed here because the source SE was not separately persisted.",
+          ha="center", fontsize=7.8, color="dimgray")
 
-
-if __name__ == "__main__":
-    main()
+plt.tight_layout()
+plt.savefig("/home/claude/figs/Figure8_corrected.png", dpi=200, bbox_inches="tight", facecolor="white")
+print("saved Figure8_corrected.png")
+for s in STRATA:
+    print(s["label"].replace(chr(10), " "), "SE~", round(s["se_approx"], 4), "CI~", tuple(round(x, 3) for x in s["ci"]))
