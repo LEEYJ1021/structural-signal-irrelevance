@@ -20,6 +20,15 @@ direct association with algorithmic outcomes once total spend is held constant, 
 > *after* Level 1 was run, and is reported at "consistent with, but does not establish"
 > strength.
 
+> **A note on figures in this version.** The previous revision of this README embedded
+> all 15 figures inline, in numeric order, regardless of evidentiary tier. This version
+> embeds only the figures that carry the main argument (§5–§7) and moves the remaining
+> supplementary and out-of-scope figures to **[Appendix A](#appendix-a--supplementary-figures)**,
+> each with a one-line pointer back to the section it supports. Figures belonging to the
+> descoped longitudinal companion study (Study 2) are **not part of this repository's
+> evidence base** and are only mentioned, not shown — see
+> [Appendix B](#appendix-b--out-of-scope-figures-study-2).
+
 ---
 
 ## Table of contents
@@ -36,9 +45,11 @@ direct association with algorithmic outcomes once total spend is held constant, 
 10. [Boundary Conditions & Generalizability](#10-boundary-conditions--generalizability)
 11. [Limitations](#11-limitations)
 12. [Transparency Log](#12-transparency-log)
-13. [Figure Gallery](#13-figure-gallery)
+13. [Figure Gallery — What's Where](#13-figure-gallery--whats-where)
 14. [Repository Structure](#14-repository-structure)
 15. [How to Reproduce](#15-how-to-reproduce)
+16. [Appendix A — Supplementary Figures](#appendix-a--supplementary-figures)
+17. [Appendix B — Out-of-Scope Figures (Study 2)](#appendix-b--out-of-scope-figures-study-2)
 
 ---
 
@@ -204,16 +215,16 @@ configurations reached significance**, a 100% consistency rate.
 
 ### 5.4 Robustness battery (summary)
 
-| # | Method | Result |
-|---|---|---|
-| 1 | Specification curve (48 choices) | 0/48 reach significance |
-| 2 | Placebo test (device-type share) | Regression-level test correctly null on placebo |
-| 3 | Customer × month FE panel | Consistent with central estimate |
-| 4 | 2SLS (lagged spend instrument) | Incomplete (code exception); excluded from conclusions |
-| 5 | Temporal split (era1 vs era2) | Consistent |
-| 6 | Benjamini–Hochberg FDR | Null survives correction |
-| 7 | Mechanical-artifact isolation (CPC vs bid_amount) | Confirmed real, not purely mechanical |
-| 8 | Cost-independent outcome replication | Same qualitative pattern |
+| # | Method | Result | Detail |
+|---|---|---|---|
+| 1 | Specification curve (48 choices) | 0/48 reach significance | [Figure 3](#figure-3) |
+| 2 | Placebo test (device-type share) | Regression-level test correctly null on placebo | [Figure 3](#figure-3) |
+| 3 | Customer × month FE panel | Consistent with central estimate | — |
+| 4 | 2SLS (lagged spend instrument) | Incomplete (code exception); excluded from conclusions | — |
+| 5 | Temporal split (era1 vs era2) | Consistent | — |
+| 6 | Benjamini–Hochberg FDR | Null survives correction | [§7](#7-research-wide-multiplicity-audit) |
+| 7 | Mechanical-artifact isolation (CPC vs bid_amount) | Confirmed real, not purely mechanical | [Figure 7](#figure-7) |
+| 8 | Cost-independent outcome replication | Same qualitative pattern | [Figure 7](#figure-7) |
 
 <a id="figure-3"></a>
 ![Figure 3 — Multiverse specification curve and placebo test](figures/Figure3_specification_curve_placebo.png)
@@ -229,13 +240,13 @@ account traits.*
 consistent across the CPC-based and cost-independent (bid_amount-based) outcome
 definitions, supporting H1b independent of the mechanical CPC=cost/click relationship.*
 
-<a id="figure-11"></a>
-![Figure 11 — Alternative-identification screening](figures/Figure11_identification_screening.png)
-*Figure 11 [CONFIRMATORY, supplementary] — RDD and policy-change event-study designs were
-screened as a stronger alternative to 2SLS. Neither survived customer-level re-analysis as
-a usable identification strategy (0/5 RDD candidates; all 5 auto-detected event dates
-non-significant). Both are reported openly as failed robustness checks whose null results
-are directionally consistent with H1c, not as adopted identification designs.*
+**On identification (RDD / policy-change screening).** As a supplementary check on
+whether a stronger causal design was reachable beyond the incomplete 2SLS attempt, RDD
+and policy-change event-study designs were screened. Neither survived customer-level
+re-analysis as a usable identification strategy (0/5 RDD candidates; all 5 auto-detected
+event dates non-significant). Both are reported as failed robustness checks whose null
+results are directionally consistent with H1c, not as adopted identification designs. The
+full screening detail and figure are in **[Appendix A, Figure 11](#figure-11)**.
 
 **Level 1 conclusion:** *A uniform, direct advertiser-size advantage on this platform's
 algorithmic outcomes is not confirmed.* This negative result is the confirmatory backbone
@@ -288,7 +299,8 @@ at 3/5 methods.
 *Figure 13 [POST-HOC / EXPLORATORY] — local business is the only campaign type with 0%
 keyword-auction matching and an actual-CPC/bid ratio below 1, both directly observed
 structural facts, confirmed by tracing the join chain (campaign_dim → adgroup_dim →
-keyword_dim) rather than assumed.*
+keyword_dim) rather than assumed. This is the key visual evidence behind proposition P5
+(§3.3).*
 
 Local-business ad groups show zero matches to the keyword-dimension table. This is
 consistent with local-business ads being served through a location/business-channel
@@ -317,16 +329,9 @@ sample-size artifact. An initial leave-one-type-out comparison ranked local-busi
 exclusion 2nd by raw coefficient shift, behind website exclusion — but website exclusion
 left only 26 customers, an unstable remaining sample. A corrected comparison that matches
 exclusion size across types found local-business exclusion had by far the lowest empirical
-p-value among the three campaign types with stable remaining samples.
-
-<a id="figure-12"></a>
-![Figure 12 — H3 leave-one-type-out: uncorrected vs. corrected ranking](figures/Figure12_h3_leave_one_type_out.png)
-*Figure 12 [POST-HOC / EXPLORATORY] — Panel A: the initial, uncorrected ranking by raw
-coefficient shift (website ranks 1st only because its remaining sample, n=26, is
-unstable). Panel B: the corrected, exclusion-size-matched empirical-p ranking among the
-three campaign types with stable remaining samples — local business is the clear outlier.
-Both panels are shown together per the disclosure policy in `docs/METHODOLOGY_NOTES.md` —
-the corrected ranking is never presented without the uncorrected one.*
+p-value among the three campaign types with stable remaining samples. Both the initial and
+corrected comparisons are shown together, per the repository's disclosure policy, in
+**[Appendix A, Figure 12](#figure-12)**.
 
 **Overall H3 verdict: partially supported, on corrected analysis.** Reported strength:
 *consistent with a local-business-specific dependency, not conclusively established.*
@@ -341,15 +346,8 @@ several were ruled out or reframed:
   built instead: if missingness were purely a mechanical function of "more ad groups →
   higher chance one is unmatched," a simple binomial model should fit the observed
   pattern. It does not (over-dispersion ratio 73×; χ²=16,583, df=6, p<.0001), indicating
-  some account-level clustering beyond pure combinatorics.
-
-  <a id="figure-15"></a>
-  ![Figure 15 — Observed vs. combinatorially-predicted missingness rate](figures/Figure15_combinatoric_null_model.png)
-  *Figure 15 [POST-HOC / EXPLORATORY] — the gap between observed and
-  independent-binomial-predicted missingness rates, especially at low-to-mid ad-group
-  counts, is the basis for the over-dispersion finding; the residual cause is
-  unidentified.*
-
+  some account-level clustering beyond pure combinatorics. See
+  **[Appendix A, Figure 15](#figure-15)** for the observed-vs-predicted plot.
 - Influence diagnostics (corrected for a DFBETA scale-mismatch, §12) found no sign
   reversal across leave-k-out removal; removing the most influential accounts strengthened
   rather than weakened the pattern.
@@ -389,7 +387,9 @@ official statistic (n=25) into a single test family.
 *Figure 14 [CROSS-CUTTING] — each point is one officially-reported p-value, colored by
 hypothesis family, sorted by significance. The dashed line is the pooled Bonferroni
 threshold (0/25 tests clear it); the dotted line is the rank-dependent BH-FDR threshold
-(3/25 clear it, all from the Level 2 H3 analysis).*
+(3/25 clear it, all from the Level 2 H3 analysis). This figure is kept in the main body
+because it is the single evidence-calibration device the rest of this README leans on —
+see the reading note below.*
 
 | Correction | Tests surviving |
 |---|---|
@@ -413,7 +413,8 @@ This repository is designed as a **mediation audit** (Sandvig et al. 2014; Metax
 field-experimental audit is unavailable. It supports a sharper procedural-fairness claim
 than a raw correlation audit but does not support causal identification; 2SLS, RDD, and
 policy-change screenings found no usable identification design and are reported as null
-supplementary robustness (§5.4, Figure 11), not as adopted strategies.
+supplementary robustness (§5.4, [Appendix A, Figure 11](#figure-11)), not as adopted
+strategies.
 
 Within this design, the **Level 1 / Level 2 split** is the operative discipline: Level 1
 answers the mediation-audit's pre-specified question; Level 2 investigates *why* that
@@ -434,7 +435,10 @@ reported at correspondingly lower evidentiary strength throughout.
 **Combined message:** the pre-specified question — does size buy a direct algorithmic
 advantage? — returns a confirmatory null. A post-hoc look at why that null is not
 perfectly uniform surfaces a plausible, partially-supported, unconfirmed explanation
-involving platform serving structure.
+involving platform serving structure. A one-page visual summary tying both studies
+together (Study 1's cross-sectional result alongside the descoped Study 2 longitudinal
+companion) exists as **[Figure 10](#appendix-b--out-of-scope-figures-study-2)** — see
+Appendix B for why it is referenced but not embedded here.
 
 ---
 
@@ -475,32 +479,46 @@ allocation is itself equitable across advertisers with unequal starting resource
 |---|---|---|
 | 1 | Original framing described RDD/policy-change screening as "failed identification attempts" | Reframed as supplementary robustness under mediation-audit positioning (§8); statistics unchanged |
 | 2 | DFBETA influence-diagnostic scale mismatch: row-level DFBETA summed across ~190 daily observations per customer was compared against a customer-count-based threshold | Corrected to customer-level (1 customer = 1 row) regression DFBETA; the "0 customers exceed threshold" claim from the earlier pass was superseded |
-| 3 | Leave-one-type-out ranking (§6.4) initially placed local-business exclusion 2nd, before the exclusion-size instability of the top-ranked alternative was identified | Both passes reported in §6.4, Figure 12, with the reason for the correction stated explicitly |
-| 4 | `size_z` and `n_ad_groups_total` found to be mathematically the same variable | Earlier "mechanical artifact ruled out" conclusion based on a regression using both was retracted; replaced with a combinatorial null-model test (§6.5, Figure 15) |
+| 3 | Leave-one-type-out ranking (§6.4) initially placed local-business exclusion 2nd, before the exclusion-size instability of the top-ranked alternative was identified | Both passes reported in §6.4, [Appendix A Figure 12](#figure-12), with the reason for the correction stated explicitly |
+| 4 | `size_z` and `n_ad_groups_total` found to be mathematically the same variable | Earlier "mechanical artifact ruled out" conclusion based on a regression using both was retracted; replaced with a combinatorial null-model test (§6.5, [Appendix A Figure 15](#figure-15)) |
 | 5 | An earlier internal draft described the local-business mechanism findings (§6.3) as a "confirmed causal chain" | Reframed as "3 of 4 tested links show a statistically detectable pattern," not a causal claim |
 | 6 | 2SLS first-stage F-statistic returned `None` due to an uncaught exception | 2SLS excluded from all confirmatory conclusions |
 
 ---
 
-## 13. Figure Gallery
+## 13. Figure Gallery — What's Where
 
-All figures render inline above and also live as standalone PNGs in
-[`figures/`](figures/).
+All figures live as standalone PNGs in [`figures/`](figures/) regardless of where they
+render. This table is the map: **Body** figures are embedded inline above; **Appendix A**
+figures are embedded in the appendix, one section down, with supplementary detail;
+**Appendix B** figures are named but not shown, because they belong to a descoped,
+out-of-scope study.
 
-| # | Title | Tier |
-|---|---|---|
-| 1 | Multilevel variance decomposition | [CONFIRMATORY] |
-| 2 | Advertiser-size effect, controlling for spend | [CONFIRMATORY] |
-| 3 | Multiverse specification curve + placebo | [CONFIRMATORY] |
-| 4 | Churn-prediction benchmarking (appendix) | [EXPLORATORY, non-confirmatory appendix] |
-| 5, 6, 9, 10 | Cold-start funnel, prediction-horizon, TOST equivalence, integrated framework | Study 2 (longitudinal companion) — see `FUTURE_RESEARCH_STUDY2.md`; shown in §9 for context only |
-| 7 | Spend-mediation b-path | [CONFIRMATORY] |
-| 8 | Product-type heterogeneity (H2 trigger) | [CONFIRMATORY → triggers Level 2] |
-| 11 | Alternative-identification screening (RDD + policy-change, null) | [CONFIRMATORY, supplementary] |
-| 12 | H3 leave-one-type-out, uncorrected vs. corrected | [POST-HOC] |
-| 13 | Serving-structure heterogeneity by campaign type | [POST-HOC] |
-| 14 | Research-wide multiplicity audit (25 p-values) | [CROSS-CUTTING] |
-| 15 | Combinatoric null model vs. observed missingness | [POST-HOC] |
+| # | Title | Tier | Where it renders |
+|---|---|---|---|
+| 1 | Multilevel variance decomposition | [CONFIRMATORY] | **Body**, §5.1 |
+| 2 | Advertiser-size effect, controlling for spend | [CONFIRMATORY] | **Body**, §5.2 |
+| 3 | Multiverse specification curve + placebo | [CONFIRMATORY] | **Body**, §5.4 |
+| 4 | Churn-prediction benchmarking (appendix, RQ4) | [EXPLORATORY, non-confirmatory appendix] | **Appendix A** |
+| 5, 6, 9, 10 | Cold-start funnel, prediction-horizon, TOST equivalence, integrated framework | Study 2 (longitudinal companion) | **Appendix B** (mention only, not embedded) |
+| 7 | Spend-mediation b-path | [CONFIRMATORY] | **Body**, §5.4 |
+| 8 | Product-type heterogeneity (H2 trigger) | [CONFIRMATORY → triggers Level 2] | **Body**, §6.1 |
+| 11 | Alternative-identification screening (RDD + policy-change, null) | [CONFIRMATORY, supplementary] | **Appendix A** |
+| 12 | H3 leave-one-type-out, uncorrected vs. corrected | [POST-HOC] | **Appendix A** |
+| 13 | Serving-structure heterogeneity by campaign type | [POST-HOC] | **Body**, §6.2 |
+| 14 | Research-wide multiplicity audit (25 p-values) | [CROSS-CUTTING] | **Body**, §7 |
+| 15 | Combinatoric null model vs. observed missingness | [POST-HOC] | **Appendix A** |
+
+**Why this split.** Figures 1, 2, 3, 7, 8, and 13 carry the argument a reader needs to
+follow §5–§6 without leaving the page; Figure 14 is kept in the body because it is the
+calibration device the whole README depends on when weighing Level 1 against Level 2.
+Figures 4, 11, 12, and 15 are genuine parts of this repository's evidence base but are
+detail/robustness material that a first read does not need — they are one click away in
+Appendix A, each still carrying its own evidence tag. Figures 5, 6, 9, and 10 belong to a
+different sample, a different study, and a study that was explicitly descoped from this
+repository's evidence base (§11, limitation 10) — showing them inline here would visually
+imply they support this paper's claims, which they do not; Appendix B explains this and
+links to where they do belong.
 
 ---
 
@@ -601,8 +619,99 @@ reproduced here as a folder of scripts.
 
 ---
 
+## Appendix A — Supplementary Figures
+
+These figures are part of this repository's evidence base — each is cited from the body
+above — but are detail-level or robustness-level material rather than the core argument,
+so they are collected here rather than inline.
+
+<a id="figure-11"></a>
+### Figure 11 — Alternative-identification screening (RDD + policy-change)
+*Supports [§5.4](#54-robustness-battery-summary) and [§8](#8-methodological-positioning).*
+
+![Figure 11 — Alternative-identification screening](figures/Figure11_identification_screening.png)
+*Figure 11 [CONFIRMATORY, supplementary] — RDD and policy-change event-study designs were
+screened as a stronger alternative to 2SLS. Neither survived customer-level re-analysis as
+a usable identification strategy (0/5 RDD candidates; all 5 auto-detected event dates
+non-significant). Both are reported openly as failed robustness checks whose null results
+are directionally consistent with H1c, not as adopted identification designs.*
+
+<a id="figure-12"></a>
+### Figure 12 — H3 leave-one-type-out: uncorrected vs. corrected ranking
+*Supports [§6.4](#64-h3-subgroup-dependence).*
+
+![Figure 12 — H3 leave-one-type-out: uncorrected vs. corrected ranking](figures/Figure12_h3_leave_one_type_out.png)
+*Figure 12 [POST-HOC / EXPLORATORY] — Panel A: the initial, uncorrected ranking by raw
+coefficient shift (website ranks 1st only because its remaining sample, n=26, is
+unstable). Panel B: the corrected, exclusion-size-matched empirical-p ranking among the
+three campaign types with stable remaining samples — local business is the clear outlier.
+Both panels are shown together per the disclosure policy in `docs/METHODOLOGY_NOTES.md` —
+the corrected ranking is never presented without the uncorrected one.*
+
+<a id="figure-15"></a>
+### Figure 15 — Combinatoric null model vs. observed missingness
+*Supports [§6.5](#65-alternative-explanations-audited).*
+
+![Figure 15 — Observed vs. combinatorially-predicted missingness rate](figures/Figure15_combinatoric_null_model.png)
+*Figure 15 [POST-HOC / EXPLORATORY] — the gap between observed and
+independent-binomial-predicted missingness rates, especially at low-to-mid ad-group
+counts, is the basis for the over-dispersion finding; the residual cause is
+unidentified.*
+
+<a id="figure-4"></a>
+### Figure 4 — Churn-prediction benchmarking (RQ4 appendix)
+*Not part of the H1/H2/H3 fairness hypotheses tested in §5–§6; retained for completeness
+of the broader Ad_Advance pipeline (`appendix/churn_prediction_rq4.md`).*
+
+![Figure 4 — Churn-prediction benchmarking](figures/Figure4_churn_benchmark.png)
+*Figure 4 [EXPLORATORY, non-confirmatory appendix] — model comparison (logistic
+regression, random forest, gradient boosting) on a severely class-imbalanced churn label
+(2.35% of 213 labeled accounts). This is an independent research direction from the SSI
+fairness question and is included here only because it shares the same underlying
+Ad_Advance data pipeline; it does not bear on H1a/H1b/H1c, H2, or H3.*
+
+---
+
+## Appendix B — Out-of-Scope Figures (Study 2)
+
+The figures below belong to a **descoped longitudinal companion study** — a separate
+sample (n=29 customers, 204 ad groups), a separate time axis (account maturity vs. a new
+ad group's early growth trajectory), and a separate research question (RQ1–RQ3 on
+cold-start prediction) from this repository's Level 1/Level 2 evidence base. They are
+**not cited as evidence for any claim in §1–§11 above** and are listed here only so a
+reader who encounters them elsewhere (e.g., in `FUTURE_RESEARCH_STUDY2.md` or an old
+citation) can see why they are absent from the main narrative, per the repository's
+disclosure policy (§11, limitation 10; `docs/METHODOLOGY_NOTES.md`).
+
+| # | Title | Belongs to |
+|---|---|---|
+| 5 | Cold-start sample construction funnel & RQ1 confirmatory null | `FUTURE_RESEARCH_STUDY2.md`, RQ1 |
+| 6 | Cold-start early-signal prediction (RQ2) & intervention-timing simulation (RQ3) | `FUTURE_RESEARCH_STUDY2.md`, RQ2/RQ3 |
+| 9 | TOST equivalence tests for Study 2's two central null results | `FUTURE_RESEARCH_STUDY2.md`, §7.3 |
+| 10 | Integrated framework — Study 1 (this repo) vs. Study 2 (descoped) side by side | `FUTURE_RESEARCH_STUDY2.md`, synthesis |
+
+**Why Figure 10 is listed here even though it depicts this repository's own Study 1
+result.** Figure 10 is a two-panel comparison figure: the left panel is this repository's
+H1a/H1b/H1c result, and the right panel is Study 2's separate, descoped RQ1–RQ2 result on
+an independent sample. Because the figure as a single artifact asserts a joint narrative
+across both studies, and Study 2 is not part of this repository's evidence base, the
+figure is not embedded here — showing only the left panel would misrepresent the figure,
+and showing both panels would import Study 2's claims into this repository's narrative.
+Readers interested in the full two-study comparison should consult
+`FUTURE_RESEARCH_STUDY2.md` directly, where Study 2's own evidence tags and caveats
+(including its TOST-inconclusive equivalence tests, Figure 9) are presented in full.
+
+If a schema-compatible extract for Study 2 becomes available for replication, and RQ1–RQ3
+are formally preregistered as their own confirmatory tests, that work is expected to live
+in its own repository or a clearly separated section — not folded into this one — per the
+same Level 1/Level 2 discipline documented in §2 and §8 above.
+
+---
+
 *Theoretical framing (§3), the SSI construct, the Level 1/Level 2 evidentiary split, and
 the research-wide multiplicity audit (§7) are repository-level additions intended to make
 every empirical claim legible as either a pre-specified test or a disclosed post-hoc
 exploration. They do not alter any underlying reported statistic — they change only how
-each statistic is labeled and weighted.*
+each statistic is labeled and weighted. This revision additionally reorganizes where each
+figure renders (body vs. Appendix A vs. Appendix B, §13) without altering any figure's
+content, caption, or evidence tag.*
