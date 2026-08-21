@@ -1,12 +1,12 @@
 # Methodology Notes
 
 This document is a narrative log of every point in this repository's analysis pipeline
-where an initial modeling choice, framing choice, or diagnostic conclusion was found to be
+where an initial modeling choice, framing choice, or naming choice was found to be
 unreliable, under-argued, or premature — and was subsequently corrected, retracted, or
 reframed. It is treated as part of this repository's contribution, not as a section to be
 edited out once the design was settled. The reasoning here is what makes both the
-Level 1 confirmatory result and the Level 2 exploratory findings trustworthy rather than
-merely reported.
+confirmatory (H1, H2) results and the post-hoc exploratory (RQ2a–RQ2c) findings
+trustworthy rather than merely reported.
 
 Each entry follows the same shape: **what was assumed**, **how it was contradicted**, and
 **what changed as a result**. Entries are grouped by which part of the repository they
@@ -16,12 +16,12 @@ invalid intermediate analysis.
 
 ---
 
-## Part A — Pivots affecting Level 1 (confirmatory H1c)
+## Part A — Pivots affecting the confirmatory hypotheses (H1, H2)
 
 ### A1. An attempt to upgrade the identification tier (RDD/policy-change) was pursued, screened, and reframed — not silently dropped
 
-**Assumed:** because the planned 2SLS strategy could not be completed (uncaught exception in
-the first-stage F-statistic), a stronger causal design might be reachable via RDD or
+**Assumed:** because the planned 2SLS strategy could not be completed (uncaught exception
+in the first-stage F-statistic), a stronger causal design might be reachable via RDD or
 policy-change event studies.
 
 **Contradicted by:** a three-round screen (bandwidth filter → donut-hole robustness →
@@ -66,9 +66,9 @@ boundary conditions P1–P4 (later P5, see B4 below).
 
 ### A4. H1c's core model was subjected to an influence diagnostic for the first time, as a confirmatory (not exploratory) check
 
-**Assumed:** influence diagnostics had, in earlier drafts, only been applied to Level 2's
-exploratory sub-models (e.g., the local-business interaction term), leaving the primary H1c
-model itself unaudited.
+**Assumed:** influence diagnostics had, in earlier drafts, only been applied to the
+post-hoc exploratory sub-models (e.g., the local-business interaction term), leaving the
+primary H1c model itself unaudited.
 
 **Contradicted by:** a research-wide methodological self-audit flagged this as a procedural
 gap — the paper's central claim had never been stress-tested against its own influential
@@ -82,25 +82,25 @@ rules) returned non-significant p-values (100% consistency). The confirmatory gr
 was explicitly re-evaluated against this evidence and **maintained**.
 
 **Important process note:** in the course of running this diagnostic, a related but
-separate DFBETA calculation elsewhere in the pipeline (used on a Level 2 exploratory
-sub-model) was found to contain a scale-mismatch bug — see B2 below. That bug did **not**
-affect this entry's H1c core-model result, which was computed correctly from the start
-using customer-level (not row-level-summed) DFBETA.
+separate DFBETA calculation elsewhere in the pipeline (used on a post-hoc exploratory
+sub-model, RQ2b) was found to contain a scale-mismatch bug — see B2 below. That bug did
+**not** affect this entry's H1c core-model result, which was computed correctly from the
+start using customer-level (not row-level-summed) DFBETA.
 
-`[affects: README §5.2, §11 — new confirmatory-robustness content, not previously present]`
+`[affects: README §5.3, §11 — new confirmatory-robustness content, not previously present]`
 
 ---
 
-## Part B — Pivots affecting Level 2 (post-hoc exploratory analysis)
+## Part B — Pivots affecting the post-hoc exploratory research questions (RQ2a–RQ2c)
 
-### B1. The original 2-level evidentiary structure (Level 1 vs. Level 2) was introduced to prevent HARKing after a sustained post-hoc investigation of a single subgroup
+### B1. An explicit confirmatory/post-hoc split was introduced to prevent HARKing after a sustained post-hoc investigation of a single subgroup
 
 **Assumed (implicitly, across a long sequence of analyses):** a sequence of increasingly
 elaborate analyses — campaign-type heterogeneity → serving-structure comparison → CPC/bid
 relationship comparison → variance-structure comparison → structural-break testing →
-leverage decomposition → counterfactual CPC comparison → subgroup-dependence testing
-(H3) — could be added to the paper's evidence base incrementally, each new script justified
-by the output of the one before it.
+leverage decomposition → counterfactual CPC comparison → subgroup-dependence testing —
+could be added to the paper's evidence base incrementally, each new script justified by
+the output of the one before it.
 
 **Contradicted by:** external review identified this as the precise shape of an
 outcome-driven exploratory spiral — not because any individual step was invalid, but
@@ -111,19 +111,23 @@ disproportionate to what a single non-significant baseline result can support. T
 further noted that even fully disclosed post-hoc analysis, if allowed unlimited scope in
 the main narrative, risks reading as a second confirmatory study by sheer volume.
 
-**Changed:** the repository was restructured around an explicit **Level 1 / Level 2**
-distinction (README §5–§6), with:
-- every Level 2 claim tagged **[POST-HOC / EXPLORATORY]**,
+**Changed:** the repository was restructured around an explicit **confirmatory
+(H1, H2) / post-hoc exploratory** distinction (README §5–§6), with:
+- every post-hoc claim tagged **[POST-HOC / EXPLORATORY]**,
 - an explicit disclosure of *when* the guiding research question changed (README §2),
 - a research-wide multiplicity audit (README §7) pooling all 25 officially-reported
-  p-values across both levels, and
-- a policy that Level 2 conclusions never upgrade Level 1's evidence grade, and vice versa.
+  p-values across both tiers, and
+- a policy that post-hoc findings never upgrade the confirmatory evidence grade, and vice
+  versa.
 
 This did not require discarding any analysis — every script's output is retained, either in
 README §6 (summarized) or in `supplementary_localbiz_exploratory/` (full detail) — but it
-changed how the cumulative weight of that output is presented and read.
+changed how the cumulative weight of that output is presented and read. (This split was
+originally implemented as a two-level "Level 1 / Level 2" structure; see entry B7 below for
+a further naming refinement that does not alter this entry's substance.)
 
-`[affects: README §1, §2, §6, §7, §8, §9; this is the single largest reframing pass in this log]`
+`[affects: README §1, §2, §6, §7, §8, §9; this was the largest reframing pass in this log
+until B7]`
 
 ### B2. DFBETA threshold scale mismatch in the local-business influence diagnostic
 
@@ -142,7 +146,7 @@ customers exceed the corrected threshold. The leave-k-out re-fit results (which 
 scale problem, since they simply re-estimate the full model after removing customers) were
 unaffected and confirmed: no sign reversal across k=1,3,5,10,15.
 
-`[affects: README §6.3, §6.5; corrects an earlier claim now explicitly retracted]`
+`[affects: README §6.2.2, §6.2.3 (RQ2b); corrects an earlier claim now explicitly retracted]`
 
 ### B3. `size_z` and `n_ad_groups_total` were discovered to be the same variable, invalidating an earlier "control" analysis
 
@@ -158,26 +162,28 @@ p-values undefined). The "controlled" analysis was not merely underpowered; it w
 structurally meaningless.
 
 **Changed:** the entire "control for ad-group count" line of analysis is retracted. It was
-replaced with a **combinatorial null model**: if missingness were purely a function of
-"more ad groups → higher chance one is unmatched by chance," a simple independent-binomial
-model should fit the observed missingness rate well. It does not (over-dispersion ratio
-73×; goodness-of-fit χ²=16,583, df=6, p<.0001), indicating account-level clustering beyond
-pure combinatorics — but the cause of that residual clustering remains unidentified.
+replaced with a **combinatorial null model** (RQ2b): if missingness were purely a function
+of "more ad groups → higher chance one is unmatched by chance," a simple
+independent-binomial model should fit the observed missingness rate well. It does not
+(over-dispersion ratio 73×; goodness-of-fit χ²=16,583, df=6, p<.0001), indicating
+account-level clustering beyond pure combinatorics — but the cause of that residual
+clustering remains unidentified.
 
-`[affects: README §6.5, §11 Limitation 7; replaces an invalid analysis rather than merely
+`[affects: README §6.2.3, §11 Limitation 7; replaces an invalid analysis rather than merely
 correcting one]`
 
 ### B4. Serving-structure heterogeneity was generalized into proposition P5 on the SSI boundary-condition framework
 
-**Assumed:** the local-business/keyword-matching structural difference (§6.2) was, at first,
-treated purely as a data-quality observation relevant only to the H2 robustness appendix.
+**Assumed:** the local-business/keyword-matching structural difference (§6.2.1) was, at
+first, treated purely as a data-quality observation relevant only to the H2 robustness
+appendix.
 
 **Contradicted by:** on reflection, this fact bears directly on the SSI construct's own
 scope condition — the audit design presupposes an auction-based serving mechanism, which
 this subgroup structurally lacks.
 
 **Changed:** added as **P5 (mechanism applicability)** to the SSI boundary-condition
-framework (README §3.3), explicitly marked as post-hoc — it did not exist prior to Level 2's
+framework (README §3.3), explicitly marked as post-hoc — it did not exist prior to RQ2b's
 findings and is a candidate proposition, not an established one.
 
 `[affects: README §3.3, §10]`
@@ -200,9 +206,9 @@ as an established causal chain." All instances of "causal chain," "establishes,"
 "confirms" in earlier internal drafts describing this analysis were replaced with
 "consistent with," "detected pattern," or "does not establish."
 
-`[affects: README §6.3, §6.6; language-only correction, no statistic changed]`
+`[affects: README §6.2.2, §6.4 (RQ2b); language-only correction, no statistic changed]`
 
-### B6. The leave-one-type-out (H3) ranking reversed after a correction, and both passes are disclosed
+### B6. The leave-one-type-out sensitivity ranking reversed after a correction, and both passes are disclosed
 
 **Assumed:** an initial comparison of coefficient shifts across five campaign-type
 exclusions could be ranked directly by raw magnitude of shift.
@@ -221,13 +227,54 @@ exclusion ranked 1st among these (empirical p=1.0% vs. 91.7% and 66.3% for the o
 stable types), reversing the initial ranking.
 
 **Explicit disclosure policy adopted:** both the initial (unfavorable) and corrected
-(favorable) results are reported together in README §6.4, with the reason for the
+(favorable) results are reported together in README §6.3 (RQ2c), with the reason for the
 correction stated in the same breath as the result. This entry exists specifically because
 reporting only the corrected pass — however statistically justified the correction — would
 constitute selective disclosure of a result that initially cut against the paper's emerging
 narrative.
 
-`[affects: README §6.4, §11 Limitation 5, §12 transparency log entry 3]`
+`[affects: README §6.3, §11 Limitation 5, §12 transparency log entry 3]`
+
+### B7. "H3" was retracted as a name; the post-hoc investigation is now three named research questions (RQ2a, RQ2b, RQ2c)
+
+**Assumed:** once the confirmatory/post-hoc split was in place (B1) and every post-hoc
+claim carried a **[POST-HOC / EXPLORATORY]** tag, it was defensible to keep numbering the
+post-hoc investigation into H2's heterogeneity as a single "H3" — reasoning that the
+evidence-tag, not the name, was doing the work of preventing HARKing, and that "H3" simply
+preserved narrative continuity with H1 and H2.
+
+**Contradicted by:** external review noted that the word "hypothesis" carries a
+pre-registration connotation independent of whatever tag is attached to it. Numbering a
+post-hoc question "H3" alongside pre-specified "H1" and "H2" — even fully disclosed as
+post-hoc in prose — risks giving a skimming reader the impression that all three were set
+out in advance, which is precisely the appearance the confirmatory/post-hoc split (B1) was
+built to prevent. The review also noted that "H3" had been asked to do three different
+jobs at once — locate the heterogeneity, explain it, and test whether it mattered for
+H1's conclusion — which are three different kinds of claims with three different
+evidentiary bars, collapsed into one label.
+
+**Changed:** the post-hoc investigation is now three explicitly-named **research
+questions**, each doing one job:
+- **RQ2a** (where): does the heterogeneity found in H2 concentrate in a particular
+  campaign type? (continuous-share re-specification)
+- **RQ2b** (why): what platform-mechanism pattern is consistent with that concentration?
+  (serving-structure comparison, mechanism-signature tests, alternative-explanation audits)
+- **RQ2c** (does it matter for H1): does H1's headline null depend on local-business
+  inclusion, beyond sample-size effects alone? (leave-one-type-out sensitivity analysis,
+  formerly labeled "H3")
+
+No underlying statistic changed. Every number previously reported under "H3" is reported
+identically under RQ2c; every number previously reported under the continuous-share
+re-specification or the serving-structure/mechanism analyses is reported identically under
+RQ2a/RQ2b respectively. Only the name, and the section boundaries separating "where" from
+"why" from "does it matter," changed. Some underlying script variable names and one
+figure's legend (Figure 12, Figure 14) still read "H3" internally; `README §13` and
+`appendix/hypothesis_id_legacy_mapping.md` document the mapping so no reader is misled by
+the older label surviving in generated artifacts.
+
+`[affects: README title banner, §1, §2, §6 (renamed and re-split from a single subsection
+into 6.1/6.2/6.3), §7, §9, §11 Limitation 11 (new), §12, §13, §14; this is the second
+largest reframing pass in this log, after B1, and the most recent]`
 
 ---
 
@@ -235,20 +282,22 @@ narrative.
 
 ### C1. A research-wide multiplicity audit was added after individual-family corrections were found to be insufficient in aggregate
 
-**Assumed:** each hypothesis family (H1c's 6-cell battery, H2's 3-interaction battery, the
-RDD/policy-change 10-candidate screen, H3's subgroup-dependence tests) corrected for
-multiple comparisons *within itself*, and this was treated as sufficient.
+**Assumed:** each hypothesis or research-question family (H1c's 6-cell battery, H2's
+3-interaction battery, the RDD/policy-change 10-candidate screen, RQ2c's
+subgroup-dependence tests) corrected for multiple comparisons *within itself*, and this was
+treated as sufficient.
 
 **Contradicted by:** pooling all 25 officially-reported p-values across the entire research
 program into one test family and applying Bonferroni/BH-FDR correction shows that **0/25**
-survive Bonferroni and only **3/25** (all from the Level 2 exploratory H3 analysis) survive
-the more permissive FDR correction. No individual-family correction had previously surfaced
-this aggregate picture.
+survive Bonferroni and only **3/25** (all from the RQ2c exploratory subgroup-dependence
+analysis) survive the more permissive FDR correction. No individual-family correction had
+previously surfaced this aggregate picture.
 
 **Changed:** README §7 was added as a standing, reproducible audit (re-run via
 `research_wide_methodological_audit.py`), explicitly positioned as the single most important
 evidence-calibration table in the repository — not as a result to be minimized, but as the
-mechanism that prevents any Level 2 finding from being read at Level 1's confidence.
+mechanism that prevents any post-hoc finding from being read at the confirmatory tier's
+confidence.
 
 `[affects: README §7, §9, §11 Limitation 8]`
 
@@ -257,17 +306,21 @@ mechanism that prevents any Level 2 finding from being read at Level 1's confide
 ## Summary of what this log establishes
 
 No underlying statistic reported anywhere in this repository was recomputed by a framing
-pass; framing passes (A1, A2, A3, B1, B4, B5, C1) changed only how existing, unchanged
+pass; framing passes (A1, A2, A3, B1, B4, B5, B7, C1) changed only how existing, unchanged
 numbers are named, scoped, and weighted. Two entries (B2, B3) are genuine retractions of
 invalid intermediate analyses, replaced with corrected or substitute analyses whose
 different numbers are the ones now reported. One entry (A4) added a new confirmatory
 robustness check that had not previously been run. One entry (B6) discloses a reversal
 that occurred during exploratory analysis, reporting both the initial and corrected result
-rather than only the latter.
+rather than only the latter. One entry (B7) — the most recent — retracts the repository's
+own earlier naming choice ("H3"), on the grounds that numbering a post-hoc question
+alongside pre-specified hypotheses undercuts the very transparency mechanism (B1) the
+naming was meant to serve.
 
 The practice this log is meant to model: every point where a prior choice was found
 wanting was logged, not quietly revised — including, and especially, the points where the
-correction reversed a result in the direction the emerging narrative favored (B6) or where
-an earlier framing had overclaimed (B5). A separate log of pivots specific to the descoped
-longitudinal companion study is preserved in `../FUTURE_RESEARCH_STUDY2.md` rather than
-here, since that study is not part of this repository's evidence base.
+correction reversed a result in the direction the emerging narrative favored (B6), where an
+earlier framing had overclaimed (B5), or where the repository's own disclosure apparatus
+was itself found to be imperfectly built (B7). A separate log of pivots specific to the
+descoped longitudinal companion study is preserved in `../FUTURE_RESEARCH_STUDY2.md` rather
+than here, since that study is not part of this repository's evidence base.
