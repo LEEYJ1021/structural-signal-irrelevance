@@ -569,15 +569,10 @@ structural-signal-irrelevance/
 │   ├── exploratory_industry_classification.md
 │   └── hypothesis_id_legacy_mapping.md
 │
-├── docs/
-│   ├── METHODOLOGY_NOTES.md
-│   ├── RESULTS_SUMMARY.md
-│   └── DESIGN_ARTIFACT.md
-│
-├── run_pipeline_v4.sh
-├── run_supplementary_robustness.sh
-├── run_supplementary_identification.sh
-└── run_research_wide_audit.sh                    <- runs research_wide_audit/research_wide_audit_core.py end-to-end
+└── docs/
+    ├── METHODOLOGY_NOTES.md
+    ├── RESULTS_SUMMARY.md
+    └── DESIGN_ARTIFACT.md
 ```
 
 **Note on consolidation.** `supplementary_localbiz_exploratory/` and `research_wide_audit/`
