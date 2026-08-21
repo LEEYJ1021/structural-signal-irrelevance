@@ -1,189 +1,273 @@
 # Methodology Notes
 
-This document is a narrative log of every point in the advertiser-size mediation-audit pipeline
-(`src/pipeline_v4/`, plus the alternative-identification screening in
-`supplementary_identification/`) where an initial modeling choice — or an initial framing
-choice — was found to be structurally unreliable or under-argued, and replaced with a more
-defensible alternative, and why. It is treated as part of the project's contribution, not as a
-section to be edited out once the final design was settled — the reasoning here is what makes
-the confirmatory H1c result (and the honest null result in `supplementary_identification/`)
-trustworthy rather than merely reported.
+This document is a narrative log of every point in this repository's analysis pipeline
+where an initial modeling choice, framing choice, or diagnostic conclusion was found to be
+unreliable, under-argued, or premature — and was subsequently corrected, retracted, or
+reframed. It is treated as part of this repository's contribution, not as a section to be
+edited out once the design was settled. The reasoning here is what makes both the
+Level 1 confirmatory result and the Level 2 exploratory findings trustworthy rather than
+merely reported.
 
-Each entry follows the same shape: **what we assumed**, **how the diagnostic (or external
-review) contradicted it**, and **what changed as a result**.
-
-Cross-references: the root [`README.md`](../README.md) links directly into specific entries
-below wherever it leans on one (mainly §2, §2.5, §3.1, §4.5.9, and §5); the exact statistics
-each pivot produced live in [`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md).
-
-> **Scope note.** An earlier version of this log also documented a longitudinal cold-start
-> analysis (account maturity vs. a new ad group's growth trajectory) and its own methodological
-> pivots. That study has been descoped from this paper; its pivot log has moved in full to
-> [`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md). The entries below are
-> renumbered to cover only the pivots that bear on the advertiser-size analysis reported in this
-> repository's `README.md`.
+Each entry follows the same shape: **what was assumed**, **how it was contradicted**, and
+**what changed as a result**. Entries are grouped by which part of the repository they
+affect. Nothing in this log alters an underlying computed statistic; every change here is a
+change in framing, scope, labeling, or (where explicitly marked) a genuine retraction of an
+invalid intermediate analysis.
 
 ---
 
-## 1. An attempt to upgrade the identification tier (RDD / policy-change) was pursued, screened, and abandoned — honestly, not silently
+## Part A — Pivots affecting Level 1 (confirmatory H1c)
 
-**Assumed:** because the planned 2SLS identification strategy (method 4 in root README §4.5)
-could not be completed due to a code-level exception (Transparency Log #2), a stronger causal
-design might be reachable by screening two alternative strategies: (a) regression discontinuity
-(RDD) on `size` and `total spend`, scanning for an institutionally meaningful cutoff, and (b)
-policy-change event-study DiD around a genuine platform policy change, located either from
-external knowledge or an automated structural-break scan of the size-CPC relationship. The
-initial motivating hypothesis was that a successful alternative identification strategy could
-raise the confidence tier of the H1c null result from associational to quasi-causal.
+### A1. An attempt to upgrade the identification tier (RDD/policy-change) was pursued, screened, and reframed — not silently dropped
 
-**Contradicted by, in three rounds:**
-- **Round 1** (`supplementary_identification/step11_alt_identification_RDD_policy.py`) scanned
-  40 candidate RDD cutoffs and found 5 that survived an initial bandwidth-sensitivity filter; a
-  parallel CUSUM scan flagged 5 candidate structural-break dates.
-- **Round 2** (`step11b_donut_hole_full_scan.py`) ran a fine-grained donut-hole sensitivity scan
-  on the 5 RDD candidates: 2 of 5 broke down (lost significance) at a donut fraction as small as
-  2%, meaning the estimate depended almost entirely on the handful of observations immediately
-  adjacent to the cutoff -- the classic symptom of running-variable manipulation. A naive
-  left/right sample-count-ratio flag was also raised for several candidates, but this flag could
-  not, by itself, distinguish genuine manipulation from an artifact of the underlying customer x
-  day panel: higher-spend customers are active on more days and so contribute more panel rows
-  near any spend-based cutoff, independent of any manipulation.
-- **Round 3, decisive** (`step11c_customer_level_reanalysis.py`) resolved the Round-2 ambiguity
-  by re-running both the density test and the RDD estimate **at the customer level** (one row
-  per customer, aggregating the outcome to a per-customer mean), which removes panel-density
-  variation entirely. Result: 2 of 5 candidates fail a genuine customer-level density test
-  (p<.001, manipulation cannot be ruled out); 2 more lose significance entirely once
-  re-estimated at the customer level (the panel-level result was a density artifact, not a real
-  discontinuity); the remaining candidate survives density testing but is only marginally
-  significant (p=.048), broke down at just 15% donut in Round 2, and has no independent
-  institutional justification. On the policy-change side, all 5 event-study DiD coefficients
-  were non-significant (p=.16-.58) and indistinguishable from 500 randomly chosen placebo dates
-  (permutation p=.23-.76).
+**Assumed:** because the planned 2SLS strategy could not be completed (uncaught exception in
+the first-stage F-statistic), a stronger causal design might be reachable via RDD or
+policy-change event studies.
 
-**Changed:** the original motivating hypothesis -- that a stronger causal design was reachable --
-was rejected by the data. Rather than omit this work or selectively report only the more
-favorable-looking Round-1/Round-2 numbers, the full three-round screening process is archived in
-`supplementary_identification/` and summarized transparently in root README §4.5.9 and Figure
-11. As entry 3 below documents, this entry's *framing* was itself revised in a later pass: the
-work is now described as a supplementary robustness screening under the mediation-audit
-positioning of README §5, not as a "failed identification strategy" — the underlying statistics
-in this entry are unchanged.
+**Contradicted by:** a three-round screen (bandwidth filter → donut-hole robustness →
+decisive customer-level re-analysis) found 0/5 RDD candidates and 0/5 policy-change dates
+survive. Full detail in `supplementary_identification/SCREENING_SUMMARY.md`.
 
-`[affects: README §4.5.9, §5, §6, §8 (Limitation 2, 6), Figure 11]`
+**Changed:** the repository's positioning was rewritten to describe itself as a **mediation
+audit** (README §8) from the outset, under which these screenings are supplementary
+robustness checks whose null result is consistent with, not required by, the H1c
+conclusion — rather than "failed identification attempts."
 
-## 2. The Conversion/ROAS exclusion was documented as a limitation before its construct-validity rationale was made explicit
+`[affects: README §8, §11 Limitation 2]`
 
-**Assumed:** early data-preparation notes recorded the decision to exclude conversion and ROAS
-variables as an operational fact ("Naver's conversion API backfills inconsistently") without
-connecting that fact to the specific identification threat it poses to H1c specifically.
+### A2. The Conversion/ROAS exclusion was generalized into the P4 boundary condition on SSI
 
-**Contradicted by:** re-examining the decision against the same mechanical-artifact logic already
-applied elsewhere in the pipeline (comparable to the CPC-vs-`bid_amount` substitution in root
-README §4.5, method 7): the concern is not simply that conversion data is incomplete, but that
-**backfill completeness is plausibly correlated with the independent variable under test**
-(`size`) -- larger or more established advertisers are plausibly more likely to have a fully
-integrated, low-latency conversion pipeline. If true, this would mean any conversion- or
-ROAS-based outcome could manufacture a spurious H1c effect as a measurement artifact of
-differential data completeness, rather than reflecting a genuine algorithmic effect. This is a
-stronger and more specific claim than "the data is incomplete," and it was not stated this
-precisely in the original limitation note.
+**Assumed:** the exclusion was originally a data-quality note ("the conversion API backfills
+inconsistently").
 
-**Changed:** the exclusion is now documented in root README §3.1 as a pre-specified
-construct-validity safeguard, explicitly parallel to the CPC/`bid_amount` logic in §4.5 method
-7, rather than solely as a data-quality limitation. As entry 3 below documents, this reasoning
-was later generalized: §3.1's exclusion is now cited as the concrete empirical instance of a
-named, general boundary condition on the SSI construct (root README §2.5.3, proposition P4:
-measurability), rather than standing as a platform-specific caveat alone. The original
-limitation-table entry is retained (root README §8, item 5) but now points back to §3.1 and
-§2.5.3 for the full argument.
+**Contradicted by:** re-examination showed the concern is not incompleteness per se but that
+backfill completeness is plausibly *correlated with the independent variable under test*
+(size) — which would manufacture a spurious H1c effect as a measurement artifact.
 
-`[affects: README §3.1, §2.5.3 (P4), §4.5 (cross-reference), §8 (Limitation 5); RESULTS_SUMMARY.md data-exclusion audit]`
+**Changed:** documented as a pre-specified construct-validity safeguard and generalized as
+proposition P4 in the SSI boundary-condition framework (README §3.3).
 
-## 3. The theoretical framework named two competing accounts but never named the pattern itself as a construct
+`[affects: README §3.3, §4, §11 Limitation 4]`
 
-**Assumed:** the original theoretical framework (root README §2, prior version) was judged
-sufficient by stating two competing, falsifiable predictions (statistical discrimination vs.
-behavioral meritocracy) and testing which one the data supported. This was treated as a complete
-theoretical contribution.
+### A3. The theoretical framework was extended to name the pattern itself as a construct (SSI)
 
-**Contradicted by:** external review of a draft summary of this repository noted that framing
-the contribution as "we tested two existing theories against each other" reads, to a reviewer,
-as an *application* of prior theory rather than a *contribution to* theory — even though the null
-pattern tested here (a structural attribute's association with an algorithmic outcome vanishing
-once a legitimate behavioral mediator is held constant) does not yet have a name in either the
-statistical-discrimination or the algorithmic-fairness literature as a standalone,
-system-level property. Re-reading Dwork et al. (2012) and the broader algorithmic-fairness
-literature confirmed that "individual fairness" is a *normative benchmark*, not a *descriptive
-construct restricted to the structural-vs-behavioral attribute axis* — meaning the pattern this
-repository tests is adjacent to, but not identical with, any single named construct already in
-use.
+**Assumed:** stating two competing predictions (statistical discrimination vs. behavioral
+meritocracy) was a sufficient theoretical contribution.
 
-**Changed:** root README §2.5 was added, formally defining **structural signal irrelevance
-(SSI)** as Y ⊥ S | (B, X), explicitly distinguishing it from statistical discrimination
-(decision-maker-side account), individual fairness (normative benchmark), and generic mediation
-analysis (single-coefficient result vs. a claim requiring convergence across many independent
-robustness methods, and ideally across independent samples/time axes). Four falsifiable
-boundary-condition propositions (P1–P4, §2.5.3) were derived from the platform-governance
-literature already cited in §2.3, and a four-item research agenda (§2.5.4) was added so the
-construct generates testable follow-up work rather than standing as a label alone — including an
-explicit pointer to the planned longitudinal replication now described in
-[`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md). Existing empirical results were
-**not re-analyzed**; §2.5 only reframes how the existing H1c null result (unchanged) is named
-and situated in the literature. Every downstream reference to "the pattern" in §4.4, §4.8, §6,
-and §7 was updated to cite §2.5 where appropriate, and the H2 exception (§4.6) and the
-Conversion/ROAS exclusion (§3.1) were each explicitly mapped onto one of the P1–P4 propositions
-as concrete empirical instances, which they had not previously been connected to.
+**Contradicted by:** external review noted this reads as theory-application rather than
+theory-contribution, since the pattern tested (a structural attribute's association
+vanishing once a legitimate mediator is held constant) had no name as a standalone,
+system-level property in either literature.
 
-`[affects: README §2.5 (new), §4.4, §4.8, §6, §7, §3.1 (cross-ref to P4); RESULTS_SUMMARY.md §0, evidence-summary table]`
+**Changed:** README §3.2 formally defines Structural Signal Irrelevance (SSI) and derives
+boundary conditions P1–P4 (later P5, see B4 below).
 
-## 4. The repository's identification attempts were framed as failures of a causal-inference goal, rather than as a bounded feature of an audit design
+`[affects: README §3.2–3.3]`
 
-**Assumed:** root README §5 (prior version, "Associational-Language Statement") described the
-2SLS, RDD, and policy-change screenings as identification *attempts* that did not reach a usable
-design, and used hedging language ("did not reach a usable causal design," reported "openly
-rather than folded into the confirmatory evidence") to manage the resulting gap between what was
-attempted and what was achieved.
+### A4. H1c's core model was subjected to an influence diagnostic for the first time, as a confirmatory (not exploratory) check
 
-**Contradicted by:** external review observed that this framing implicitly concedes the
-repository's goal *was* causal identification and that the goal was not met — which invites the
-natural follow-up question "why should a reader trust a study whose primary identification
-strategy failed twice?" This is an accurate description of the attempts but an inaccurate
-description of the study's actual design goal: at no point was platform access available to run
-a sock-puppet or field-experimental audit (the design that *would* support causal claims), so
-2SLS/RDD/policy-change were never load-bearing for the core H1c conclusion — they were always
-supplementary probes of whether a stronger tier was reachable, run and reported honestly
-regardless of outcome (as entry 1 above already documents at the statistical level).
+**Assumed:** influence diagnostics had, in earlier drafts, only been applied to Level 2's
+exploratory sub-models (e.g., the local-business interaction term), leaving the primary H1c
+model itself unaudited.
 
-**Changed:** root README §5 was rewritten as "Methodological Positioning — This Study as a
-Mediation Audit," explicitly situating the repository's design within the algorithm-audit
-literature (Sandvig et al., 2014; Metaxa et al., 2021; Raji et al., 2020) as a **mediation
-audit** — a third audit type, alongside correlation audits and sock-puppet audits, appropriate
-when platform access for controlled intervention is unavailable. Under this framing, the
-2SLS/RDD/policy-change screenings (§4.5 method 4, §4.5.9) are now explicitly labeled
-"supplementary robustness only," and every "failed" / "did not succeed" phrasing describing them
-elsewhere in the repository (§4.5.9's heading, §6's Figure 11 caption, §8 Limitation 2, the
-transparency log) was revised to "supplementary robustness screening whose null result is
-consistent with, but not required by, the mediation-audit conclusion." No statistical result
-changed; entry 1 above remains the authoritative record of what was run and what it found. This
-revision also gave §2.5.4's research agenda item 4 (a portable SSI audit protocol) a clear
-methodological home to be proposed from.
+**Contradicted by:** a research-wide methodological self-audit flagged this as a procedural
+gap — the paper's central claim had never been stress-tested against its own influential
+observations.
 
-`[affects: README §5 (rewritten), §4.5.9 (heading + framing), §6 (Figure 11 caption), §8 (Limitation 2), §9 (log entry 7); supplementary_identification/SCREENING_SUMMARY.md (framing pass)]`
+**Changed:** a customer-level DFBETA diagnostic was run on the H1c core model
+(spend_z + size_z, n=228), identifying 15 influential customers. Three **pre-specified**
+exclusion rules (thin-observation, low performance-match-rate, both combined) — defined
+before any coefficient was inspected — were applied. All four configurations (baseline + 3
+rules) returned non-significant p-values (100% consistency). The confirmatory grade for H1c
+was explicitly re-evaluated against this evidence and **maintained**.
+
+**Important process note:** in the course of running this diagnostic, a related but
+separate DFBETA calculation elsewhere in the pipeline (used on a Level 2 exploratory
+sub-model) was found to contain a scale-mismatch bug — see B2 below. That bug did **not**
+affect this entry's H1c core-model result, which was computed correctly from the start
+using customer-level (not row-level-summed) DFBETA.
+
+`[affects: README §5.2, §11 — new confirmatory-robustness content, not previously present]`
 
 ---
 
-## Summary of what changed in this revision pass (entries 1–4)
+## Part B — Pivots affecting Level 2 (post-hoc exploratory analysis)
 
-No underlying statistic reported anywhere in this repository (H1a/b/c, H2, or the RDD/
-policy-change screening numbers) was recomputed or altered by this revision pass. What changed
-is: (1) the pattern these statistics jointly demonstrate now has a name and a formal definition
-(SSI, §2.5); and (2) the repository's relationship to causal identification is now stated as a
-design choice from the outset (mediation audit, §5) rather than as a series of attempts that
-fell short of an implied goal. These are documentation and framing changes made in response to
-external review, consistent with this repository's stated practice (README preamble) of logging
-every point where a prior choice was found wanting and revised, honestly, rather than quietly.
+### B1. The original 2-level evidentiary structure (Level 1 vs. Level 2) was introduced to prevent HARKing after a sustained post-hoc investigation of a single subgroup
 
-A further round of pivots — specific to the descoped longitudinal study (account maturity, cold-
-start reframing, small-sample power/Bayes-factor treatment, and the design-artifact backtest) —
-is preserved in full in [`../FUTURE_RESEARCH_STUDY2.md`](../FUTURE_RESEARCH_STUDY2.md) rather
-than in this file, since that study is no longer part of this manuscript's evidence base.
+**Assumed (implicitly, across a long sequence of analyses):** a sequence of increasingly
+elaborate analyses — campaign-type heterogeneity → serving-structure comparison → CPC/bid
+relationship comparison → variance-structure comparison → structural-break testing →
+leverage decomposition → counterfactual CPC comparison → subgroup-dependence testing
+(H3) — could be added to the paper's evidence base incrementally, each new script justified
+by the output of the one before it.
+
+**Contradicted by:** external review identified this as the precise shape of an
+outcome-driven exploratory spiral — not because any individual step was invalid, but
+because the *cumulative rhetorical weight* of ~20 scripts investigating one subgroup
+(local-business, originally the *least* significant of three tested interaction terms in
+the pre-specified H2 battery, raw p=.099, non-significant under Bonferroni correction) is
+disproportionate to what a single non-significant baseline result can support. The review
+further noted that even fully disclosed post-hoc analysis, if allowed unlimited scope in
+the main narrative, risks reading as a second confirmatory study by sheer volume.
+
+**Changed:** the repository was restructured around an explicit **Level 1 / Level 2**
+distinction (README §5–§6), with:
+- every Level 2 claim tagged **[POST-HOC / EXPLORATORY]**,
+- an explicit disclosure of *when* the guiding research question changed (README §2),
+- a research-wide multiplicity audit (README §7) pooling all 25 officially-reported
+  p-values across both levels, and
+- a policy that Level 2 conclusions never upgrade Level 1's evidence grade, and vice versa.
+
+This did not require discarding any analysis — every script's output is retained, either in
+README §6 (summarized) or in `supplementary_localbiz_exploratory/` (full detail) — but it
+changed how the cumulative weight of that output is presented and read.
+
+`[affects: README §1, §2, §6, §7, §8, §9; this is the single largest reframing pass in this log]`
+
+### B2. DFBETA threshold scale mismatch in the local-business influence diagnostic
+
+**Assumed:** row-level DFBETA (computed per daily observation, then summed per customer
+across ~190 days) could be compared directly against the standard 2/√n threshold, using
+n = number of customers.
+
+**Contradicted by:** this compares a customer-level *cumulative* quantity (summed over ~190
+correlated daily rows) against a threshold derived for a *single-row-per-unit* regression.
+The result — "0/228 customers exceed threshold" — was an artifact of an easy-to-pass
+comparison, not evidence of low influence.
+
+**Changed:** re-computed using a customer-level regression (1 customer = 1 row, values
+averaged across days) so DFBETA and the 2/√n threshold share the same unit. Result: 6/228
+customers exceed the corrected threshold. The leave-k-out re-fit results (which never had a
+scale problem, since they simply re-estimate the full model after removing customers) were
+unaffected and confirmed: no sign reversal across k=1,3,5,10,15.
+
+`[affects: README §6.3, §6.5; corrects an earlier claim now explicitly retracted]`
+
+### B3. `size_z` and `n_ad_groups_total` were discovered to be the same variable, invalidating an earlier "control" analysis
+
+**Assumed:** an earlier analysis attempted to test whether the association between
+advertiser size and performance-data missingness was a "mechanical artifact" of larger
+accounts simply having more ad groups, by regressing missingness on both `size_z` and
+`log(n_ad_groups_total)` "controlling for" one another.
+
+**Contradicted by:** `size_z` is defined as the standardized log-transform of
+`n_ad_groups_total` — i.e., the same variable under two names. The regression accordingly
+produced VIF=∞ and a non-converging/uninterpretable logistic fit (coefficients present, but
+p-values undefined). The "controlled" analysis was not merely underpowered; it was
+structurally meaningless.
+
+**Changed:** the entire "control for ad-group count" line of analysis is retracted. It was
+replaced with a **combinatorial null model**: if missingness were purely a function of
+"more ad groups → higher chance one is unmatched by chance," a simple independent-binomial
+model should fit the observed missingness rate well. It does not (over-dispersion ratio
+73×; goodness-of-fit χ²=16,583, df=6, p<.0001), indicating account-level clustering beyond
+pure combinatorics — but the cause of that residual clustering remains unidentified.
+
+`[affects: README §6.5, §11 Limitation 7; replaces an invalid analysis rather than merely
+correcting one]`
+
+### B4. Serving-structure heterogeneity was generalized into proposition P5 on the SSI boundary-condition framework
+
+**Assumed:** the local-business/keyword-matching structural difference (§6.2) was, at first,
+treated purely as a data-quality observation relevant only to the H2 robustness appendix.
+
+**Contradicted by:** on reflection, this fact bears directly on the SSI construct's own
+scope condition — the audit design presupposes an auction-based serving mechanism, which
+this subgroup structurally lacks.
+
+**Changed:** added as **P5 (mechanism applicability)** to the SSI boundary-condition
+framework (README §3.3), explicitly marked as post-hoc — it did not exist prior to Level 2's
+findings and is a candidate proposition, not an established one.
+
+`[affects: README §3.3, §10]`
+
+### B5. The local-business mechanism sub-chain was initially over-stated as a "confirmed causal chain" and was retracted
+
+**Assumed (in an earlier internal draft):** because 2 of the 3 tested statistical signatures
+(variance heterogeneity, relationship-slope heterogeneity, counterfactual CPC gap) plus the
+underlying structural fact (0% keyword matching) were confirmed, and only leverage
+heterogeneity was not, the overall verdict was framed as "the causal chain is supported."
+
+**Contradicted by:** external review correctly identified "causal chain... supported" as
+language claiming more than 3-of-4 statistically-detected, cross-sectional, non-identified
+associations can support — particularly given that these tests were run on sub-clusters
+with G≈13–72, below the conventional threshold for cluster-robust SE reliability.
+
+**Changed:** reframed throughout as "3 of 4 tested links show a statistically detectable
+pattern; this is reported as partial, mixed support for a mechanism-level explanation — not
+as an established causal chain." All instances of "causal chain," "establishes," and
+"confirms" in earlier internal drafts describing this analysis were replaced with
+"consistent with," "detected pattern," or "does not establish."
+
+`[affects: README §6.3, §6.6; language-only correction, no statistic changed]`
+
+### B6. The leave-one-type-out (H3) ranking reversed after a correction, and both passes are disclosed
+
+**Assumed:** an initial comparison of coefficient shifts across five campaign-type
+exclusions could be ranked directly by raw magnitude of shift.
+
+**Contradicted by:** this comparison is unfair across exclusions of very different sizes.
+Excluding website customers (202/228, leaving only 26) produces an unstable estimate (95%
+CI width 1.62) purely from sample depletion, inflating its apparent rank (1st) relative to
+local-business exclusion (72/228 excluded, 156 remaining, CI width 0.71), which had
+initially ranked 2nd on raw magnitude — a result that, taken at face value, undermined the
+local-business-specific narrative being developed.
+
+**Changed:** a corrected comparison re-ran the random-placebo test separately for each
+campaign type's own exclusion size (rather than comparing raw shifts across unequal
+exclusions), restricted to campaign types with stable remaining samples. Local-business
+exclusion ranked 1st among these (empirical p=1.0% vs. 91.7% and 66.3% for the other two
+stable types), reversing the initial ranking.
+
+**Explicit disclosure policy adopted:** both the initial (unfavorable) and corrected
+(favorable) results are reported together in README §6.4, with the reason for the
+correction stated in the same breath as the result. This entry exists specifically because
+reporting only the corrected pass — however statistically justified the correction — would
+constitute selective disclosure of a result that initially cut against the paper's emerging
+narrative.
+
+`[affects: README §6.4, §11 Limitation 5, §12 transparency log entry 3]`
+
+---
+
+## Part C — Cross-cutting pivot: from single-narrative to explicitly-audited multiplicity
+
+### C1. A research-wide multiplicity audit was added after individual-family corrections were found to be insufficient in aggregate
+
+**Assumed:** each hypothesis family (H1c's 6-cell battery, H2's 3-interaction battery, the
+RDD/policy-change 10-candidate screen, H3's subgroup-dependence tests) corrected for
+multiple comparisons *within itself*, and this was treated as sufficient.
+
+**Contradicted by:** pooling all 25 officially-reported p-values across the entire research
+program into one test family and applying Bonferroni/BH-FDR correction shows that **0/25**
+survive Bonferroni and only **3/25** (all from the Level 2 exploratory H3 analysis) survive
+the more permissive FDR correction. No individual-family correction had previously surfaced
+this aggregate picture.
+
+**Changed:** README §7 was added as a standing, reproducible audit (re-run via
+`research_wide_methodological_audit.py`), explicitly positioned as the single most important
+evidence-calibration table in the repository — not as a result to be minimized, but as the
+mechanism that prevents any Level 2 finding from being read at Level 1's confidence.
+
+`[affects: README §7, §9, §11 Limitation 8]`
+
+---
+
+## Summary of what this log establishes
+
+No underlying statistic reported anywhere in this repository was recomputed by a framing
+pass; framing passes (A1, A2, A3, B1, B4, B5, C1) changed only how existing, unchanged
+numbers are named, scoped, and weighted. Two entries (B2, B3) are genuine retractions of
+invalid intermediate analyses, replaced with corrected or substitute analyses whose
+different numbers are the ones now reported. One entry (A4) added a new confirmatory
+robustness check that had not previously been run. One entry (B6) discloses a reversal
+that occurred during exploratory analysis, reporting both the initial and corrected result
+rather than only the latter.
+
+The practice this log is meant to model: every point where a prior choice was found
+wanting was logged, not quietly revised — including, and especially, the points where the
+correction reversed a result in the direction the emerging narrative favored (B6) or where
+an earlier framing had overclaimed (B5). A separate log of pivots specific to the descoped
+longitudinal companion study is preserved in `../FUTURE_RESEARCH_STUDY2.md` rather than
+here, since that study is not part of this repository's evidence base.
