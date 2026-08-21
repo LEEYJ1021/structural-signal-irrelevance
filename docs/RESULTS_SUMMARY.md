@@ -4,29 +4,36 @@ This is the single source of truth for every statistic cited in the root
 [`README.md`](../README.md). Any number appearing in the narrative should match a row here;
 if it doesn't, the narrative is wrong, not this file.
 
-> **Reading convention.** Every table below is tagged **[L1]** (Level 1, confirmatory) or
-> **[L2]** (Level 2, post-hoc exploratory). L2 numbers are never to be cited as if they carry
-> L1's evidentiary weight, regardless of how small the resulting p-value is. See root
-> README §1–§2 for the definition of this distinction and §7 for why it matters in
-> aggregate.
+> **Reading convention.** Every table below is tagged **[CONF]** (confirmatory: H1, H2) or
+> **[EXPL]** (post-hoc exploratory: RQ2a, RQ2b, RQ2c). EXPL numbers are never to be cited as
+> if they carry CONF's evidentiary weight, regardless of how small the resulting p-value
+> is. See root README §1–§2 for the definition of this distinction and §7 for why it
+> matters in aggregate.
+
+> **Naming note.** Earlier versions of this file organized §§5–8 under a single "H3." That
+> label is retracted (see `docs/METHODOLOGY_NOTES.md`, entry B7) and replaced below with
+> RQ2a (where the heterogeneity concentrates), RQ2b (why it might arise), and RQ2c (whether
+> H1's conclusion depends on it). No number in this file changed as part of that
+> relabeling — only section titles and the ID column in §0.
 
 ---
 
-## 0. Hypothesis ↔ evidentiary tier quick reference
+## 0. Hypothesis / research-question ↔ evidentiary tier quick reference
 
 | ID | Question | Tier | Pre-specified before results seen? |
 |---|---|---|---|
-| H1a | size → spend | **L1** | Yes |
-| H1b | spend → outcome | **L1** | Yes |
-| **H1c** | size → outcome, net of spend (focal test) | **L1** | Yes |
-| H1c core-influence diagnostic | Is H1c driven by a few customers? | **L1** | Exclusion rules pre-specified; diagnostic itself run after H1c, but rules fixed before inspection |
-| H2 (campaign-type interaction) | Is H1c's null homogeneous across ad types? | **L1→L2 trigger** | Interaction test itself was pre-specified in H2's original form; everything downstream of noticing the local-business pattern is L2 |
-| Serving-structure comparison | Why does local-business differ? | **L2** | No |
-| H3 (subgroup dependence) | Does H1c depend on local-business inclusion beyond sample-size effects? | **L2** | No |
+| H1a | size → spend | **CONF** | Yes |
+| H1b | spend → outcome | **CONF** | Yes |
+| **H1c** | size → outcome, net of spend (focal test) | **CONF** | Yes |
+| H1c core-influence diagnostic | Is H1c driven by a few customers? | **CONF** | Exclusion rules pre-specified; diagnostic itself run after H1c, but rules fixed before inspection |
+| H2 (campaign-type interaction) | Is H1c's null homogeneous across ad types? | **CONF** | Yes — the interaction test itself, its stratification scheme, and its threshold were fixed before H1c was run |
+| RQ2a (continuous-share re-specification) | Where does H2's heterogeneity concentrate? | **EXPL** | No — motivated by inspecting H2's result |
+| RQ2b (serving-structure comparison) | Why might local business differ? | **EXPL** | No |
+| RQ2c (subgroup-dependence, formerly "H3") | Does H1c depend on local-business inclusion beyond sample-size effects? | **EXPL** | No |
 
 ---
 
-## 1. [L1] H1a / H1b / H1c — full statistical decomposition
+## 1. [CONF] H1a / H1b / H1c — full statistical decomposition
 
 Customer-level model (n=263 customers). `bid_amount` is the cost-independent primary
 outcome; CPC-based estimates are retained for comparison but treated as directionally
@@ -41,10 +48,10 @@ informative only.
 | Bootstrap 95% CI, indirect | [0.121, 0.399] | [0.008, 0.159] |
 | Permutation p, indirect | <.001 | <.001 |
 
-**Verdict [L1, CONFIRMATORY]:** H1c not rejected; H1a/H1b confirmed. Statistically
-consistent with full mediation. Backed by 8 independent robustness methods.
+**Verdict [CONF]:** H1c not rejected; H1a/H1b confirmed. Statistically consistent with
+full mediation. Backed by 8 independent robustness methods.
 
-## 2. [L1] H1c — MDE-at-power detail
+## 2. [CONF] H1c — MDE-at-power detail
 
 | Outcome | Sample | β | 95% CI | p | BF₁₀ | MDE @ 80% power |
 |---|---|---|---|---|---|---|
@@ -56,10 +63,10 @@ consistent with full mediation. Backed by 8 independent robustness methods.
 | Mean ad rank | Excl. spike (n=3,432) | +0.02 | [−0.79, 0.83] | .937 | 0.020 | ±0.943 |
 
 **Note:** the CPC (log) full-sample MDE (±0.684) is reused as the pre-specified SESOI for
-TOST equivalence testing referenced in Level 2 sensitivity analyses (§7 below), to avoid
-selecting a post-hoc-favorable equivalence bound.
+TOST equivalence testing referenced in the descoped Study 2 companion, to avoid selecting
+a post-hoc-favorable equivalence bound.
 
-## 3. [L1] H1c core-model influence diagnostic (new, confirmatory tier)
+## 3. [CONF] H1c core-model influence diagnostic
 
 Customer-level regression (n=228; note: differs from the 263-customer sample above because
 this diagnostic uses the panel underlying the campaign-type composition analysis).
@@ -75,10 +82,10 @@ this diagnostic uses the panel underlying the campaign-type composition analysis
 | Baseline (no exclusion) | β=−0.2525, p=.0618 |
 | **Configurations reaching significance** | **0 / 4 (100% consistency)** |
 
-**Verdict [L1, CONFIRMATORY robustness]:** confirmatory grade for H1c is maintained. See
+**Verdict [CONF]:** confirmatory grade for H1c is maintained. See
 `docs/METHODOLOGY_NOTES.md` entry A4.
 
-## 4. [L1→L2 trigger] H2 — campaign-type heterogeneity (discrete definition, original)
+## 4. [CONF] H2 — campaign-type heterogeneity (discrete definition, pre-specified)
 
 | Product type | n (rows) | n (customers) | c′ (size, net of spend) | p |
 |---|---|---|---|---|
@@ -87,11 +94,11 @@ this diagnostic uses the panel underlying the campaign-type composition analysis
 | Shopping (2) | 2,161 | 17 | +0.245 | .151 |
 | **Joint Wald test** | | | | **.023** |
 
-**Verdict:** H1c's null is not perfectly homogeneous across ad-product categories, though no
-individual stratum is significant alone. This is the observation that, upon further
-inspection, motivated Level 2 (root README §2, §6.1).
+**Verdict [CONF]:** H1c's null is not perfectly homogeneous across ad-product categories,
+though no individual stratum is significant alone. This is the pre-specified result that,
+upon inspection, motivated RQ2a–RQ2c (root README §2, §6).
 
-## 5. [L2] Continuous-share re-specification (Option B) — full robustness battery per term
+## 5. [EXPL] RQ2a — where does the heterogeneity concentrate? (continuous-share re-specification)
 
 Customer-level panel, n=228, `campaign_type` shares as continuous covariates
 (`share_1` = website reference category; `share_4` degenerate, auto-excluded).
@@ -104,13 +111,14 @@ Customer-level panel, n=228, `campaign_type` shares as continuous covariates
 
 Joint Wald test (all 3 interaction terms): stat=19.69, df=3, **p=.0002**.
 
-**Verdict [L2, POST-HOC/EXPLORATORY]:** local business is the only term with majority
-robustness-method agreement (3/5). This was **not** the pre-specified H2 hypothesis (which
-concerned shopping campaigns, motivated by a product-feed-validation-pipeline hypothesis
-that did not pan out — shopping's own baseline p=.307). Treating local business's emergence
-as significant is itself a post-hoc observation and is labeled as such throughout.
+**Verdict [EXPL]:** local business is the only term with majority robustness-method
+agreement (3/5) — the answer to "where." This was **not** the pre-specified H2 hypothesis
+(which concerned shopping campaigns, motivated by a product-feed-validation-pipeline
+hypothesis that did not pan out — shopping's own baseline p=.307). Treating local
+business's emergence as the concentration point is itself a post-hoc observation and is
+labeled as such throughout.
 
-## 6. [L2] Serving-structure heterogeneity master table
+## 6. [EXPL] RQ2b — why might local business differ? Serving-structure heterogeneity master table
 
 | Campaign type | n ad groups | % keyword-matched | Median actual-CPC/bid ratio | Classification |
 |---|---|---|---|---|
@@ -120,11 +128,14 @@ as significant is itself a post-hoc observation and is labeled as such throughou
 | Brand/new product | 198 | 92.9% | — (insufficient bid-CPC pairs) | Auction-like |
 | **Local business** | **266** | **0.0%** | **0.76** | **Non-auction-like** |
 
-**Verdict [L2, structural fact, not inferential]:** local-business ad groups have zero
+**Verdict [EXPL, structural fact, not inferential]:** local-business ad groups have zero
 matches in `keyword_dim`. This is a directly observed data-join fact, established by
-tracing campaign_dim → adgroup_dim → keyword_dim, not an inference.
+tracing campaign_dim → adgroup_dim → keyword_dim, not an inference. Ratios above 1 for
+other types (2.77, 4.33) reflect an aggregation-level mismatch between `bid_amount` and
+actual CPC and should not be read as literal overpayment multiples; only the qualitative
+below-1-vs-above-1 split is treated as informative.
 
-## 7. [L2] Mechanism sub-chain statistical signatures
+## 7. [EXPL] RQ2b (continued) — mechanism sub-chain statistical signatures
 
 | Test | Result | Detected? |
 |---|---|---|
@@ -133,12 +144,12 @@ tracing campaign_dim → adgroup_dim → keyword_dim, not an inference.
 | Leverage heterogeneity (hat-value, local-biz vs. other customers) | t=−1.18, p=.24 | **No** |
 | Counterfactual CPC gap (predicted from auction-type bid→CPC relationship vs. observed) | standardized gap = −0.49 SD, t=−4.75, p<.0001 | **Yes (small-to-moderate magnitude)** |
 
-**Verdict [L2, EXPLORATORY, mixed]:** 3 of 4 tested links detected. This is reported as
-partial, mixed support for a mechanism-level explanation of H1c's instability — explicitly
-**not** a confirmed causal chain (see `docs/METHODOLOGY_NOTES.md` entry B5, which retracts an
+**Verdict [EXPL, mixed]:** 3 of 4 tested links detected. This is reported as partial,
+mixed support for a mechanism-level explanation of H2's heterogeneity — explicitly **not**
+a confirmed causal chain (see `docs/METHODOLOGY_NOTES.md` entry B5, which retracts an
 earlier internal overstatement of this result).
 
-## 8. [L2] H3 — subgroup dependence, both passes disclosed
+## 8. [EXPL] RQ2c — does H1's conclusion depend on local-business inclusion? (formerly "H3")
 
 ### 8a. Central observation
 
@@ -178,7 +189,7 @@ is excluded from ranking as unstable, not as favorable-to-report.
 | Power content | 13 | 215 | 66.3% | 2nd |
 | Shopping | 24 | 204 | 91.7% | 3rd |
 
-### 8e. H3 verdict
+### 8e. RQ2c verdict
 
 | Criterion | Met? |
 |---|---|
@@ -187,13 +198,13 @@ is excluded from ranking as unstable, not as favorable-to-report.
 | C. Ranks 1st among *stable* leave-one-type-out comparisons (corrected) | Yes |
 | C (uncorrected, for disclosure) | **No — ranked 2nd** |
 
-**Verdict [L2, EXPLORATORY, partially supported]:** 3/3 criteria met under the corrected
-comparison; the initial, uncorrected comparison did not support the local-business-specific
-story. Both are reported per `docs/METHODOLOGY_NOTES.md` entry B6. **This finding is not
+**Verdict [EXPL, partially supported]:** 3/3 criteria met under the corrected comparison;
+the initial, uncorrected comparison did not support the local-business-specific story.
+Both are reported per `docs/METHODOLOGY_NOTES.md` entry B6. **This finding is not
 preregistered, is built on sub-clusters below the conventional cluster-count reliability
-threshold (G=13–72), and should not be cited at Level 1 confidence.**
+threshold (G=13–72), and should not be cited at the confirmatory tier's confidence.**
 
-## 9. [L2] Alternative-explanation audits
+## 9. [EXPL] RQ2b (continued) — alternative-explanation audits
 
 | Audit | Result |
 |---|---|
@@ -211,12 +222,12 @@ split-sample replication).
 | Correction | Tests surviving | Which tests |
 |---|---|---|
 | Bonferroni (α=.05/25=.0020) | **0 / 25** | none |
-| Benjamini–Hochberg FDR | **3 / 25** | H3 size-matched-placebo empirical p (.004); H2 continuous share_3 term (.0043); H3 full-vs-excluded H1c comparison (.006) — **all three are Level 2 exploratory results** |
+| Benjamini–Hochberg FDR | **3 / 25** | RQ2c size-matched-placebo empirical p (.004); RQ2a continuous-share_3 term (.0043); RQ2c full-vs-excluded H1c comparison (.006) — **all three are post-hoc exploratory results** |
 
-**Reading note:** Level 1's H1c null does not "survive" or "fail" this correction, because
-it was never claimed significant — the null is the finding. This table exists to prevent
-any single Level 2 result, however small its unadjusted p-value, from being read as if it
-carried Level 1's confirmatory weight.
+**Reading note:** H1c's null does not "survive" or "fail" this correction, because it was
+never claimed significant — the null is the finding. This table exists to prevent any
+post-hoc (RQ2a–RQ2c) result, however small its unadjusted p-value, from being read as if it
+carried the confirmatory tier's weight.
 
 ## 11. RDD & policy-change screening (supplementary, not adopted)
 
@@ -228,21 +239,24 @@ supplementary robustness consistent with, not required by, the H1c conclusion.
 
 ## Evidence-summary table (matches root README §9)
 
-| | Level 1: H1c | Level 2: local-business mechanism |
+| | H1 / H2 (Confirmatory) | RQ2a–RQ2c (Post-hoc exploratory) |
 |---|---|---|
 | **Evidence grade** | **Confirmatory** | **Exploratory** |
-| Robustness convergence | 8/8 independent methods null (incl. new core-influence check, §3 above) | 3/4 mechanism-chain links; 1 methodological reversal disclosed (§8) |
-| Survives research-wide multiplicity audit (§10) | Not applicable (null was never significant) | Partially (FDR only) |
+| Robustness convergence | 8/8 independent methods null for H1 (incl. new core-influence check, §3 above); H2 joint test significant | RQ2b: 3/4 mechanism-chain links; 1 methodological reversal disclosed (RQ2c, §8) |
+| Survives research-wide multiplicity audit (§10) | Not applicable (H1's null was never significant) | Partially (FDR only) |
 | Cluster sizes | n=228–263 (customer-level, stable) | G≈13–72 per sub-cluster (below rule-of-thumb G≥42 for several) |
-| Correct citation form | "no confirmed direct algorithmic advantage of size on this platform" | "patterns consistent with, but not establishing, conditional serving-structure effects" |
+| Correct citation form | "no confirmed direct algorithmic advantage of size on this platform, and that non-relationship is not uniform across campaign types" | "patterns consistent with, but not establishing, conditional serving-structure effects concentrated in local-business campaigns" |
 
-**Combined takeaway.** The confirmatory question (does size buy a direct advantage?)
-returns a clean, 8-way-robust null, unchanged by a newly-added core-model influence check.
-The post-hoc question (why isn't that null perfectly uniform?) surfaces a partially
-supported, explicitly-flagged, non-preregistered explanation involving local-business
-serving structure — including one internal reversal that is disclosed rather than hidden,
+**Combined takeaway.** The confirmatory questions (does size buy a direct advantage? is
+that answer uniform across campaign types?) return a clean, 8-way-robust null with
+confirmed heterogeneity, unchanged by a newly-added core-model influence check. The
+post-hoc questions (where does that heterogeneity concentrate, why might it arise, and
+does it matter for H1's headline conclusion?) surface a partially supported,
+explicitly-flagged, non-preregistered explanation involving local-business serving
+structure — including one internal reversal that is disclosed rather than hidden (RQ2c),
 and a research-wide multiplicity audit showing that almost none of this repository's
 statistics, pooled, survive conservative correction. Read against root README §3 (SSI
 framework) and §10 (boundary conditions): advertiser size exhibits structural signal
 irrelevance on this platform at the confirmatory tier; whether and how that irrelevance
-varies by serving mechanism is an open, exploratory question for future preregistered work.
+varies by serving mechanism is an open, exploratory question for future preregistered
+work (`FUTURE_RESEARCH_STUDY3.md`).
