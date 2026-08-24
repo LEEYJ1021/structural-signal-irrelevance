@@ -10,22 +10,24 @@ reduced by algorithmic design choices (M1–M3).**
 > **Repository status & how to read it.** This is a research repository documenting a
 > working analysis pipeline, organized around an evidentiary structure that keeps
 > pre-specified confirmatory hypotheses distinct from post-hoc exploratory research
-> questions. Every claim below carries an explicit evidence tag — **[CONFIRMATORY]**,
-> **[POST-HOC / EXPLORATORY]**, **[POST-HOC / FURTHER EXPLORATORY]**, or **[FUTURE WORK]**
-> — so a reader can calibrate confidence at a glance: read §5 (H1, H2) alone for the
-> pre-registered-style result; continue to §6 (RQ2a–RQ2c) to see why H2's heterogeneity was
-> not perfectly uniform; continue to §16 (M1–M3), the newest and most exploratory tier, to
-> see whether that heterogeneity can be narrowed algorithmically. As the analysis
-> progressed, a few framing and naming choices were refined along the way, and both the
-> earlier and later versions are kept on record in `docs/METHODOLOGY_NOTES.md` as a matter
-> of methodological transparency. Most notably, the post-hoc investigation into H2's
-> heterogeneity — originally numbered "H3" — is now presented as three explicitly-named
-> research questions (RQ2a/RQ2b/RQ2c), reserving "hypothesis" for H1 and H2, the two claims
-> genuinely fixed in advance; no underlying statistic changed, only the names and section
-> boundaries (entry B7). A small number of legacy figure legends and script variables still
-> carry the earlier "H3" label internally — mapped in
-> `appendix/hypothesis_id_legacy_mapping.md` for reference. This is a research repository,
-> not a publication, and nothing here should be cited as a peer-reviewed result.
+> questions, and is intended as the working basis for a future manuscript rather than a
+> publication itself. Every claim below carries an explicit evidence tag —
+> **[CONFIRMATORY]**, **[POST-HOC / EXPLORATORY]**, **[POST-HOC / FURTHER EXPLORATORY]**,
+> or **[FUTURE WORK]** — so a reader can calibrate confidence at a glance: read §5 (H1, H2)
+> alone for the pre-registered-style result; continue to §6 (RQ2a–RQ2c) to see why H2's
+> heterogeneity was not perfectly uniform; continue to §16 (M1–M3), the newest and most
+> exploratory tier, to see whether that heterogeneity can be narrowed algorithmically. As
+> the analysis progressed, a few framing and naming choices were refined along the way,
+> and both the earlier and later versions are kept on record in
+> `docs/METHODOLOGY_NOTES.md` as a matter of methodological transparency. Most notably,
+> the post-hoc investigation into H2's heterogeneity — originally numbered "H3" — is now
+> presented as three explicitly-named research questions (RQ2a/RQ2b/RQ2c), reserving
+> "hypothesis" for H1 and H2, the two claims genuinely fixed in advance; no underlying
+> statistic changed, only the names and section boundaries (entry B7). A small number of
+> legacy figure legends and script variables still carry the earlier "H3" label internally
+> — mapped in `appendix/hypothesis_id_legacy_mapping.md` for reference. This is a research
+> repository, not a publication, and nothing here should be cited as a peer-reviewed
+> result.
 
 > **A note on labels and figures in this version.** Figures 1 and 4 carry embedded titles
 > referencing internal `Ad_Advance` v4 pipeline-stage numbers (stage 1 = the variance
@@ -44,6 +46,15 @@ reduced by algorithmic design choices (M1–M3).**
 > needed on a first read) and **[Appendix B](#appendix-b--out-of-scope-figures-study-2)**
 > (figures from a separate companion study, included for completeness), with the full
 > figure-to-section map in §13.
+
+> **A note on downstream use.** This repository is written as *preparatory research
+> material* — the evidentiary scaffolding, robustness checks, and figure set a future
+> manuscript would draw on — rather than as manuscript prose itself. Journal-facing
+> framing (literature review depth, managerial-implications narrative, abstract, formal
+> hypothesis numbering conventions) is intentionally left for a separate paper-writing
+> pass; what is preserved and strengthened here is the underlying evidentiary structure,
+> the full figure set, and the repository organization those downstream materials will be
+> built from.
 
 ---
 
@@ -67,6 +78,7 @@ reduced by algorithmic design choices (M1–M3).**
 16. [Post-hoc Extension — Algorithmic Mitigation Study (M1–M3)](#16-post-hoc-extension--algorithmic-mitigation-study-m1m3)
 17. [Appendix A — Supplementary Figures](#appendix-a--supplementary-figures)
 18. [Appendix B — Out-of-Scope Figures (Study 2)](#appendix-b--out-of-scope-figures-study-2)
+19. [Appendix C — Literature Anchors for Future Paper-Writing](#appendix-c--literature-anchors-for-future-paper-writing)
 
 ---
 
@@ -93,6 +105,15 @@ conditional on the predictive model's flexibility [POST-HOC / EXPLORATORY]. No t
 substitutes for another, and a research-wide multiplicity audit (§7) shows that only 3 of
 25 officially-reported confirmatory/exploratory p-values survive FDR correction — all
 three from the exploratory tier.
+
+**Why this matters (draft framing, to be developed in the paper).** The platform studied
+here is an algorithmically-mediated e-commerce advertising marketplace — the same class of
+system studied in the sponsored-search auction-design literature (e.g. generalized
+second-price auctions, position auctions) and in the algorithmic-fairness/audit
+literature. The H1/H2 result speaks to whether such systems reproduce structural
+incumbency advantage independent of current behavior; the RQ2/M-series results speak to
+where that guarantee breaks down and whether it can be engineered back. See Appendix C for
+literature anchors relevant to both streams.
 
 ---
 
@@ -174,6 +195,12 @@ that an earlier draft treated stating the two competing predictions as a suffici
 theoretical contribution, until external review noted this reads as theory-*application*
 rather than theory-*contribution*, since the pattern tested had no name as a standalone,
 system-level property in either literature.
+
+*Note for future paper-writing:* the platform-specific literature this construct should be
+positioned against (sponsored-search auction design, position auctions, algorithmic ranking
+in e-commerce marketplaces) is not yet integrated into this section — see [Appendix C](#appendix-c--literature-anchors-for-future-paper-writing)
+for a working list of anchors to draw on when this repository is converted into a
+manuscript.
 
 ### 3.3 Boundary conditions on SSI (P1–P5)
 
@@ -591,6 +618,15 @@ alongside the descoped Study 2 companion, for readers curious how the two indepe
 samples/time axes compare — but that comparison itself is out of this repository's current
 evidence base.
 
+**Notes toward downstream use (not yet developed into paper prose).** Two threads worth
+flagging for whoever drafts the manuscript from this material: (1) the H1/H2 result reads
+naturally as a procedural-fairness finding about the platform's dominant auction mechanism,
+while the M-series reads as a distributive-fairness *design* question — these are
+distinct literatures and probably deserve separate framing in the paper's contribution
+statement; (2) the "only 3/25 survive FDR" result (§7) is a genuine asset for a
+methods-forward journal but will need careful framing so it does not read as undermining
+the confirmatory H1/H2 result, which was never dependent on those 25 tests to begin with.
+
 ---
 
 ## 10. Boundary Conditions & Generalizability
@@ -784,19 +820,24 @@ structural-signal-irrelevance/
 │   ├── churn_prediction_rq4.md
 │   ├── exploratory_industry_classification.md
 │   └── hypothesis_id_legacy_mapping.md
-└── docs/
-    ├── METHODOLOGY_NOTES.md
-    ├── RESULTS_SUMMARY.md
-    └── DESIGN_ARTIFACT.md
+├── docs/
+│   ├── METHODOLOGY_NOTES.md
+│   ├── RESULTS_SUMMARY.md
+│   └── DESIGN_ARTIFACT.md
+└── manuscript_prep/
+    ├── literature_anchors.md       (working list — see Appendix C below)
+    └── paperization_notes.md       (open threads flagged in §9 "Notes toward downstream use")
 ```
 
 **Newly added in this revision:** `supplementary_mitigation_study/` (all M-series pipeline
 outputs), `figures/scripts/` (per-figure generation scripts for Figures 16–18, split out
-per this repository's one-script-per-figure convention), Figures 16–18 themselves, and an
-extended `appendix/hypothesis_id_legacy_mapping.md` covering the M-series legacy label.
-Filenames under `supplementary_mitigation_study/` use this README's own naming
-(`mitigation_*`) rather than any legacy pipeline label, consistent with
-`docs/METHODOLOGY_NOTES.md` entry B8.
+per this repository's one-script-per-figure convention), Figures 16–18 themselves, an
+extended `appendix/hypothesis_id_legacy_mapping.md` covering the M-series legacy label, and
+a new `manuscript_prep/` directory to hold the literature-anchor list and open framing
+questions flagged in this revision — intended as scaffolding for a future, separate
+paper-writing pass rather than manuscript content itself. Filenames under
+`supplementary_mitigation_study/` use this README's own naming (`mitigation_*`) rather
+than any legacy pipeline label, consistent with `docs/METHODOLOGY_NOTES.md` entry B8.
 
 ---
 
@@ -1051,17 +1092,49 @@ that artifact has no remaining basis in this repository's current scope.
 
 ---
 
-*Theoretical framing (§3), the SSI construct, the confirmatory/post-hoc split, and the
-research-wide multiplicity audit (§7) are repository-level additions intended to make
-every empirical claim legible as either a pre-specified test or a disclosed post-hoc
-exploration. This revision renames the post-hoc investigation from a single "H3" to three
-named research questions (RQ2a, RQ2b, RQ2c; §12, entry B7), and adds §16 — a further,
-later post-hoc extension (M1–M3) into whether the disparity documented in §6 can be
-mitigated algorithmically, itself internally disciplined by a pre-registered gate (§16.1),
-a disclosed exploratory scan (§16.2), and an independent, pre-specified-model-class
-re-test (§16.3) — without altering any earlier figure's content, underlying statistic, or
-evidence tag. This revision also substantially expands §6 (RQ2a–RQ2c) with inline
-statistical detail and figures previously only referenced via `docs/RESULTS_SUMMARY.md`,
-and embeds all figures whose evidentiary tier is H1/H2/RQ2a–c/M1–M3 directly in the body,
-moving the remainder to Appendix A (in-scope, supplementary) or Appendix B (out of
-scope, Study 2).*
+## Appendix C — Literature Anchors for Future Paper-Writing
+
+This appendix is new in this revision. It is deliberately kept as a flat working list —
+not integrated prose — since literature integration is planned as a separate pass. Items
+are grouped by the theoretical role they would play if the repository is developed into a
+manuscript; none of the empirical claims above have been revised to reflect them.
+
+**Statistical discrimination / structural-proxy literature (already anchors §3.1):**
+- Phelps, E. S. (1972). The statistical theory of racism and sexism. *American Economic
+  Review, 62*(4), 659–661.
+- Arrow, K. J. (1973). The theory of discrimination. In *Discrimination in Labor Markets*.
+  Princeton University Press.
+- Spence, M. (1973). Job market signaling. *Quarterly Journal of Economics, 87*(3),
+  355–374.
+
+**Algorithmic fairness / individual fairness (already anchors §3.1):**
+- Dwork, C., Hardt, M., Pitassi, T., Reingold, O., & Zemel, R. (2012). Fairness through
+  awareness. *Proceedings of ITCS 2012*, 214–226.
+
+**Algorithm auditing methodology (already anchors §8):**
+- Sandvig, C., Hamilton, K., Karahalios, K., & Langbort, C. (2014). Auditing algorithms:
+  Research methods for detecting discrimination on internet platforms.
+- Metaxa, D. et al. (2021). Auditing algorithms: Understanding algorithmic systems from
+  the outside in. *Foundations and Trends in Human–Computer Interaction, 14*(4), 272–344.
+- Raji, I. D. et al. (2020). Closing the AI accountability gap. *Proceedings of FAT\* 2020*,
+  33–44.
+
+**Not yet integrated — candidates for the sponsored-search / e-commerce marketplace
+context that §3–§5 currently lack:**
+- Edelman, B., Ostrovsky, M., & Schwarz, M. (2007). Internet advertising and the
+  generalized second-price auction. *American Economic Review, 97*(1), 242–259.
+- Varian, H. R. (2007). Position auctions. *International Journal of Industrial
+  Organization, 25*(6), 1163–1178.
+- Athey, S., & Ellison, G. (2011). Position auctions with consumer search. *Quarterly
+  Journal of Economics, 126*(3), 1213–1270.
+- Additional candidates to source during the literature-review pass: work on small-seller/
+  small-advertiser equity on e-commerce marketplaces, ranking-algorithm design and
+  platform self-preferencing, and empirical audits of ad-auction outcomes by seller
+  characteristics.
+
+**Open framing question for the paper-writing pass (not resolved here):** whether the
+manuscript should be framed primarily as a platform-fairness/algorithmic-audit
+contribution (leaning on the Sandvig/Metaxa/Raji stream) or primarily as a search-
+advertising-market-design contribution (leaning on the Edelman/Varian/Athey-Ellison
+stream) will shape which introduction and discussion framing to write; this repository's
+current evidentiary structure supports either framing equally well.
