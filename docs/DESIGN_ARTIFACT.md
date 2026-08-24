@@ -16,8 +16,8 @@ built on top of it accordingly has no remaining basis in this repository's curre
 
 ## Not to be confused with
 
-This repository's current scope is organized around a confirmatory / post-hoc exploratory
-split documented in the root [`README.md`](../README.md):
+This repository's current scope is organized around a three-tier evidentiary structure
+documented in the root [`README.md`](../README.md):
 
 - **H1 and H2 (confirmatory)** — pre-specified tests of whether advertiser size confers a
   direct algorithmic advantage, net of spend (H1a/H1b/H1c), and whether that relationship
@@ -28,12 +28,21 @@ split documented in the root [`README.md`](../README.md):
   (RQ2b), and whether H1's headline conclusion depends on local-business inclusion beyond
   sample-size effects (RQ2c — this question was numbered "H3" in earlier drafts of this
   repository; see `docs/METHODOLOGY_NOTES.md`, entry B7, for why that name was retracted).
+- **M1, M2, M3 (post-hoc, further exploratory extension)** — a later-added extension
+  (root README §16) asking whether the disparity documented by RQ2a–RQ2c can be *reduced*
+  by an algorithmic design choice at model-input time, disciplined by a pre-registered gate
+  (M0), a disclosed exploratory scan (M1), and an independent, pre-specified-model-class
+  re-test (M2/M3). See `docs/METHODOLOGY_NOTES.md`, entries B8 and B9, for why this
+  extension's own internal naming was fixed before drafting, rather than corrected
+  afterward as RQ2a–RQ2c's naming was.
 
-None of H1, H2, or RQ2a–RQ2c makes use of, or depends on, the ad-group early-warning
-flagging rule described in this stub. If a citation or old link led here expecting
-flagging-rule content, it does not exist in this repository's current scope — see the link
-above for the original specification, retained for reference in the descoped-study
-document.
+None of H1, H2, RQ2a–RQ2c, or M1–M3 makes use of, or depends on, the ad-group
+early-warning flagging rule described in this stub. The flagging rule is scoped entirely to
+the descoped longitudinal companion study and shares no sample, model, or outcome variable
+with any of this repository's current confirmatory or post-hoc claims. If a citation or old
+link led here expecting flagging-rule content, it does not exist in this repository's
+current scope — see the link above for the original specification, retained for reference
+in the descoped-study document.
 
 ## Where to find the full artifact
 
@@ -47,4 +56,5 @@ Ad-Group Early Warning Flagging Rule," for:
 - the version history documenting the within-customer-demeaning bug that produced an early,
   incorrect "naive-rule victory" result — logged there in the same disclosure style used
   for the reversal documented in this repository's `docs/METHODOLOGY_NOTES.md` (entry B6,
-  RQ2c) and for the naming correction in entry B7.
+  RQ2c), the naming correction in entry B7, and the pre-emptive naming discipline applied
+  to the M-series in entry B8.
