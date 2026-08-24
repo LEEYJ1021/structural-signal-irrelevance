@@ -4,9 +4,9 @@ This document is a narrative log of every point in this repository's analysis pi
 where an initial modeling choice, framing choice, or naming choice was found to be
 unreliable, under-argued, or premature — and was subsequently corrected, retracted, or
 reframed. It is treated as part of this repository's contribution, not as a section to be
-edited out once the design was settled. The reasoning here is what makes both the
-confirmatory (H1, H2) results and the post-hoc exploratory (RQ2a–RQ2c) findings
-trustworthy rather than merely reported.
+edited out once the design was settled. The reasoning here is what makes the confirmatory
+(H1, H2) results, the post-hoc exploratory (RQ2a–RQ2c) findings, and the further post-hoc
+mitigation extension (M1–M3, root README §16) trustworthy rather than merely reported.
 
 Each entry follows the same shape: **what was assumed**, **how it was contradicted**, and
 **what changed as a result**. Entries are grouped by which part of the repository they
@@ -91,7 +91,7 @@ start using customer-level (not row-level-summed) DFBETA.
 
 ---
 
-## Part B — Pivots affecting the post-hoc exploratory research questions (RQ2a–RQ2c)
+## Part B — Pivots affecting the post-hoc exploratory research questions (RQ2a–RQ2c) and the mitigation extension (M1–M3)
 
 ### B1. An explicit confirmatory/post-hoc split was introduced to prevent HARKing after a sustained post-hoc investigation of a single subgroup
 
@@ -124,7 +124,8 @@ This did not require discarding any analysis — every script's output is retain
 README §6 (summarized) or in `supplementary_localbiz_exploratory/` (full detail) — but it
 changed how the cumulative weight of that output is presented and read. (This split was
 originally implemented as a two-level "Level 1 / Level 2" structure; see entry B7 below for
-a further naming refinement that does not alter this entry's substance.)
+a further naming refinement that does not alter this entry's substance. The same discipline
+was later extended one tier further for the mitigation study — see B8/B9 below.)
 
 `[affects: README §1, §2, §6, §7, §8, §9; this was the largest reframing pass in this log
 until B7]`
@@ -184,7 +185,9 @@ this subgroup structurally lacks.
 
 **Changed:** added as **P5 (mechanism applicability)** to the SSI boundary-condition
 framework (README §3.3), explicitly marked as post-hoc — it did not exist prior to RQ2b's
-findings and is a candidate proposition, not an established one.
+findings and is a candidate proposition, not an established one. (README §16.5 later
+proposes a still more tentative extension of P5, connecting it to predictive-model
+flexibility, without elevating it to a numbered boundary condition.)
 
 `[affects: README §3.3, §10]`
 
@@ -273,8 +276,73 @@ figure's legend (Figure 12, Figure 14) still read "H3" internally; `README §13`
 the older label surviving in generated artifacts.
 
 `[affects: README title banner, §1, §2, §6 (renamed and re-split from a single subsection
-into 6.1/6.2/6.3), §7, §9, §11 Limitation 11 (new), §12, §13, §14; this is the second
-largest reframing pass in this log, after B1, and the most recent]`
+into 6.1/6.2/6.3), §7, §9, §11 Limitation 11 (new), §12, §13, §14; this was the second
+largest reframing pass in this log, after B1, until B8/B9 below]`
+
+### B8. The mitigation-study extension's internal legacy pipeline label was retracted before it ever reached this README, in favor of M1–M3
+
+**Assumed:** the underlying `Ad_Advance` pipeline scripts that produced the algorithmic
+mitigation analysis (README §16) internally label this line of work with a legacy
+pipeline-stage identifier throughout their filenames and logs. Reusing that identifier
+directly in this README would have preserved continuity with the underlying scripts' own
+naming.
+
+**Contradicted by:** this repository's own README already uses that same identifier as an
+*internal pipeline-stage number* for something entirely unrelated — Figure 4, the
+churn-prediction appendix (see the naming note at the top of README, and README §13's
+Figure Gallery). Reusing it a second time, for the mitigation study, would recreate exactly
+the ambiguity that entry B7 was written to eliminate: a reader encountering that label in
+this repository would not be able to tell, from the label alone, whether it referred to the
+churn-prediction appendix or the mitigation study, without cross-referencing this log.
+
+**Changed:** the mitigation extension is named **M1 (exploratory scan), M2 (independent
+robustness re-test design), M3 (headline model-class pattern)** in this README (§16), never
+the legacy pipeline label. No underlying statistic is affected — every number reported
+under the underlying pipeline's internal filenames is reported identically under M1/M2/M3
+in README §16 and in `supplementary_mitigation_study/` (renamed to the `mitigation_*`
+prefix). `appendix/hypothesis_id_legacy_mapping.md` is extended to include this mapping
+alongside the existing legacy-label mappings.
+
+`[affects: README title banner, §1, §2, §7, §9, §10, §11 Limitation 14, §12, §13, §14, §16
+in full, and the supplementary_mitigation_study/ filenames; this is the third-largest
+reframing pass in this log, and the first to be applied before, rather than after, a
+section was drafted and circulated]`
+
+### B9. An FDR-flagged candidate from the mitigation exploratory scan was not accepted at face value, given its selection process
+
+**Assumed:** the 108-combination exploratory scan (README §16.2) identifies the
+best-performing (strategy, model) combination via Benjamini–Hochberg FDR correction across
+728 tests; because FDR correction already guards against false positives from multiple
+testing, a combination surviving FDR correction could be reported as the study's headline
+mitigation result.
+
+**Contradicted by:** FDR correction controls the *expected proportion* of false discoveries
+among all tests that clear the threshold; it does not correct for the fact that the
+specific combination being reported was *chosen* because it was the best-looking cell in
+that same 108-combination search — a classic winner's-curse / regression-to-the-mean
+setup. A direct check confirmed the concern: an independent customer-cluster bootstrap on
+two of the FDR-flagged candidates from this scan (OLS and HistGB-squared, the two models
+for which comparable earlier tooling existed) found the OLS combination showed **no
+effect** (CI included 0) and the HistGB-squared combination was **reversed** (CI entirely
+positive, i.e., the gap widened rather than narrowed) — directly contradicting what the FDR
+scan's own significance flag implied for these two cells.
+
+**Changed:** rather than reporting the scan's own top FDR-flagged candidate
+(Size-blind × SVR-RBF) directly, an independent re-test was designed with model classes
+**pre-specified for theoretical representativeness, before re-inspecting which cell had
+scored best** (README §16.3): OLS (linear), HistGB (boosting), RandomForest (bagged trees),
+SVR-RBF (kernel), each crossed only with Size-blind. This re-test happened to confirm a
+positive result for SVR-RBF (and a partial one for RandomForest) — but the point of this
+entry is procedural, not that the result validated: the re-test's model-class list was
+fixed by theoretical criteria first, and only then were the four bootstraps run, rather
+than bootstrapping whichever single cell the 108-combination scan had already flagged as
+best. README §16.6 additionally logs, as still-outstanding validation debt, that the full
+108-combination distribution has not yet been reported alongside this re-test, and that the
+other three candidate strategies from the scan have not received the same treatment.
+
+`[affects: README §16.2, §16.3, §16.6, §11 Limitations 12–15, §12 transparency log entry 9;
+this is a process discipline entry — analogous to B1 for RQ2a–RQ2c but applied within a
+single, narrower exploratory scan rather than across a whole research-question family]`
 
 ---
 
@@ -297,7 +365,10 @@ previously surfaced this aggregate picture.
 `research_wide_methodological_audit.py`), explicitly positioned as the single most important
 evidence-calibration table in the repository — not as a result to be minimized, but as the
 mechanism that prevents any post-hoc finding from being read at the confirmatory tier's
-confidence.
+confidence. **This audit was not extended to pool in the M-series' 728 tests (§16.2)** —
+see the note at the top of README §7 explaining why the M-series maintains its own,
+separate multiplicity accounting rather than being folded into this table, at least in this
+revision.
 
 `[affects: README §7, §9, §11 Limitation 8]`
 
@@ -306,21 +377,28 @@ confidence.
 ## Summary of what this log establishes
 
 No underlying statistic reported anywhere in this repository was recomputed by a framing
-pass; framing passes (A1, A2, A3, B1, B4, B5, B7, C1) changed only how existing, unchanged
-numbers are named, scoped, and weighted. Two entries (B2, B3) are genuine retractions of
-invalid intermediate analyses, replaced with corrected or substitute analyses whose
-different numbers are the ones now reported. One entry (A4) added a new confirmatory
-robustness check that had not previously been run. One entry (B6) discloses a reversal
-that occurred during exploratory analysis, reporting both the initial and corrected result
-rather than only the latter. One entry (B7) — the most recent — retracts the repository's
-own earlier naming choice ("H3"), on the grounds that numbering a post-hoc question
-alongside pre-specified hypotheses undercuts the very transparency mechanism (B1) the
-naming was meant to serve.
+pass; framing passes (A1, A2, A3, B1, B4, B5, B7, B8, C1) changed only how existing,
+unchanged numbers are named, scoped, and weighted. Two entries (B2, B3) are genuine
+retractions of invalid intermediate analyses, replaced with corrected or substitute
+analyses whose different numbers are the ones now reported. One entry (A4) added a new
+confirmatory robustness check that had not previously been run. One entry (B6) discloses a
+reversal that occurred during exploratory analysis, reporting both the initial and
+corrected result rather than only the latter. One entry (B7) retracts the repository's own
+earlier naming choice ("H3"), on the grounds that numbering a post-hoc question alongside
+pre-specified hypotheses undercuts the very transparency mechanism (B1) the naming was meant
+to serve. One entry (B8) applies that same naming discipline pre-emptively to a newly-added
+section, before circulation, rather than as a later correction. One entry (B9) documents a
+procedural safeguard — an independent, pre-specified re-test — adopted specifically because
+an FDR-based selection from a wide exploratory scan was not trusted at face value, and
+because that distrust was directly validated by a bootstrap check that reversed two of the
+scan's own flagged candidates.
 
 The practice this log is meant to model: every point where a prior choice was found
 wanting was logged, not quietly revised — including, and especially, the points where the
-correction reversed a result in the direction the emerging narrative favored (B6), where an
-earlier framing had overclaimed (B5), or where the repository's own disclosure apparatus
-was itself found to be imperfectly built (B7). A separate log of pivots specific to the
-descoped longitudinal companion study is preserved in `../FUTURE_RESEARCH_STUDY2.md` rather
-than here, since that study is not part of this repository's evidence base.
+correction reversed a result in the direction the emerging narrative favored (B6, B9),
+where an earlier framing had overclaimed (B5), or where the repository's own disclosure
+apparatus was itself found to be imperfectly built (B7) or was applied proactively to head
+off a foreseeable repeat of the same problem in a new section (B8). A separate log of
+pivots specific to the descoped longitudinal companion study is preserved in
+`../FUTURE_RESEARCH_STUDY2.md` rather than here, since that study is not part of this
+repository's evidence base.
