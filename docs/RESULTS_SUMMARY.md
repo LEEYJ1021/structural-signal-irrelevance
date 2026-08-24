@@ -4,21 +4,26 @@ This is the single source of truth for every statistic cited in the root
 [`README.md`](../README.md). Any number appearing in the narrative should match a row here;
 if it doesn't, the narrative is wrong, not this file.
 
-> **Reading convention.** Every table below is tagged **[CONF]** (confirmatory: H1, H2) or
-> **[EXPL]** (post-hoc exploratory: RQ2a, RQ2b, RQ2c). EXPL numbers are never to be cited as
-> if they carry CONF's evidentiary weight, regardless of how small the resulting p-value
-> is. See root README §1–§2 for the definition of this distinction and §7 for why it
-> matters in aggregate.
+> **Reading convention.** Every table below is tagged **[CONF]** (confirmatory: H1, H2),
+> **[EXPL]** (post-hoc exploratory: RQ2a, RQ2b, RQ2c), or **[EXPL-M]** (post-hoc, further
+> post-hoc extension: M1–M3, root README §16). EXPL and EXPL-M numbers are never to be
+> cited as if they carry CONF's evidentiary weight, regardless of how small a resulting
+> p-value is, and EXPL-M numbers are, in turn, one tier more provisional than EXPL — see
+> root README §16.6 for the outstanding validation debt that keeps M1–M3 below RQ2a–c's own
+> confidence. See root README §1–§2 for the confirmatory/post-hoc distinction and §7/§16.2
+> for why each tier maintains its own multiplicity accounting.
 
 > **Naming note.** Earlier versions of this file organized §§5–8 under a single "H3." That
 > label is retracted (see `docs/METHODOLOGY_NOTES.md`, entry B7) and replaced below with
 > RQ2a (where the heterogeneity concentrates), RQ2b (why it might arise), and RQ2c (whether
-> H1's conclusion depends on it). No number in this file changed as part of that
-> relabeling — only section titles and the ID column in §0.
+> H1's conclusion depends on it). The mitigation extension added in §§12–14 below is named
+> M1/M2/M3 from first appearance in this file — it was never reported under any other label
+> in this document (see `docs/METHODOLOGY_NOTES.md`, entry B8). No number in this file
+> changed as part of either relabeling — only section titles and the ID column in §0.
 
 ---
 
-## 0. Hypothesis / research-question ↔ evidentiary tier quick reference
+## 0. Hypothesis / research-question / mitigation-question ↔ evidentiary tier quick reference
 
 | ID | Question | Tier | Pre-specified before results seen? |
 |---|---|---|---|
@@ -30,6 +35,10 @@ if it doesn't, the narrative is wrong, not this file.
 | RQ2a (continuous-share re-specification) | Where does H2's heterogeneity concentrate? | **EXPL** | No — motivated by inspecting H2's result |
 | RQ2b (serving-structure comparison) | Why might local business differ? | **EXPL** | No |
 | RQ2c (subgroup-dependence, formerly "H3") | Does H1c depend on local-business inclusion beyond sample-size effects? | **EXPL** | No |
+| M0 (pre-registered gate) | Does a customer-cluster-bootstrap-detectable gap change appear for two candidate strategies on two representative models? | **EXPL-M**, but internally pre-specified | Yes — strategies, models, and the gate rule were fixed before this diagnostic ran |
+| M1 (exploratory scan) | Across a wide strategy × model space, which combinations show an FDR-significant gap reduction without a large RMSE cost? | **EXPL-M** | No — post-hoc, high selection-bias risk, disclosed |
+| M2 (independent re-test design) | Does a model-class list chosen for theoretical representativeness, not scan performance, confirm any mitigation effect? | **EXPL-M**, but internally pre-specified | Yes — the four model classes and the Size-blind strategy were fixed before this bootstrap was re-run |
+| M3 (headline pattern) | Is mitigation effectiveness contingent on predictive-model flexibility? | **EXPL-M**, independently re-tested | No — an observation drawn from M2's results |
 
 ---
 
@@ -62,28 +71,24 @@ full mediation. Backed by 8 independent robustness methods.
 | Mean ad rank | Full (n=4,407) | +0.27 | [−0.42, 0.96] | .481 | 0.062 | ±0.943 |
 | Mean ad rank | Excl. spike (n=3,432) | +0.02 | [−0.79, 0.83] | .937 | 0.020 | ±0.943 |
 
-**Note:** the CPC (log) full-sample MDE (±0.684) is reused as the pre-specified SESOI for
-TOST equivalence testing referenced in the descoped Study 2 companion, to avoid selecting
-a post-hoc-favorable equivalence bound.
-
 ## 3. [CONF] H1c core-model influence diagnostic
 
-Customer-level regression (n=228; note: differs from the 263-customer sample above because
-this diagnostic uses the panel underlying the campaign-type composition analysis).
+Customer-level regression (n=228; differs from the 263-customer sample above because this
+diagnostic uses the panel underlying the campaign-type composition analysis).
 
 | Diagnostic | Result |
 |---|---|
 | DFBETA threshold (customer-level, 2/√228) | 0.1325 |
 | Customers exceeding threshold | 15 / 228 |
 | Are these 15 disproportionately local-business advertisers? | No (t-test on `share_6`, p=.53) |
-| Pre-specified exclusion rule 1 (thin-observation customers, n=0 excluded at this threshold) | β=−0.2525, p=.0618 |
+| Baseline (no exclusion) | β=−0.2525, p=.0618 |
+| Pre-specified exclusion rule 1 (thin-observation, n=0 excluded at this threshold) | β=−0.2525, p=.0618 |
 | Pre-specified exclusion rule 2 (match-rate<50%, n=100 excluded) | β=−0.2137, p=.2696 |
 | Pre-specified exclusion rule 3 (rules 1+2 combined, n=100 excluded) | β=−0.2137, p=.2696 |
-| Baseline (no exclusion) | β=−0.2525, p=.0618 |
 | **Configurations reaching significance** | **0 / 4 (100% consistency)** |
 
-**Verdict [CONF]:** confirmatory grade for H1c is maintained. See
-`docs/METHODOLOGY_NOTES.md` entry A4.
+**Verdict [CONF]:** confirmatory grade for H1c maintained. See `docs/METHODOLOGY_NOTES.md`
+entry A4.
 
 ## 4. [CONF] H2 — campaign-type heterogeneity (discrete definition, pre-specified)
 
@@ -94,9 +99,8 @@ this diagnostic uses the panel underlying the campaign-type composition analysis
 | Shopping (2) | 2,161 | 17 | +0.245 | .151 |
 | **Joint Wald test** | | | | **.023** |
 
-**Verdict [CONF]:** H1c's null is not perfectly homogeneous across ad-product categories,
-though no individual stratum is significant alone. This is the pre-specified result that,
-upon inspection, motivated RQ2a–RQ2c (root README §2, §6).
+**Verdict [CONF]:** the pre-specified result that, upon inspection, motivated RQ2a–RQ2c
+(root README §2, §6) and, one tier further downstream, M1–M3 (root README §16).
 
 ## 5. [EXPL] RQ2a — where does the heterogeneity concentrate? (continuous-share re-specification)
 
@@ -112,11 +116,8 @@ Customer-level panel, n=228, `campaign_type` shares as continuous covariates
 Joint Wald test (all 3 interaction terms): stat=19.69, df=3, **p=.0002**.
 
 **Verdict [EXPL]:** local business is the only term with majority robustness-method
-agreement (3/5) — the answer to "where." This was **not** the pre-specified H2 hypothesis
-(which concerned shopping campaigns, motivated by a product-feed-validation-pipeline
-hypothesis that did not pan out — shopping's own baseline p=.307). Treating local
-business's emergence as the concentration point is itself a post-hoc observation and is
-labeled as such throughout.
+agreement (3/5) — this was not the pre-specified H2 hypothesis (which concerned shopping,
+whose own baseline p=.307) and is a post-hoc observation.
 
 ## 6. [EXPL] RQ2b — why might local business differ? Serving-structure heterogeneity master table
 
@@ -125,15 +126,12 @@ labeled as such throughout.
 | Website | 8,086 | 96.8% | 2.77 | Auction-like |
 | Shopping | 1,025 | 0.7% | 1.89 | Non-auction-like |
 | Power content | 248 | 94.8% | 4.33 | Auction-like |
-| Brand/new product | 198 | 92.9% | — (insufficient bid-CPC pairs) | Auction-like |
+| Brand/new product | 198 | 92.9% | — | Auction-like |
 | **Local business** | **266** | **0.0%** | **0.76** | **Non-auction-like** |
 
-**Verdict [EXPL, structural fact, not inferential]:** local-business ad groups have zero
-matches in `keyword_dim`. This is a directly observed data-join fact, established by
-tracing campaign_dim → adgroup_dim → keyword_dim, not an inference. Ratios above 1 for
-other types (2.77, 4.33) reflect an aggregation-level mismatch between `bid_amount` and
-actual CPC and should not be read as literal overpayment multiples; only the qualitative
-below-1-vs-above-1 split is treated as informative.
+**Verdict [EXPL, structural fact]:** established by tracing campaign_dim → adgroup_dim →
+keyword_dim; ratios above 1 for other types are not literal overpayment multiples (see
+Figure 13 caption).
 
 ## 7. [EXPL] RQ2b (continued) — mechanism sub-chain statistical signatures
 
@@ -142,12 +140,11 @@ below-1-vs-above-1 split is treated as informative.
 | Variance heterogeneity (Brown-Forsythe, log CPC, local-biz vs. pooled-other) | stat=12.93, p=.0003 | **Yes** |
 | Relationship (b-path) heterogeneity (spend_z × is_localbiz) | β=+1.125, p=.001; joint Wald p=.0009 | **Yes** |
 | Leverage heterogeneity (hat-value, local-biz vs. other customers) | t=−1.18, p=.24 | **No** |
-| Counterfactual CPC gap (predicted from auction-type bid→CPC relationship vs. observed) | standardized gap = −0.49 SD, t=−4.75, p<.0001 | **Yes (small-to-moderate magnitude)** |
+| Counterfactual CPC gap | standardized gap = −0.49 SD, t=−4.75, p<.0001 | **Yes (small-to-moderate)** |
 
-**Verdict [EXPL, mixed]:** 3 of 4 tested links detected. This is reported as partial,
-mixed support for a mechanism-level explanation of H2's heterogeneity — explicitly **not**
-a confirmed causal chain (see `docs/METHODOLOGY_NOTES.md` entry B5, which retracts an
-earlier internal overstatement of this result).
+**Verdict [EXPL, mixed]:** 3 of 4 tested links detected; reported as partial, mixed support
+for a mechanism-level explanation, not a confirmed causal chain (`docs/METHODOLOGY_NOTES.md`
+entry B5).
 
 ## 8. [EXPL] RQ2c — does H1's conclusion depend on local-business inclusion? (formerly "H3")
 
@@ -158,14 +155,14 @@ earlier internal overstatement of this result).
 | Full sample | −0.2525 | .0618 | 228 |
 | Local-business-spending customers (n=72) excluded | −0.4991 | .0060 | 156 |
 
-### 8b. Placebo tests (was this just a sample-size effect?)
+### 8b. Placebo tests
 
 | Placebo type | % of draws matching or exceeding observed shift |
 |---|---|
 | Random exclusion (n=72, 2,000 draws) | 0.9% |
 | Size-distribution-matched exclusion (2,000 draws) | 0.4% |
 
-### 8c. Leave-one-campaign-type-out — INITIAL pass (uncorrected, unequal exclusion sizes)
+### 8c. Leave-one-campaign-type-out — INITIAL pass (uncorrected)
 
 | Excluded type | n excluded | n remaining | β after exclusion | \|β\| shift | Rank |
 |---|---|---|---|---|---|
@@ -174,89 +171,147 @@ earlier internal overstatement of this result).
 | Power content | 13 | 215 | −0.238 | −0.014 | 3rd |
 | Shopping | 24 | 204 | −0.192 | −0.061 | 4th |
 
-**This initial ranking placed local business 2nd, not 1st — a result that, taken at face
-value, did not support a local-business-specific story.**
-
 ### 8d. Leave-one-campaign-type-out — CORRECTED pass (exclusion-size-matched empirical p)
 
-Website's 26-customer remaining sample (95% CI width 1.62) is far less stable than the
-other three (CI widths 0.53–0.71; correlation between remaining-n and CI width = −0.98) and
-is excluded from ranking as unstable, not as favorable-to-report.
-
-| Excluded type (stable remainder only) | n excluded | n remaining | Empirical p (vs. own-size-matched random placebo) | Rank |
+| Excluded type (stable remainder only) | n excluded | n remaining | Empirical p | Rank |
 |---|---|---|---|---|
 | **Local business** | 72 | 156 | **1.0%** | **1st** |
 | Power content | 13 | 215 | 66.3% | 2nd |
 | Shopping | 24 | 204 | 91.7% | 3rd |
 
-### 8e. RQ2c verdict
-
-| Criterion | Met? |
-|---|---|
-| A. Random-placebo empirical p < 20% | Yes (0.9%) |
-| B. Size-matched-placebo empirical p < 20% | Yes (0.4%) |
-| C. Ranks 1st among *stable* leave-one-type-out comparisons (corrected) | Yes |
-| C (uncorrected, for disclosure) | **No — ranked 2nd** |
-
-**Verdict [EXPL, partially supported]:** 3/3 criteria met under the corrected comparison;
-the initial, uncorrected comparison did not support the local-business-specific story.
-Both are reported per `docs/METHODOLOGY_NOTES.md` entry B6. **This finding is not
-preregistered, is built on sub-clusters below the conventional cluster-count reliability
-threshold (G=13–72), and should not be cited at the confirmatory tier's confidence.**
+**Verdict [EXPL, partially supported]:** 3/3 criteria met under the corrected comparison
+only; both passes disclosed per `docs/METHODOLOGY_NOTES.md` entry B6.
 
 ## 9. [EXPL] RQ2b (continued) — alternative-explanation audits
 
 | Audit | Result |
 |---|---|
-| Is missingness explained by pure combinatorics (more ad groups → more chance of a miss)? | No — over-dispersion ratio 73×, goodness-of-fit χ²=16,583 (df=6, p<.0001). Residual account-level clustering present; cause unidentified. |
-| Is the local-business leverage effect driven by 1–2 extreme accounts? | No sign reversal across leave-k-out (k=1,3,5,10,15); pattern strengthens, not weakens, on removal. |
-| Was `size_z`/`n_ad_groups_total` "control" analysis valid? | **No — retracted.** They are the same variable (VIF=∞). See `docs/METHODOLOGY_NOTES.md` entry B3. |
-| Was the keyword-approval-pipeline hypothesis (parallel to shopping's) applicable to local business? | No — local-business ad groups have 0% keyword-dimension matches; the hypothesis does not apply to this subgroup by construction. Reported as a dead end, not silently dropped. |
+| Is missingness explained by pure combinatorics? | No — over-dispersion ratio 73×, χ²=16,583 (df=6, p<.0001) |
+| Is the local-business leverage effect driven by 1–2 extreme accounts? | No sign reversal across leave-k-out (k=1,3,5,10,15) |
+| Was `size_z`/`n_ad_groups_total` "control" analysis valid? | **No — retracted** (same variable, VIF=∞; entry B3) |
+| Was the keyword-approval-pipeline hypothesis applicable to local business? | No — 0% keyword-dimension matches; structural dead end |
 
-## 10. Research-wide multiplicity audit (supports root README §7)
+## 10. Research-wide multiplicity audit — H1/H2/RQ2a–c only (supports root README §7)
 
-All 25 officially-reported p-values across this repository's entire research program
-(excludes distribution-generating procedures: the 48-way specification curve, the 500-way
-split-sample replication).
+All 25 officially-reported p-values across the H1/H2/RQ2a–c research program. **The M1–M3
+mitigation extension (§§12–14 below) is not pooled into this table** — it maintains its
+own, separate multiplicity accounting (§13), because it was added in a later phase on a
+partially-overlapping but distinct set of models and outcome metrics (root README §7, §16).
 
 | Correction | Tests surviving | Which tests |
 |---|---|---|
 | Bonferroni (α=.05/25=.0020) | **0 / 25** | none |
 | Benjamini–Hochberg FDR | **3 / 25** | RQ2c size-matched-placebo empirical p (.004); RQ2a continuous-share_3 term (.0043); RQ2c full-vs-excluded H1c comparison (.006) — **all three are post-hoc exploratory results** |
 
-**Reading note:** H1c's null does not "survive" or "fail" this correction, because it was
-never claimed significant — the null is the finding. This table exists to prevent any
-post-hoc (RQ2a–RQ2c) result, however small its unadjusted p-value, from being read as if it
-carried the confirmatory tier's weight.
-
 ## 11. RDD & policy-change screening (supplementary, not adopted)
 
-See `supplementary_identification/SCREENING_SUMMARY.md` for full detail. Summary: 0/5 RDD
-candidates and 0/5 policy-change dates survive decisive re-analysis. Reported as null
-supplementary robustness consistent with, not required by, the H1c conclusion.
+See `supplementary_identification/SCREENING_SUMMARY.md`. Summary: 0/5 RDD candidates and
+0/5 policy-change dates survive decisive re-analysis. Reported as null supplementary
+robustness, not an adopted identification strategy.
+
+---
+
+## 12. [EXPL-M] M0 — pre-registered gate (root README §16.1)
+
+A narrower gate, fixed before any exploratory scan, tested whether two candidate strategies
+(Size-blind, Campaign-adaptive) produced a customer-cluster-bootstrap-detectable change in
+`gap_diff` relative to Baseline, on two models fixed in advance (OLS, HistGB-MAE).
+
+| Strategy | Model | 95% bootstrap CI on gap_diff | Gate triggered? |
+|---|---|---|---|
+| Size-blind | OLS | includes 0 | No |
+| Size-blind | HistGB (MAE loss) | includes 0 | No |
+| Campaign-adaptive | OLS | includes 0 | No |
+| Campaign-adaptive | HistGB (MAE loss) | includes 0 | No |
+
+**Verdict [pre-specified gate, did not trigger]:** per the rule fixed before this diagnostic
+ran, no algorithmic-mitigation claim is supported at this gate's evidentiary tier; the
+planned conditional mechanism analysis was correctly skipped, and everything from §13
+onward is disclosed as post-hoc exploration (Figure 18 — process diagram).
+
+## 13. [EXPL-M] M1 — exploratory scan across strategies and model specifications (root README §16.2)
+
+| Scan parameter | Value |
+|---|---|
+| Candidate strategies | up to 12 (Baseline; Size-blind; Spend-normalized; Campaign/Interaction-adaptive; Campaign-stratified; residualized and worst-group variants) |
+| Candidate models | 9 (OLS, Ridge, Lasso, ElasticNet, BayesianRidge, RandomForest, HistGB-squared, HistGB-MAE, SVR-RBF) |
+| Cross-validation | repeated 5-fold × 30-repetition customer-shuffle |
+| Total statistical tests (widest pass) | 728 |
+| Tests surviving Benjamini–Hochberg FDR | **463 / 728** |
+
+**Illustrative landscape points (Figure 17; four core strategies × 9 models shown; bubble =
+local-business gap, cut0.00):**
+
+| Strategy × model | RMSE | size_gap | localbiz_gap |
+|---|---|---|---|
+| Baseline × SVR-RBF | 1.3668 | 0.2984 | 0.1180 |
+| Size-blind × RandomForest | 1.1745 | 0.1295 | 0.0903 |
+| Size-blind × SVR-RBF | 1.2382 | 0.0989 | 0.0412 |
+
+**Winner's-curse check.** An independent bootstrap on the FDR-flagged candidates restricted
+to the two models with comparable earlier tooling (OLS, HistGB-squared) found: the OLS
+combination showed **no effect** (95% CI included 0), and the HistGB-squared combination
+was **reversed** (95% CI entirely positive — the gap widened, not narrowed) relative to
+what the FDR scan implied.
+
+**Verdict [EXPL-M, high selection-bias risk, disclosed]:** the 108-combination scan (the
+narrower pass reported in root README §16.2, a subset of the 728-test widest pass above) is
+retained as a map of the strategy-model landscape and a source of candidate hypotheses, but
+no individual FDR-significant cell is cited as evidence on its own. §14 below reports the
+one candidate (Size-blind, crossed with four pre-specified model classes) that received
+independent confirmation.
+
+## 14. [EXPL-M] M2/M3 — independent, pre-specified-model-class re-test (root README §16.3)
+
+Four model classes were pre-specified for **theoretical representativeness — not scan
+performance** — and crossed with a single strategy, Size-blind. Fresh customer-cluster
+bootstrap, 200 reps, evaluated against Baseline.
+
+| Model | Class | ΔRMSE [95% CI] | Δsize_gap [95% CI] | Δlocalbiz_gap [95% CI] | Verdict |
+|---|---|---|---|---|---|
+| OLS | Linear / unregularized | +0.010 [−0.006, +0.027] | −0.018 [−0.043, +0.009] | **+0.082 [+0.051, +0.114]** | No RMSE/size effect; significant **harm** on local-business gap |
+| HistGB (squared loss) | Gradient-boosted trees | +0.006 [−0.012, +0.024] | +0.004 [−0.021, +0.030] | **+0.031 [+0.008, +0.055]** | No RMSE/size effect; significant **harm** on local-business gap |
+| RandomForest | Bagged tree ensemble | **−0.074 [−0.096, −0.052]** | **−0.167 [−0.201, −0.134]** | **+0.028 [+0.006, +0.051]** | Significant **improvement** on RMSE/size; significant, smaller **harm** on local-business gap |
+| SVR-RBF | Kernel machine | **−0.129 [−0.151, −0.107]** | **−0.200 [−0.231, −0.168]** | **−0.077 [−0.094, −0.059]** | Significant **improvement** on all three metrics simultaneously |
+
+**Headline pattern (M3):** mitigation effectiveness of the Size-blind strategy is
+contingent on, and roughly monotonic in, predictive-model flexibility. Linear and
+boosted-tree specifications show no accuracy or size-parity benefit and a statistically
+detectable *increase* in the local-business gap. RandomForest recovers accuracy and
+size-parity gains but not local-business parity. Only SVR-RBF achieves a statistically
+detectable, simultaneous improvement across all three tracked metrics (Figure 16).
+
+**Verdict [EXPL-M, independently re-tested]:** the one finding in the M-series that has
+survived a model-class selection made *before*, not after, seeing which cell performed best
+in M1's scan — reported at higher confidence than M1's raw scan results, but below §5–§9's
+confirmatory and exploratory tiers (root README §16.6 logs the outstanding validation debt:
+Spend-normalized/Campaign-adaptive not yet re-tested at this tier; no SHAP/partial-
+dependence mechanism check yet run; cut0.00 only, no cutoff-sensitivity check; no
+independent-sample replication).
 
 ---
 
 ## Evidence-summary table (matches root README §9)
 
-| | H1 / H2 (Confirmatory) | RQ2a–RQ2c (Post-hoc exploratory) |
-|---|---|---|
-| **Evidence grade** | **Confirmatory** | **Exploratory** |
-| Robustness convergence | 8/8 independent methods null for H1 (incl. new core-influence check, §3 above); H2 joint test significant | RQ2b: 3/4 mechanism-chain links; 1 methodological reversal disclosed (RQ2c, §8) |
-| Survives research-wide multiplicity audit (§10) | Not applicable (H1's null was never significant) | Partially (FDR only) |
-| Cluster sizes | n=228–263 (customer-level, stable) | G≈13–72 per sub-cluster (below rule-of-thumb G≥42 for several) |
-| Correct citation form | "no confirmed direct algorithmic advantage of size on this platform, and that non-relationship is not uniform across campaign types" | "patterns consistent with, but not establishing, conditional serving-structure effects concentrated in local-business campaigns" |
+| | H1 / H2 (Confirmatory) | RQ2a–RQ2c (Post-hoc exploratory) | M1–M3 (Post-hoc, further exploratory) |
+|---|---|---|---|
+| **Evidence grade** | **Confirmatory** | **Exploratory** | **Exploratory, independently re-tested for one candidate only** |
+| Robustness convergence | 8/8 independent methods null for H1; H2 joint test significant | RQ2b: 3/4 mechanism-chain links; 1 methodological reversal disclosed (RQ2c) | M0 gate did not trigger; M1's own top scan candidate reversed under independent bootstrap; M2/M3's four-model-class re-test is the one confirmed pattern |
+| Survives own multiplicity audit | Not applicable (H1's null was never significant) | Partially (FDR only; §10) | 463/728 survive FDR in the raw scan (§13), but this is explicitly not treated as evidence on its own — see winner's-curse disclosure |
+| Cluster/replicate sizes | n=228–263 (customer-level) | G≈13–72 per sub-cluster | n=228-customer panel bootstrapped 200 reps; no independent sample used |
+| Correct citation form | "no confirmed direct algorithmic advantage of size, not uniform across campaign types" | "patterns consistent with, but not establishing, conditional serving-structure effects concentrated in local-business campaigns" | "among four pre-specified model classes, mitigation of the documented disparity is contingent on model flexibility; only the most flexible specification tested closes all three tracked gaps simultaneously" |
 
-**Combined takeaway.** The confirmatory questions (does size buy a direct advantage? is
-that answer uniform across campaign types?) return a clean, 8-way-robust null with
-confirmed heterogeneity, unchanged by a newly-added core-model influence check. The
-post-hoc questions (where does that heterogeneity concentrate, why might it arise, and
-does it matter for H1's headline conclusion?) surface a partially supported,
-explicitly-flagged, non-preregistered explanation involving local-business serving
-structure — including one internal reversal that is disclosed rather than hidden (RQ2c),
-and a research-wide multiplicity audit showing that almost none of this repository's
-statistics, pooled, survive conservative correction. Read against root README §3 (SSI
-framework) and §10 (boundary conditions): advertiser size exhibits structural signal
-irrelevance on this platform at the confirmatory tier; whether and how that irrelevance
-varies by serving mechanism is an open, exploratory question for future preregistered
-work (`FUTURE_RESEARCH_STUDY3.md`).
+**Combined takeaway.** The confirmatory questions return a clean, 8-way-robust null with
+confirmed heterogeneity. The post-hoc exploratory questions (RQ2a–RQ2c) surface a
+partially supported, non-preregistered explanation involving local-business serving
+structure. A further, later-added post-hoc extension (M1–M3) then asks whether that
+disparity can be reduced algorithmically: a pre-registered gate found no detectable effect
+for two candidate strategies on two representative models; a disclosed exploratory scan
+across a much wider space flagged candidates that did not survive an independent
+winner's-curse check for two of the models tested; and a separate, independent,
+pre-specified-model-class re-test found that the Size-blind strategy's mitigation benefit
+scales with predictive-model flexibility, with only a kernel-based specification (SVR-RBF)
+closing all three tracked gaps simultaneously. None of this changes the H1/H2/RQ2a–c
+conclusions above it; it is a downstream question about what to do given those
+conclusions, reported at its own, still more provisional, evidentiary tier throughout
+(root README §16.4–§16.6).
