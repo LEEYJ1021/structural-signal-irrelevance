@@ -39,6 +39,8 @@ if it doesn't, the narrative is wrong, not this file.
 | M1 (exploratory scan) | Across a wide strategy × model space, which combinations show an FDR-significant gap reduction without a large RMSE cost? | **EXPL-M** | No — post-hoc, high selection-bias risk, disclosed |
 | M2 (independent re-test design) | Does a model-class list chosen for theoretical representativeness, not scan performance, confirm any mitigation effect? | **EXPL-M**, but internally pre-specified | Yes — the four model classes and the Size-blind strategy were fixed before this bootstrap was re-run |
 | M3 (headline pattern) | Is mitigation effectiveness contingent on predictive-model flexibility? | **EXPL-M**, independently re-tested | No — an observation drawn from M2's results |
+| M4 (Campaign-stratified re-test) | Does the campaign-type-stratified strategy improve RMSE/size_gap/localbiz_gap when independently re-tested with M2/M3's protocol? | **EXPL-M**, internally pre-specified | Yes — same 4 model classes as M2, pre-specified for Size-blind, applied to a second strategy |
+| M5 (numerical-stability diagnostic) | Does OLS×stratified remain reliable after near-constant-column removal? | **EXPL-M** | No — safeguard added reactively after discovering instability; disclosed as B11 |
 
 ---
 
@@ -291,6 +293,33 @@ independent-sample replication).
 
 ---
 
+## 15. [EXPL-M] M4 — Campaign-stratified(S9) independent re-test (root README §16.3.1)
+
+| Model | Class | ΔRMSE 95% CI | Δsize_gap 95% CI | Δlocalbiz_gap 95% CI |
+|---|---|---|---|---|
+| OLS | Linear | [−0.234, 2.940] | [−0.446, 3.685] | [−0.303, 3.760] |
+| HistGB | Boosting | [−0.177, 0.238] | [−0.502, 0.339] | [−0.272, 0.457] |
+| RandomForest | Bagging | [−0.233, 0.247] | [−0.591, 0.480] | [−0.293, 0.409] |
+| SVR-RBF | Kernel | [−0.215, 0.366] | [−0.819, 0.707] | [−0.380, 0.470] |
+
+**Verdict:** 0/4 ALL_THREE_IMPROVED. The reference combined strategy (S9_plus_S1) shows the
+same result — full figures are in `rq3_confirm_v2_verdict_patched.csv`.
+
+## 16. [EXPL-M] M5 — Numerical stability diagnostic (root README §16.3.1, entry B11)
+
+| Strategy | Model | tail_ratio (worst metric) | median-direction (localbiz_gap) |
+|---|---|---|---|
+| S9_Campaign_stratified | OLS | 11.7 | Worsening direction (IQR entirely positive) |
+| S9_plus_S1 | OLS | 9.3 | Worsening direction (IQR entirely positive) |
+| (the other 10 combinations) | — | < 3 (stable) | Unclear (IQR includes 0) |
+
+**Verdict:** Right-tail instability was confirmed only in the two OLS × stratified
+combinations. On a median basis, the worsening of the local-business gap reproduces in the
+same direction as Size-blind × OLS (§14, M2/M3) — suggesting this may not be coincidence
+but a characteristic of the linear-model structure itself.
+
+---
+
 ## Evidence-summary table (matches root README §9)
 
 | | H1 / H2 (Confirmatory) | RQ2a–RQ2c (Post-hoc exploratory) | M1–M3 (Post-hoc, further exploratory) |
@@ -300,6 +329,7 @@ independent-sample replication).
 | Survives own multiplicity audit | Not applicable (H1's null was never significant) | Partially (FDR only; §10) | 463/728 survive FDR in the raw scan (§13), but this is explicitly not treated as evidence on its own — see winner's-curse disclosure |
 | Cluster/replicate sizes | n=228–263 (customer-level) | G≈13–72 per sub-cluster | n=228-customer panel bootstrapped 200 reps; no independent sample used |
 | Correct citation form | "no confirmed direct algorithmic advantage of size, not uniform across campaign types" | "patterns consistent with, but not establishing, conditional serving-structure effects concentrated in local-business campaigns" | "among four pre-specified model classes, mitigation of the documented disparity is contingent on model flexibility; only the most flexible specification tested closes all three tracked gaps simultaneously" |
+| Campaign-stratified re-test | | | 0/4 improved; OLS uniquely worsens localbiz_gap (median-confirmed) — same-direction pattern as Size-blind×OLS |
 
 **Combined takeaway.** The confirmatory questions return a clean, 8-way-robust null with
 confirmed heterogeneity. The post-hoc exploratory questions (RQ2a–RQ2c) surface a
