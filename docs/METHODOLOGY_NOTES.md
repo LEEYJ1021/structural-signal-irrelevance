@@ -344,6 +344,50 @@ other three candidate strategies from the scan have not received the same treatm
 this is a process discipline entry — analogous to B1 for RQ2a–RQ2c but applied within a
 single, narrower exploratory scan rather than across a whole research-question family]`
 
+### B10. Campaign-stratified (S9) was independently re-tested with the same rigor as M2/M3 — filling an outstanding item from §16.6
+
+**Assumed:** The M2/M3 four-model-class re-test had only been applied to Size-blind,
+leaving this as outstanding debt in §16.6.
+
+**Contradicted by:** The comparison requested in advisory feedback was "pooled model vs. a
+model that distinguishes campaign type" — this actually corresponds to Campaign-stratified,
+not Size-blind. The question M2/M3 had answered and the comparison now being requested
+turned out to test two different interventions.
+
+**Changed:** Campaign-stratified was independently re-tested using the same four model
+classes and 200-rep bootstrap (§16.3.1). Result: 0/4 combinations showed simultaneous
+improvement across all three metrics. For OLS, the local-business gap worsened
+significantly on a median basis — suggesting that the same-direction pattern seen for
+Size-blind × OLS/HistGB (§16.3) recurs regardless of intervention approach.
+
+`[affects: README §16.3.1 (new), §16.4, §16.5, §16.6, §12, §13, §14]`
+
+### B11. An in-sample prediction bug and OLS numerical instability were discovered and fixed sequentially during the Campaign-stratified re-test
+
+**Assumed:** The initial version of the re-test script used in-sample prediction within
+each bootstrap sample (predicting directly on the training data).
+
+**Contradicted by:** This approach differs from M2/M3's OOF methodology, and, particularly
+for Campaign-stratified — which splits the sample by group — the overfitting caused by the
+resulting sample shrinkage produced an artifact that looked like a "performance
+improvement." This showed up in the initial run as an unnatural pattern in which every
+model class improved uniformly. After correcting to OOF, a separate problem was found in
+which only the two OLS × stratified combinations had CI upper bounds 10–40× wider than
+the other combinations — presumed to be caused by the other campaign-share columns within
+the local-business subgroup becoming nearly constant, making the OLS design matrix
+near-singular.
+
+**Changed:** (1) Fully corrected to OOF cross-validation. (2) Added a safeguard that
+removes near-constant columns (based on each fold's training data) from both train and
+test sets (removal log: `rq3_confirm_v2_dropped_columns_log_patch.csv`) — this shrank the
+CI upper bound from 25 to 3.9. (3) Even so, residual right-tail instability (tail_ratio
+7–12×) remained in the two OLS × stratified combinations, so median/IQR is reported
+alongside the mean-based 95% CI for these two cells only — explicitly disclosed as a
+departure from M2/M3's original reporting convention.
+
+`[affects: README §16.3.1, §16.6, §12, §13, §14 — a methodological incident record; a
+procedural-safeguard entry of the same kind as B2 and B9]`
+
 ---
 
 ## Part C — Cross-cutting pivot: from single-narrative to explicitly-audited multiplicity
@@ -391,7 +435,10 @@ section, before circulation, rather than as a later correction. One entry (B9) d
 procedural safeguard — an independent, pre-specified re-test — adopted specifically because
 an FDR-based selection from a wide exploratory scan was not trusted at face value, and
 because that distrust was directly validated by a bootstrap check that reversed two of the
-scan's own flagged candidates.
+scan's own flagged candidates. Two further entries (B10, B11) extend the same re-test
+protocol to a second candidate strategy (Campaign-stratified) and disclose a numerical-
+stability issue discovered while doing so, following the same "log it, don't quietly fix
+it" discipline established by B2 and B9.
 
 The practice this log is meant to model: every point where a prior choice was found
 wanting was logged, not quietly revised — including, and especially, the points where the
