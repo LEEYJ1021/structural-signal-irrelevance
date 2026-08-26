@@ -429,9 +429,9 @@ brand/new-product campaigns:
 <a id="figure-13"></a>
 ![Figure 13 — Serving-structure heterogeneity by campaign type](figures/Figure13_serving_structure.png)
 *Figure 13 [POST-HOC / EXPLORATORY, structural fact] — Panel A: keyword-auction matching
-rate by campaign type. 웹사이트(website, 96.8%), 파워컨텐츠(power content, 94.8%), and
-브랜드/신제품(brand/new product, 92.9%) are matched in `keyword_dim` well above the 5%
-threshold; 쇼핑(shopping, 0.7%) and especially 지역소상공인(local business, 0.0%) are not.
+rate by campaign type. Website (96.8%), power content (94.8%), and brand/new product
+(92.9%) are matched in `keyword_dim` well above the 5% threshold; shopping (0.7%) and
+especially local business (0.0%) are not.
 Panel B: the median ratio of actual CPC to bid amount is far from 1 for every category,
 but local business (0.76) and shopping (1.89) are flagged as structurally decoupled from
 bid price in a qualitatively different way than the auction-like categories — see the
@@ -547,10 +547,10 @@ p-value in the H1/H2/RQ2a–c research program (n=25), sorted by significance, a
 Bonferroni threshold (dashed, p<.0020 — 0/25 survive) and the rank-dependent BH-FDR
 threshold (dotted, 3/25 survive). All three survivors (colored by test family in the
 legend) are Level-2 / RQ2c-family exploratory results, not confirmatory ones. The legend
-retains legacy internal test-family labels ("H1c(6셀)", "H2(joint+3항)", "H3",
-"RDD(5후보)", "정책변화(5후보)", "키워드심사(exploratory)") mapped in
-`appendix/hypothesis_id_legacy_mapping.md`. The M-series (§16) is deliberately **not**
-pooled into this figure — see the note below.*
+retains legacy internal test-family labels ("H1c (6-cell)", "H2 (joint + 3-term)", "H3",
+"RDD (5-candidate)", "policy-change (5-candidate)", "keyword-approval (exploratory)")
+mapped in `appendix/hypothesis_id_legacy_mapping.md`. The M-series (§16) is deliberately
+**not** pooled into this figure — see the note below.*
 
 | Correction | Tests surviving | Which tests |
 |---|---|---|
@@ -713,6 +713,8 @@ entries:
 | B7 | RQ2a–RQ2c naming | "H3" retracted; replaced with RQ2a/RQ2b/RQ2c |
 | B8 | M1–M3 naming | Legacy pipeline label pre-emptively avoided before drafting, to prevent collision with Figure 4's unrelated pipeline-stage label |
 | B9 | M1 → M2/M3 | FDR-flagged scan winner treated as hypothesis-generating rather than conclusive; confirmed instead via an independent, pre-specified re-test |
+| B10 | M-series (Campaign-stratified) | Campaign-stratified independently re-tested with the same M2/M3 protocol; 0/4 improved, OLS uniquely worsens localbiz_gap |
+| B11 | M-series (numerical stability) | In-sample→OOF correction + near-constant-column safeguard for OLS×stratified; residual instability required median/IQR reporting |
 | C1 | Cross-cutting | Research-wide multiplicity audit (§7) added after individual-family corrections proved insufficient in aggregate |
 
 ---
@@ -741,8 +743,9 @@ All figures live as standalone PNGs in [`figures/`](figures/).
 | 16 | Mitigation effect by model flexibility | §16.3 | Post-hoc, further exploratory |
 | 17 | Strategy × model landscape | §16.2 | Post-hoc, further exploratory |
 | 18 | Mitigation study evidentiary process | §16 | Post-hoc, further exploratory (methods diagram) |
+| 19 | Campaign-stratified model-class bootstrap (vs Size-blind) | §16.3.1 | Post-hoc, further exploratory |
 
-Figures 1, 2, 3, 7, 8, 13, 16, 17, and 18 are embedded in the body above; Figure 14 is
+Figures 1, 2, 3, 7, 8, 13, 16, 17, 18, and 19 are embedded in the body above; Figure 14 is
 embedded in §7 as the calibration device the whole README depends on; Figures 4, 11, 12,
 and 15 are in [Appendix A](#appendix-a--supplementary-figures); Figures 5, 6, 9, and 10
 belong to the descoped Study 2 companion and are named, not shown, in
@@ -791,7 +794,12 @@ structural-signal-irrelevance/
 │   ├── mitigation_common.py
 │   ├── step_m0_pregate.py
 │   ├── step_m1_exploratory_scan.py
-│   └── step_m2_m3_model_class_bootstrap.py
+│   ├── step_m2_m3_model_class_bootstrap.py
+│   └── campaign_stratified_confirm/
+│       ├── rq3_confirm_v2_campaign_stratified_full.py
+│       ├── rq3_confirm_v2_patch_ols_stratified.py
+│       ├── rq3_confirm_v2_robust_summary_postprocess.py
+│       └── README.md   (entry B10/B11 summary + run order)
 ├── research_wide_audit/
 │   ├── README.md
 │   └── research_wide_audit_core.py
@@ -814,6 +822,7 @@ structural-signal-irrelevance/
 │   ├── Figure16_mitigation_model_class_bootstrap.png
 │   ├── Figure17_strategy_model_landscape.png
 │   ├── Figure18_mitigation_evidentiary_process.png
+│   ├── Figure19_campaign_stratified_model_class_bootstrap.png
 │   └── scripts/
 │       └── figureN_*.py   (one generation script per figure)
 ├── appendix/
@@ -859,6 +868,8 @@ than any legacy pipeline label, consistent with `docs/METHODOLOGY_NOTES.md` entr
    `python figures/scripts/figure16_mitigation_model_class_bootstrap.py` from the
    repository root). Figures with Korean-language labels (Figure 13, Figure 14 legend)
    require a Hangul-capable font (e.g., `apt-get install fonts-nanum`).
+8. Run the three scripts in `campaign_stratified_confirm/` in order (full → patch →
+   robust_summary_postprocess) to reproduce §16.3.1 and Figure 19.
 
 ---
 
@@ -972,6 +983,48 @@ survived a model-class selection made *before*, not after, seeing which cell per
 best in M1's scan — reported at higher confidence than M1's raw scan results, but below
 §5–§6's confirmatory and exploratory tiers.
 
+### 16.3.1 M2/M3 extended — Campaign-stratified (S9) independent re-test
+
+This section fills the outstanding debt noted in the original §16.6 — "Campaign-adaptive
+strategy has not received the same independent, pre-specified-model-class re-test given
+to Size-blind." The comparison requested in advisory feedback ("pooled model vs. a model
+that distinguishes campaign type") actually corresponds not to Size-blind but to
+Campaign-stratified (S9), so S9 was independently re-tested using exactly the same
+protocol as M2/M3 (four model classes, customer-level 5-fold OOF, 200-rep
+customer-cluster bootstrap). For reference, the combined strategy with Size-blind
+(S9+S1 — a combination absent from the §16.2 scan, so this re-test is the sole evidence
+source for it) is also included.
+
+| Model | Class | ΔRMSE 95% CI | Δsize_gap 95% CI | Δlocalbiz_gap 95% CI | Verdict |
+|---|---|---|---|---|---|
+| OLS | Linear/unregularized | [−0.234, 2.940]* | [−0.446, 3.685]* | [−0.303, 3.760]* | NO_EFFECT (mean-based CI); local-business gap **worsens** on a median basis — entry B11 |
+| HistGB | Gradient-boosted trees | [−0.177, 0.238] | [−0.502, 0.339] | [−0.272, 0.457] | NO_EFFECT |
+| RandomForest | Bagged trees | [−0.233, 0.247] | [−0.591, 0.480] | [−0.293, 0.409] | NO_EFFECT |
+| SVR-RBF | Kernel machine | [−0.215, 0.366] | [−0.819, 0.707] | [−0.380, 0.470] | NO_EFFECT |
+
+*Even after removing near-constant columns, the OLS row's right tail remains unstable
+(tail_ratio 7–12×), so median/IQR should be considered alongside the mean-based CI — see
+entry B11. On a median basis, the local-business gap worsens significantly, in the same
+direction as the pattern already observed for Size-blind × OLS/HistGB (§16.3).
+
+**Headline:** Campaign-stratified fails to significantly improve all three metrics —
+RMSE, size_gap, and localbiz_gap — simultaneously in any model class (0/4). This is
+consistent with Campaign-adaptive never triggering the M0 gate in the first place. Taken
+together with Size-blind, the new finding this re-test adds is that **regardless of
+intervention approach (removing the variable vs. stratifying by type), linear models tend
+to worsen the local-business gap** — a pattern that recurs across both interventions.
+
+See `docs/RESULTS_SUMMARY.md` §§15–16 for the full statistical tables. Reproduction
+scripts are in `supplementary_mitigation_study/campaign_stratified_confirm/`.
+
+<a id="figure-19"></a>
+![Figure 19 — Campaign-stratified model-class bootstrap (vs Size-blind)](figures/Figure19_campaign_stratified_model_class_bootstrap.png)
+*Figure 19 [POST-HOC / FURTHER EXPLORATORY] — ΔRMSE, Δsize_gap, and Δlocalbiz_gap
+(Campaign-stratified minus Baseline) across the same four pre-specified model classes as
+Figure 16. OLS is plotted as median/IQR (orange diamond) rather than mean/95% CI, per the
+right-tail instability flag documented in entry B11; the other three model classes are
+plotted as mean/95% CI (green circle), matching Figure 16's convention.*
+
 ### 16.4 M-series evidence summary
 
 | | M0 (gate) | M1 (scan) | M2/M3 (re-test) |
@@ -979,6 +1032,7 @@ best in M1's scan — reported at higher confidence than M1's raw scan results, 
 | Pre-specified? | Yes | No | Model classes: yes; which cell would confirm: no |
 | Result | Did not trigger | 463/728 survive FDR, but the 2 candidates checked independently were not confirmed | Size-blind × SVR-RBF confirms on all 3 metrics; OLS/HistGB widen the local-business gap; RandomForest is mixed |
 | Evidentiary weight | Establishes that the scan (M1) was necessary rather than skippable | Landscape / hypothesis-generation only | The one confirmed M-series pattern, at exploratory-tier confidence |
+| Campaign-stratified re-test (§16.3.1) | N/A | N/A | 0/4 improved; OLS uniquely worsens localbiz_gap (median-confirmed) |
 
 ### 16.5 Relationship to the SSI boundary-condition framework
 
@@ -992,13 +1046,25 @@ condition (P6) anywhere in this repository; it is flagged here as a candidate di
 for `FUTURE_RESEARCH_STUDY3.md`, not as a finding this repository claims to have
 established.
 
+The finding in §16.3.1 suggests that this pattern is not confined to Size-blind alone,
+but may reflect a more general regularity across two distinct interventions (variable
+removal and type-stratification): **lower model flexibility is associated with worse
+local-business fairness**. This has not been elevated to P6, but is noted, together with
+§16.3.1, as a pre-registration candidate for `FUTURE_RESEARCH_STUDY3.md`.
+
 ### 16.6 Outstanding validation debt
 
 - The full 108-combination distribution (§16.2) has not yet been reported alongside the
   M2/M3 re-test for direct visual comparison beyond Figure 17.
-- The other three candidate strategies from the M1 scan (Spend-normalized,
-  Campaign-adaptive, and the residualized/worst-group variants) have not received the
-  same independent, pre-specified-model-class re-test given to Size-blind.
+- Campaign-stratified has completed re-testing (§16.3.1, entry B10). The Spend-normalized
+  and worst-group variants remain untested.
+- Numerical instability caused by near-constant columns was found in the OLS × subgroup
+  combination, prompting a switch to robust median/IQR reporting (entry B11). Whether the
+  cause is the absence of regularization itself or the linear-model structure has not yet
+  been disentangled by comparison with a (weakly regularized) Ridge version — a candidate
+  for the next step.
+- S9_plus_S1 (the combined strategy) was not part of the M1 scan, so it should not be
+  adopted on the strength of this single re-test result alone.
 - No SHAP or partial-dependence mechanism check has been run to explain *why* SVR-RBF in
   particular achieves simultaneous improvement.
 - The mitigation cutoff evaluated throughout is `cut0.00` only; no cutoff-sensitivity
