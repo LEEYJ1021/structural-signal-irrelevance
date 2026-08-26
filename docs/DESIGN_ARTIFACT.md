@@ -34,7 +34,9 @@ documented in the root [`README.md`](../README.md):
   (M0), a disclosed exploratory scan (M1), and an independent, pre-specified-model-class
   re-test (M2/M3). See `docs/METHODOLOGY_NOTES.md`, entries B8 and B9, for why this
   extension's own internal naming was fixed before drafting, rather than corrected
-  afterward as RQ2a–RQ2c's naming was.
+  afterward as RQ2a–RQ2c's naming was. The M-series was later extended to include the
+  Campaign-stratified strategy under the same protocol (entries B10/B11) — this extension
+  is likewise unrelated to the flagging rule.
 
 None of H1, H2, RQ2a–RQ2c, or M1–M3 makes use of, or depends on, the ad-group
 early-warning flagging rule described in this stub. The flagging rule is scoped entirely to
